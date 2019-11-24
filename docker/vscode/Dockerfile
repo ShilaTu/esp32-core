@@ -1,4 +1,5 @@
-FROM esp32:qemu
+ARG qemu_commit
+FROM lifesensor/qemu:${qemu_commit}
 
 RUN sudo apt-get -y install libx11-xcb1 libasound2
 RUN \
@@ -10,5 +11,5 @@ RUN \
     sudo apt-get update && \
     sudo apt-get -y install code
 
-RUN echo "[ -n "$START_VSCODE" ] && code /mnt" >> .bashrc
+RUN echo "code /mnt &" >> .bashrc
 RUN LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 code -w --install-extension platformio.platformio-ide

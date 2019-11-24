@@ -1,19 +1,21 @@
-FROM esp32:platformio
+ARG platformio_version
+FROM lifesensor/platformio:${platformio_version}
 
-RUN \
-    curl -L http://ftp.gnome.org/pub/gnome/sources/glib/2.48/glib-2.48.0.tar.xz | unxz | sudo tar -xC /opt && \
-    cd /opt/glib-2.48.0/ && \
-    sudo ./configure && \
-    sudo make -j4 && \
-    sudo make install
+RUN sudo apt-get -y install zlib1g-dev pkg-config libffi-dev gettext libxml2-dev libcairo2-dev libreadline-dev libglib2.0-dev libgsl-dev bison flex
 
-RUN \
-    sudo git clone https://github.com/espressif/qemu.git /opt/qemu && \
-    cd /opt/qemu && \
-    sudo git checkout esp-develop && \
-    sudo mkdir build && \
-    cd build && \
-    sudo ../configure \
+RUN curl -L http://ftp.gnome.org/pub/gnome/sources/glib/2.48/glib-2.48.0.tar.xz | unxz | sudo tar -xC /opt
+WORKDIR /opt/glib-2.48.0/
+RUN sudo ./configure
+RUN sudo make -j4
+RUN sudo make install
+
+RUN sudo git clone https://github.com/espressif/qemu.git /opt/qemu
+WORKDIR /opt/qemu
+ARG qemu_commit
+RUN sudo git checkout ${qemu_commit}
+RUN sudo mkdir build
+WORKDIR  build
+RUN sudo ../configure \
         --target-list=xtensa-softmmu \
         --enable-debug \
         --enable-sanitizers \
@@ -22,6 +24,8 @@ RUN \
         --disable-capstone \
         --disable-vnc \
         --disable-sdl \
-        --disable-gtk && \
-    sudo make -j4 && \
-    sudo make install
+        --disable-gtk
+RUN sudo make -j4
+RUN sudo make install
+
+WORKDIR /home/developer
