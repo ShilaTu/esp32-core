@@ -77,6 +77,7 @@ pio platformio: | docker-platformio check-docker
 		-v $(shell pwd)/..:/mnt:rw \
 		-w /mnt \
 		--name platformio \
+		--hostname platformio \
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
 		bash
 	docker start -ai platformio
@@ -88,6 +89,7 @@ qemu: | docker-qemu check-docker
 		-v $(shell pwd)/..:/mnt:rw \
 		-w /mnt \
 		--name qemu\
+		--hostname qemu \
 		lifesensor/qemu:$(QEMU_COMMIT) \
 		bash
 	docker start -ai qemu
@@ -104,6 +106,7 @@ code vscode: | docker-vscode check-docker
 		-w /mnt \
 		--shm-size=512m \
 		--name vscode \
+		--hostname vscode \
 		lifesensor/vscode:latest \
 		bash
 	docker start -ai vscode
