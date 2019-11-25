@@ -176,7 +176,7 @@ check-docker-installed: | ./.check-docker-installed
 ./.check-docker-installed:
 	@if which docker > /dev/null 2>&1; \
 	then \
-		touch $@
+		touch $@; \
 	else \
 		( \
 		echo "########################################"; \
@@ -283,7 +283,7 @@ check-docker-group: | ./.check-docker-group
 ./.check-docker-group:
 	@if groups | grep -q docker; \
 	then \
-		touch $@
+		touch $@; \
 	else \
 		( \
 		echo "##############################################"; \
