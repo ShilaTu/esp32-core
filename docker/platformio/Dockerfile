@@ -10,6 +10,7 @@ WORKDIR /home/developer
 USER developer
 ENV LC_ALL=C.UTF-8 LANG=C.UTF-8 
 ENV PATH="${PATH}:/home/developer/.local/bin"
+ENV PATH="${PATH}:/home/developer/.platformio/packages/toolchain-xtensa32/bin/"
 
 ARG platformio_version
 RUN pip3 install --no-cache --upgrade pip setuptools wheel platformio==${platformio_version}
