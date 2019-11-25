@@ -137,21 +137,19 @@ distclean: clean distclean-docker
 
 .PHONY: clean-docker
 distclean-docker: distclean-docker-platformio distclean-docker-qemu distclean-docker-vscode
+	docker image prune
 
 .PHONY: clean-docker-platformio
 distclean-docker-platformio: check-docker
 	-docker image remove "lifesensor/platformio:$(PLATFORMIO_VERSION)"
-	docker image prune
 	
 .PHONY: clean-docker-qemu
 distclean-docker-qemu: check-docker
-	-docker image remove "lifesensor/qemu:latest"
-	docker image prune
+	-docker image remove "lifesensor/qemu:$(QEMU_COMMIT)"
 
 .PHONY: clean-docker-vscode
 distclean-docker-vscode: check-docker
 	-docker image remove "lifesensor/vscode:latest"
-	docker image prune
 
 .PHONY: clean-check
 clean-check: clean-check-docker
