@@ -1,5 +1,6 @@
 PLATFORMIO_VERSION?=4.1.0
 QEMU_COMMIT?=esp-develop
+DEV=$(shell dmesg | awk '/cp210x/ && /ttyUSB/ { print $$NF }')
 
 .PHONY: default
 default: check docker-platformio docker-qemu
@@ -23,6 +24,8 @@ help:
 	@echo "make platformio        | starts bash in platformio container"
 	@echo "make qemu              | starts bash in qemu container"
 	@echo "make vscode            | starts bash&vscode in vscode container"
+	@echo "make flash             | starts clean build and upload proccess"
+	@echo "make monitor           | starts minicom serial console"
 	@echo
 	@echo "--- variables ---"
 	@echo "PLATFORMIO_VERSION     | which platformio version to use (currently '$(PLATFORMIO_VERSION)')"
@@ -44,6 +47,29 @@ platformio/Dockerfile.log: platformio/Dockerfile | check-docker
 		platformio 2>&1 \
 	| tee -a $@.part
 	mv $@.part $@
+
+.PHONY: flash
+flash:
+	docker run --rm -ti \
+		--device /dev/${DEV} \
+		--volume "$(shell pwd)/..":/mnt:rw \
+		-w /mnt \
+		--name flash \
+		lifesensor/platformio:$(PLATFORMIO_VERSION) \
+		/bin/sh -c \
+		"pio run -t clean; pio run -t upload; /bin/bash"
+
+.PHONY: monitor
+monitor:
+	docker run --rm -ti \
+		--device /dev/${DEV} \
+		--volume "$(shell pwd)/..":/mnt:rw \
+		--name monitor \
+		lifesensor/platformio:$(PLATFORMIO_VERSION) \
+		/bin/sh -c \
+		"python3 \
+		/home/developer/.platformio/packages/framework-espidf/tools/idf_monitor.py \
+		/mnt/.pio/build/pico32/firmware.elf"
 
 .PHONY: docker-qemu
 docker-qemu: qemu/Dockerfile.log
