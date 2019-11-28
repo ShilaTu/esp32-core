@@ -49,8 +49,8 @@ platformio/Dockerfile.log: platformio/Dockerfile | check-docker
 	| tee -a $@.part
 	mv $@.part $@
 
-.PHONY: pio-flash pio-upload
-pio-flash pio-upload:
+.PHONY: pio-flash pio-upload platformio-flash platformio-upload
+pio-flash pio-upload platformio-flash platformio-upload: | docker-platformio check-docker
 	docker run --rm -ti \
 		--device "${DEV}" \
 		--volume "$(shell pwd)/..":/mnt:rw \
@@ -58,10 +58,10 @@ pio-flash pio-upload:
 		--name flash \
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
 		/bin/sh -c \
-		"pio run -t upload"
+		"pio run --upload-port '$(DEV)' -t upload"
 
-.PHONY: pio-monitor
-pio-monitor:
+.PHONY: pio-monitor platformio-monitor
+pio-monitor platformio-monitor: | docker-platformio check-docker
 	docker run --rm -ti \
 		--device "${DEV}" \
 		--volume "$(shell pwd)/..":/mnt:rw \
@@ -72,8 +72,8 @@ pio-monitor:
 		/home/developer/.platformio/packages/framework-espidf/tools/idf_monitor.py \
 		/mnt/.pio/build/pico32/firmware.elf --port ${DEV}"
 
-.PHONY: pio-clean
-pio-clean:
+.PHONY: pio-clean platformio-clean
+pio-clean platformio-clean: | docker-platformio check-docker
 	docker run --rm -ti \
 		--device "${DEV}" \
 		--volume "$(shell pwd)/..":/mnt:rw \
