@@ -1,6 +1,6 @@
 PLATFORMIO_VERSION?=4.1.0
 QEMU_COMMIT?=esp-develop
-DEV=$(shell dmesg | awk '/cp210x/ && /ttyUSB/ { print $$NF }')
+DEV?=/dev/ttyUSB0
 
 .PHONY: default
 default: check docker-platformio docker-qemu
@@ -24,8 +24,9 @@ help:
 	@echo "make platformio        | starts bash in platformio container"
 	@echo "make qemu              | starts bash in qemu container"
 	@echo "make vscode            | starts bash&vscode in vscode container"
-	@echo "make flash             | starts clean build and upload proccess"
-	@echo "make monitor           | starts minicom serial console"
+	@echo "make pio-flash         | starts build and upload proccess"
+	@echo "make pio-monitor       | starts minicom serial console"
+	@echo "make pio-clean         | remove pio build files"
 	@echo
 	@echo "--- variables ---"
 	@echo "PLATFORMIO_VERSION     | which platformio version to use (currently '$(PLATFORMIO_VERSION)')"
@@ -48,28 +49,39 @@ platformio/Dockerfile.log: platformio/Dockerfile | check-docker
 	| tee -a $@.part
 	mv $@.part $@
 
-.PHONY: flash
-flash:
+.PHONY: pio-flash pio-upload
+pio-flash pio-upload:
 	docker run --rm -ti \
-		--device /dev/${DEV} \
+		--device "${DEV}" \
 		--volume "$(shell pwd)/..":/mnt:rw \
 		-w /mnt \
 		--name flash \
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
 		/bin/sh -c \
-		"pio run -t clean; pio run -t upload; /bin/bash"
+		"pio run -t upload"
 
-.PHONY: monitor
-monitor:
+.PHONY: pio-monitor
+pio-monitor:
 	docker run --rm -ti \
-		--device /dev/${DEV} \
+		--device "${DEV}" \
 		--volume "$(shell pwd)/..":/mnt:rw \
 		--name monitor \
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
 		/bin/sh -c \
 		"python3 \
 		/home/developer/.platformio/packages/framework-espidf/tools/idf_monitor.py \
-		/mnt/.pio/build/pico32/firmware.elf"
+		/mnt/.pio/build/pico32/firmware.elf --port ${DEV}"
+
+.PHONY: pio-clean
+pio-clean:
+	docker run --rm -ti \
+		--device "${DEV}" \
+		--volume "$(shell pwd)/..":/mnt:rw \
+		-w /mnt \
+		--name clean \
+		lifesensor/platformio:$(PLATFORMIO_VERSION) \
+		/bin/sh -c \
+		"pio run -t clean"
 
 .PHONY: docker-qemu
 docker-qemu: qemu/Dockerfile.log
