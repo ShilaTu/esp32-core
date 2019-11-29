@@ -31,6 +31,7 @@ help:
 	@echo "--- variables ---"
 	@echo "PLATFORMIO_VERSION     | which platformio version to use (currently '$(PLATFORMIO_VERSION)')"
 	@echo "QEMU_COMMIT            | which qemu commitish to checkout (currently '$(QEMU_COMMIT)')"
+	@echo "DEV                    | which device to use for flashing/monitoring (currently '$(DEV)'"
 
 .PHONY: all
 all: check docker-platformio docker-qemu docker-vscode
