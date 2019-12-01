@@ -1,46 +1,74 @@
+VARIABLE += PLATFORMIO_VERSION
+HELP_PLATFORMIO_VERSION = which platformio version to use
 PLATFORMIO_VERSION?=4.1.0
+
+VARIABLE += QEMU_COMMIT
+HELP_QEMU_COMMIT = which qemu commit to checkout
 QEMU_COMMIT?=esp-develop
+
+VARIABLE += DEV
+HELP_DEV = which device to map into container
 DEV?=/dev/ttyUSB0
+
+VARIABLE += EXEC
+HELP_EXEC = what to execute in the container
 EXEC?=bash
 
-.PHONY: default
-default: check docker-platformio docker-qemu
+.DEFAULT_GOAL=default
 
 .PHONY: help
 help:
-	@echo "--- standard targets ---"
-	@echo "make help              | shows this help"
-	@echo "make default           | builds platformio,qemu container"
-	@echo "make all               | builds all docker containers (platformio,qemu,vscode)"
-	@echo "make check             | checks the setup"
-	@echo "make clean             | removes containers and checks"
-	@echo "make distclean         | removes all generated files"
-	@echo
-	@echo "--- docker build targets ---"
-	@echo "make docker-platformio | builds platformio container"
-	@echo "make docker-qemu       | builds qemu container"
-	@echo "make docker-vscode     | builds vscode container"
-	@echo
-	@echo "--- docker start targets ---"
-	@echo "make platformio        | starts bash in platformio container"
-	@echo "make qemu              | starts bash in qemu container"
-	@echo "make vscode            | starts bash&vscode in vscode container"
-	@echo "make pio-flash         | starts build and upload proccess"
-	@echo "make pio-monitor       | starts minicom serial console"
-	@echo "make pio-clean         | remove pio build files"
-	@echo
-	@echo "--- variables ---"
-	@echo "PLATFORMIO_VERSION     | which platformio version to use (currently '$(PLATFORMIO_VERSION)')"
-	@echo "QEMU_COMMIT            | which qemu commitish to checkout (currently '$(QEMU_COMMIT)')"
-	@echo "DEV                    | which device to use for flashing/monitoring (currently '$(DEV)'"
-	@echo "EXEC                   | whhat to execute inside the container (currently '$(EXEC)'"
+	@echo "--- help ---"
+	@echo "make"
+	@echo -e "\t$(HELP_$(.DEFAULT_GOAL))"
+	@$(foreach \
+		target, \
+		$(TARGET), \
+		echo "make $(target)"; \
+		[ -n "$(HELP_$(target))" ] && echo -e "\t$(HELP_$(target))"; \
+	)
+	@$(foreach \
+		target, \
+		$(TARGET), \
+		[ -n "$(TARGET_$(target))" ] && echo -e "\n--- $(target) sub targets ---"  || true; \
+		$(foreach \
+			subtarget, \
+			$(TARGET_$(target)), \
+				echo "make $(subtarget)"; \
+				[ -n "$(HELP_$(subtarget))" ] && echo -e "\t$(HELP_$(subtarget))" || true; \
+		) \
+	)
+	@[ -n "$(VARIABLE)" ] && echo -e "\n--- VARIABLES ---"  || true;
+	@$(foreach \
+		variable, \
+		$(VARIABLE), \
+		echo "$(variable)"; \
+		[ -n "$(HELP_$(variable))" ] && echo -e "\t$(HELP_$(variable))" || true; \
+		echo -e "\t(currently: $($(variable)))"; \
+	)
 
+TARGET += default
+HELP_default = checks docker, builds platformio/qemu docker image
+.PHONY: default
+default: check docker-platformio docker-qemu
+
+TARGET += all
+HELP_all = checks docker and build all containers
 .PHONY: all
-all: check docker-platformio docker-qemu docker-vscode
+all: check docker
 
+TARGET += check
+HELP_check = checks if docker is installed
 .PHONY: check
 check: check-docker
 
+TARGET += docker
+HELP_docker = build all docker containers
+.PHONY: docker
+docker: docker-platformio docker-qemu docker-vscode
+
+TARGET_docker += docker-platformio
+HELP_docker-platformio = builds docker platformio image
 .PHONY: docker-platformio
 docker-platformio: platformio/Dockerfile.log
 
@@ -52,40 +80,8 @@ platformio/Dockerfile.log: platformio/Dockerfile | check-docker
 	| tee -a $@.part
 	mv $@.part $@
 
-.PHONY: pio-flash pio-upload platformio-flash platformio-upload
-pio-flash pio-upload platformio-flash platformio-upload: | docker-platformio check-docker
-	docker run --rm -ti \
-		--device "${DEV}" \
-		--volume "$(shell pwd)/..":/mnt:rw \
-		-w /mnt \
-		--name flash \
-		lifesensor/platformio:$(PLATFORMIO_VERSION) \
-		/bin/sh -c \
-		"pio run --upload-port '$(DEV)' -t upload"
-
-.PHONY: pio-monitor platformio-monitor
-pio-monitor platformio-monitor: | docker-platformio check-docker
-	docker run --rm -ti \
-		--device "${DEV}" \
-		--volume "$(shell pwd)/..":/mnt:rw \
-		--name monitor \
-		lifesensor/platformio:$(PLATFORMIO_VERSION) \
-		/bin/sh -c \
-		"python3 \
-		/home/developer/.platformio/packages/framework-espidf/tools/idf_monitor.py \
-		/mnt/.pio/build/pico32/firmware.elf --port ${DEV}"
-
-.PHONY: pio-clean platformio-clean
-pio-clean platformio-clean: | docker-platformio check-docker
-	docker run --rm -ti \
-		--device "${DEV}" \
-		--volume "$(shell pwd)/..":/mnt:rw \
-		-w /mnt \
-		--name clean \
-		lifesensor/platformio:$(PLATFORMIO_VERSION) \
-		/bin/sh -c \
-		"pio run -t clean"
-
+TARGET_docker += docker-qemu
+HELP_docker-qemu = buils docker qemu image
 .PHONY: docker-qemu
 docker-qemu: qemu/Dockerfile.log
 
@@ -98,6 +94,8 @@ qemu/Dockerfile.log: qemu/Dockerfile | docker-platformio check-docker
 	| tee -a $@.part
 	mv $@.part $@
 
+TARGET_docker += docker-vscode
+HELP_docker-vscode = buils docker vscode image
 .PHONY: docker-vscode
 docker-vscode: vscode/Dockerfile.log
 
@@ -110,7 +108,10 @@ vscode/Dockerfile.log: vscode/Dockerfile | docker-qemu check-docker
 	| tee -a $@.part
 	mv $@.part $@
 		
-
+TARGET += pio 
+HELP_pio = runs platformio container
+TARGET += platformio 
+HELP_platformio = runs platformio container
 .PHONY: pio platformio
 pio platformio: | docker-platformio check-docker
 	docker run \
@@ -123,6 +124,8 @@ pio platformio: | docker-platformio check-docker
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
 		/bin/sh -c 'exec $(EXEC)'
 
+TARGET += qemu
+HELP_qemu = runs qemu container
 .PHONY: qemu
 qemu: | docker-qemu check-docker
 	docker run \
@@ -135,7 +138,11 @@ qemu: | docker-qemu check-docker
 		lifesensor/qemu:$(QEMU_COMMIT) \
 		/bin/sh -c 'exec $(EXEC)'
 
-.PHONY: vscode
+TARGET += vscode
+HELP_vscode = runs vscode container
+TARGET += code
+HELP_code = runs vscode container
+.PHONY: code vscode
 code vscode: | docker-vscode check-docker
 	xhost local:root
 	docker run \
@@ -152,27 +159,35 @@ code vscode: | docker-vscode check-docker
 		lifesensor/vscode:latest \
 		/bin/sh -c 'exec $(EXEC)'
 
+TARGET += clean
+HELP_clean = cleans docker volumes
 .PHONY: clean
-clean: clean-docker clean-check
+clean: clean-docker
 
 .PHONY: clean-docker
 clean-docker: clean-docker-platformio clean-docker-qemu clean-docker-vscode
 
+TARGET_clean += clean-docker-platformio
+HELP_clean-docker-platformio = removes platformio volume
 .PHONY: clean-docker-platformio
 clean-docker-platformio:
 	rm -f platformio/Dockerfile.log
 	-docker volume rm pio-home
 
+TARGET_clean += clean-docker-qemu
+HELP_clean-docker-qemu = removes qemu volume
 .PHONY: clean-docker-qemu
 clean-docker-qemu:
-	rm -f qemu/Dockerfile.log
 	-docker volume rm qemu-home
 
+TARGET_clean += clean-docker-vscode
+HELP_clean-docker-vscode = removes vscode volume
 .PHONY: clean-docker-vscode
 clean-docker-vscode:
-	rm -f vscode/Dockerfile.log
 	-docker volume rm vscode-home
 
+TARGET += distclean
+HELP_distclean = removes all generated files by docker
 .PHONY: distclean
 distclean: clean distclean-check distclean-docker
 
@@ -180,22 +195,33 @@ distclean: clean distclean-check distclean-docker
 distclean-docker: clean-docker distclean-docker-platformio distclean-docker-qemu distclean-docker-vscode
 	-docker image prune
 
+TARGET_distclean += distclean-docker-platformio
+HELP_distclean-docker-platformio = removes platformio docker image
 .PHONY: distclean-docker-platformio
 distclean-docker-platformio: clean-docker-platformio
+	rm -f platformio/Dockerfile.log
 	-docker image remove "lifesensor/platformio:$(PLATFORMIO_VERSION)"
 	
+TARGET_distclean += distclean-docker-qemu
+HELP_distclean-docker-qemu = removes qemu docker image
 .PHONY: distclean-docker-qemu
 distclean-docker-qemu: clean-docker-qemu
+	rm -f qemu/Dockerfile.log
 	-docker image remove "lifesensor/qemu:$(QEMU_COMMIT)"
 
+TARGET_distclean += distclean-docker-vscode
+HELP_distclean-docker-vscode = removes vscode docker image
 .PHONY: distclean-docker-vscode
 distclean-docker-vscode: clean-docker-vscode
+	rm -f vscode/Dockerfile.log
 	-docker image remove "lifesensor/vscode:latest"
 
 .PHONY: clean-check
 clean-check:
 	@true
 
+TARGET_distclean += distclean-check
+HELP_distclean-check = removes check result if docker is installed
 .PHONY: distclean-check
 distclean-check: distclean-check-docker
 
