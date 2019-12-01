@@ -3,7 +3,10 @@ FROM ubuntu:18.04
 RUN apt-get update
 RUN apt-get -y install python3 python3-pip git sudo
 
-RUN useradd -ms /bin/bash developer
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g $GID -o developer
+RUN useradd -m -u $UID -g $GID -s /bin/bash developer
 RUN echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 WORKDIR /home/developer
