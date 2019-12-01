@@ -88,7 +88,7 @@ HELP_docker-qemu = buils docker qemu image
 .PHONY: docker-qemu
 docker-qemu: qemu/Dockerfile.log
 
-qemu/Dockerfile.log: qemu/Dockerfile | docker-platformio check-docker
+qemu/Dockerfile.log: qemu/Dockerfile docker-platformio | check-docker
 	docker build \
 		--build-arg=platformio_version=$(PLATFORMIO_VERSION) \
 		--build-arg=qemu_commit=$(QEMU_COMMIT) \
@@ -102,7 +102,7 @@ HELP_docker-vscode = buils docker vscode image
 .PHONY: docker-vscode
 docker-vscode: vscode/Dockerfile.log
 
-vscode/Dockerfile.log: vscode/Dockerfile | docker-qemu check-docker
+vscode/Dockerfile.log: vscode/Dockerfile docker-qemu | check-docker
 	docker build \
 		--build-arg=platformio_version=$(PLATFORMIO_VERSION) \
 		--build-arg=qemu_commit=$(QEMU_COMMIT) \
