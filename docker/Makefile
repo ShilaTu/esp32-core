@@ -14,6 +14,14 @@ ifneq ("$(DEV)","none")
 DOCKER_DEV=--device $(DEV)
 endif
 
+VARIABLE += UID
+HELP_UID = user id of user inside of container
+UID?=$(shell id -u)
+
+VARIABLE += GID
+HELP_GID = group id of user inside of container
+GID?=$(shell id -g)
+
 VARIABLE += EXEC
 HELP_EXEC = what to execute in the container
 EXEC?=bash
@@ -78,6 +86,8 @@ docker-platformio: platformio/Dockerfile.log
 platformio/Dockerfile.log: platformio/Dockerfile | check-docker
 	docker build \
 		--build-arg=platformio_version=$(PLATFORMIO_VERSION) \
+		--build-arg=UID=$(UID) \
+		--build-arg=GID=$(GID) \
 		-t "lifesensor/platformio:$(PLATFORMIO_VERSION)" \
 		platformio 2>&1 \
 	| tee -a $@.part
