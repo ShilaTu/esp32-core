@@ -161,17 +161,17 @@ clean-docker: clean-docker-platformio clean-docker-qemu clean-docker-vscode
 .PHONY: clean-docker-platformio
 clean-docker-platformio:
 	rm -f platformio/Dockerfile.log
-	-docker container rm platformio
+	-docker volume rm pio-home
 
 .PHONY: clean-docker-qemu
 clean-docker-qemu:
 	rm -f qemu/Dockerfile.log
-	-docker container rm qemu
+	-docker volume rm qemu-home
 
 .PHONY: clean-docker-vscode
 clean-docker-vscode:
 	rm -f vscode/Dockerfile.log
-	-docker container rm vscode
+	-docker volume rm vscode-home
 
 .PHONY: distclean
 distclean: clean distclean-check distclean-docker
