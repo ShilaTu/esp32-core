@@ -8,7 +8,11 @@ QEMU_COMMIT?=esp-develop
 
 VARIABLE += DEV
 HELP_DEV = which device to map into container
-DEV?=/dev/ttyUSB0
+DEV?=none
+
+ifneq ("$(DEV)","none")
+DOCKER_DEV=--device $(DEV)
+endif
 
 VARIABLE += EXEC
 HELP_EXEC = what to execute in the container
@@ -116,6 +120,7 @@ pio platformio: | docker-platformio check-docker
 	docker run \
 		--rm \
 		-ti \
+		$(DOCKER_DEV) \
 		-v pio-home:/home/developer:rw \
 		-v $(shell pwd)/..:/mnt:rw \
 		-w /mnt \
@@ -128,8 +133,9 @@ HELP_qemu = runs qemu container
 .PHONY: qemu
 qemu: | docker-qemu check-docker
 	docker run \
-	 --rm \
+	 	--rm \
 		-ti \
+		$(DOCKER_DEV) \
 		-v qemu-home:/home/developer:rw \
 		-v $(shell pwd)/..:/mnt:rw \
 		-w /mnt \
@@ -147,6 +153,7 @@ code vscode: | docker-vscode check-docker
 	docker run \
 		--rm \
 		-ti \
+		$(DOCKER_DEV) \
 		-v vscode-home:/home/developer:rw \
 		-v /tmp/.X11-unix/:/tmp/.X11-unix \
 		-e DISPLAY=$(DISPLAY) \
