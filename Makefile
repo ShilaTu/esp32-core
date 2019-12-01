@@ -9,8 +9,7 @@ DEV?=none
 .PHONY: help
 help:
 	@echo "--- help ---"
-	@echo "make"
-	@echo -e "\t$(HELP_$(.DEFAULT_GOAL))"
+	@[ -n "$(HELP_$(.DEFAULT_GOAL))" ] && echo -e "make\n\t$(HELP_$(.DEFAULT_GOAL))" || true;
 	@$(foreach \
 		target, \
 		$(TARGET), \
@@ -82,7 +81,7 @@ clean-build:
 
 .PHONY: distclean-build
 distclean-build: clean-build
-	@make --no-print-directory -C docker distclean
+	rm -rf .pio
 
 ### flash targets ###
 
