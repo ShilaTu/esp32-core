@@ -1,6 +1,7 @@
 PLATFORMIO_VERSION?=4.1.0
 QEMU_COMMIT?=esp-develop
 DEV?=/dev/ttyUSB0
+EXEC?=bash
 
 .PHONY: default
 default: check docker-platformio docker-qemu
@@ -32,6 +33,7 @@ help:
 	@echo "PLATFORMIO_VERSION     | which platformio version to use (currently '$(PLATFORMIO_VERSION)')"
 	@echo "QEMU_COMMIT            | which qemu commitish to checkout (currently '$(QEMU_COMMIT)')"
 	@echo "DEV                    | which device to use for flashing/monitoring (currently '$(DEV)'"
+	@echo "EXEC                   | whhat to execute inside the container (currently '$(EXEC)'"
 
 .PHONY: all
 all: check docker-platformio docker-qemu docker-vscode
@@ -111,44 +113,44 @@ vscode/Dockerfile.log: vscode/Dockerfile | docker-qemu check-docker
 
 .PHONY: pio platformio
 pio platformio: | docker-platformio check-docker
-	-docker create \
+	docker run \
+		--rm \
 		-ti \
+		-v pio-home:/home/developer:rw \
 		-v $(shell pwd)/..:/mnt:rw \
 		-w /mnt \
-		--name platformio \
 		--hostname platformio \
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
-		bash
-	docker start -ai platformio
+		/bin/sh -c 'exec $(EXEC)'
 
 .PHONY: qemu
 qemu: | docker-qemu check-docker
-	-docker create \
+	docker run \
+	 --rm \
 		-ti \
+		-v qemu-home:/home/developer:rw \
 		-v $(shell pwd)/..:/mnt:rw \
 		-w /mnt \
-		--name qemu\
 		--hostname qemu \
 		lifesensor/qemu:$(QEMU_COMMIT) \
-		bash
-	docker start -ai qemu
+		/bin/sh -c 'exec $(EXEC)'
 
 .PHONY: vscode
 code vscode: | docker-vscode check-docker
 	xhost local:root
-	-docker create \
+	docker run \
+		--rm \
 		-ti \
+		-v vscode-home:/home/developer:rw \
 		-v /tmp/.X11-unix/:/tmp/.X11-unix \
 		-e DISPLAY=$(DISPLAY) \
 		-e LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 \
 		-v $(shell pwd)/..:/mnt:rw \
 		-w /mnt \
 		--shm-size=512m \
-		--name vscode \
 		--hostname vscode \
 		lifesensor/vscode:latest \
-		bash
-	docker start -ai vscode
+		/bin/sh -c 'exec $(EXEC)'
 
 .PHONY: clean
 clean: clean-docker clean-check
