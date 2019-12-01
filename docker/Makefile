@@ -26,6 +26,9 @@ VARIABLE += EXEC
 HELP_EXEC = what to execute in the container
 EXEC?=bash
 
+VARIABLE += DOCKEROPTS
+HELP_DOCKEROPTS = additional docker options
+
 .DEFAULT_GOAL=default
 
 .PHONY: help
@@ -55,7 +58,7 @@ help:
 		$(VARIABLE), \
 		echo "$(variable)"; \
 		[ -n "$(HELP_$(variable))" ] && echo -e "\t$(HELP_$(variable))" || true; \
-		echo -e "\t(currently: $($(variable)))"; \
+		echo -e "\t(currently: '$($(variable))')"; \
 	)
 
 TARGET += default
@@ -135,6 +138,7 @@ pio platformio: | docker-platformio check-docker
 		-v $(shell pwd)/..:/mnt:rw \
 		-w /mnt \
 		--hostname platformio \
+		$(DOCKEROPTS) \
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
 		/bin/sh -c '$(EXEC)'
 
@@ -150,6 +154,7 @@ qemu: | docker-qemu check-docker
 		-v $(shell pwd)/..:/mnt:rw \
 		-w /mnt \
 		--hostname qemu \
+		$(DOCKEROPTS) \
 		lifesensor/qemu:$(QEMU_COMMIT) \
 		/bin/sh -c '$(EXEC)'
 
@@ -172,6 +177,7 @@ code vscode: | docker-vscode check-docker
 		-w /mnt \
 		--shm-size=512m \
 		--hostname vscode \
+		$(DOCKEROPTS) \
 		lifesensor/vscode:latest \
 		/bin/sh -c '$(EXEC)'
 
