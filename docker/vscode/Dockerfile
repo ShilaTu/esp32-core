@@ -11,5 +11,11 @@ RUN \
     sudo apt-get update && \
     sudo apt-get -y install code
 
-RUN echo "code /mnt &" >> .bashrc
+RUN echo "code /mnt &" >> /home/developer/.bashrc
 RUN LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 code -w --install-extension platformio.platformio-ide
+RUN \
+echo '{ \
+    "telemetry.enableCrashReporter": false, \
+    "telemetry.enableTelemetry": false, \
+    "update.mode": "none" \
+}' > /home/developer/.config/Code/User/settings.json
