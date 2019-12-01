@@ -126,7 +126,7 @@ pio platformio: | docker-platformio check-docker
 		-w /mnt \
 		--hostname platformio \
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
-		/bin/sh -c 'exec $(EXEC)'
+		/bin/sh -c '$(EXEC)'
 
 TARGET += qemu
 HELP_qemu = runs qemu container
@@ -141,7 +141,7 @@ qemu: | docker-qemu check-docker
 		-w /mnt \
 		--hostname qemu \
 		lifesensor/qemu:$(QEMU_COMMIT) \
-		/bin/sh -c 'exec $(EXEC)'
+		/bin/sh -c '$(EXEC)'
 
 TARGET += vscode
 HELP_vscode = runs vscode container
@@ -163,7 +163,7 @@ code vscode: | docker-vscode check-docker
 		--shm-size=512m \
 		--hostname vscode \
 		lifesensor/vscode:latest \
-		/bin/sh -c 'exec $(EXEC)'
+		/bin/sh -c '$(EXEC)'
 
 TARGET += clean
 HELP_clean = cleans docker volumes
