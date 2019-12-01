@@ -12,4 +12,4 @@ jobs:
     - name: build image
       run: make -C docker docker-platformio
     - name: build
-      run: make -C docker pio DOCKEROPTS=--tty=no EXEC="pio run"
+      run: make -C docker pio DOCKEROPTS=--tty=false EXEC="pio run"
