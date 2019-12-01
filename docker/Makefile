@@ -19,13 +19,12 @@ EXEC?=bash
 .PHONY: help
 help:
 	@echo "--- help ---"
-	@echo "make"
-	@echo -e "\t$(HELP_$(.DEFAULT_GOAL))"
+	@[ -n "$(HELP_$(.DEFAULT_GOAL))" ] && echo -e "make\n\t$(HELP_$(.DEFAULT_GOAL))" || true;
 	@$(foreach \
 		target, \
 		$(TARGET), \
 		echo "make $(target)"; \
-		[ -n "$(HELP_$(target))" ] && echo -e "\t$(HELP_$(target))"; \
+		[ -n "$(HELP_$(target))" ] && echo -e "\t$(HELP_$(target)) || true"; \
 	)
 	@$(foreach \
 		target, \
