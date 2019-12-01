@@ -91,7 +91,7 @@ HELP_flash = flashes project to esp
 flash: | check-flash
 	@make --no-print-directory -C docker \
 		pio \
-		EXEC="pio run --upload-port '$(DEV)' -t upload" DEV="$(DEV)"
+		EXEC="sudo chgrp developer $(DEV); pio run --upload-port '$(DEV)' -t upload" DEV="$(DEV)"
 
 .PHONY: check-flash
 check-flash: | check-docker check-dev
