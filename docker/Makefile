@@ -174,36 +174,40 @@ clean-docker-vscode:
 	-docker container rm vscode
 
 .PHONY: distclean
-distclean: clean distclean-docker
+distclean: clean distclean-check distclean-docker
 
-.PHONY: clean-docker
-distclean-docker: distclean-docker-platformio distclean-docker-qemu distclean-docker-vscode
-	docker image prune
+.PHONY: distclean-docker
+distclean-docker: clean-docker distclean-docker-platformio distclean-docker-qemu distclean-docker-vscode
+	-docker image prune
 
-.PHONY: clean-docker-platformio
-distclean-docker-platformio: check-docker
+.PHONY: distclean-docker-platformio
+distclean-docker-platformio: clean-docker-platformio
 	-docker image remove "lifesensor/platformio:$(PLATFORMIO_VERSION)"
 	
-.PHONY: clean-docker-qemu
-distclean-docker-qemu: check-docker
+.PHONY: distclean-docker-qemu
+distclean-docker-qemu: clean-docker-qemu
 	-docker image remove "lifesensor/qemu:$(QEMU_COMMIT)"
 
-.PHONY: clean-docker-vscode
-distclean-docker-vscode: check-docker
+.PHONY: distclean-docker-vscode
+distclean-docker-vscode: clean-docker-vscode
 	-docker image remove "lifesensor/vscode:latest"
 
 .PHONY: clean-check
-clean-check: clean-check-docker
+clean-check:
+	@true
 
-.PHONY: clean-check-docker
-clean-check-docker: clean-check-docker-installed clean-check-docker-group
+.PHONY: distclean-check
+distclean-check: distclean-check-docker
 
-.PHONY: clean-check-docker-installed
-clean-check-docker-installed:
+.PHONY: distclean-check-docker
+distclean-check-docker: distclean-check-docker-installed distclean-check-docker-group
+
+.PHONY: distclean-check-docker-installed
+distclean-check-docker-installed:
 	rm -f .check-docker-installed
 
-.PHONY: clean-check-docker-group
-clean-check-docker-group:
+.PHONY: distclean-check-docker-group
+distclean-check-docker-group:
 	rm -f .check-docker-group
 
 .PHONY: check-docker
