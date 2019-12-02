@@ -111,9 +111,12 @@ HELP_monitor = connects to esp32 via serial
 .PHONY: monitor
 monitor: | check-monitor
 	@make --no-print-directory -C docker \
-		pio EXEC="python3 \
-			/home/developer/.platformio/packages/framework-espidf/tools/idf_monitor.py \
-			/mnt/.pio/build/pico32/firmware.elf --port ${DEV}"
+		pio \
+		EXEC="sudo chgrp developer $(DEV); \
+			python3 \
+				/home/developer/.platformio/packages/framework-espidf/tools/idf_monitor.py \
+				/mnt/.pio/build/pico32/firmware.elf \
+				--port $(DEV)"
 
 TARGET_monitor += check-monitor
 HELP_check-monitor = checks if monitor is usable
