@@ -86,7 +86,7 @@ distclean-build: clean-build
 ### flash targets ###
 
 TARGET += flash
-HELP_flash = flashes project to esp
+HELP_flash = flashes project to esp. Use DEV=path to provide  path to device or use make dev
 .PHONY: flash
 flash: | check-flash
 	@make --no-print-directory -C docker \
