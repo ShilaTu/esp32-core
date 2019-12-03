@@ -116,7 +116,8 @@ monitor: | check-monitor
 			python3 \
 				/home/developer/.platformio/packages/framework-espidf/tools/idf_monitor.py \
 				/mnt/.pio/build/pico32/firmware.elf \
-				--port $(DEV)"
+				--port $(DEV)" \
+		DEV=$(DEV)
 
 TARGET_monitor += check-monitor
 HELP_check-monitor = checks if monitor is usable
