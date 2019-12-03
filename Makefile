@@ -107,7 +107,7 @@ distclean-flash: clean-flash
 ### monitor targets ###
 
 TARGET += monitor
-HELP_monitor = connects to esp32 via serial
+HELP_monitor = connects to esp32 via serial. Use DEV=path to provide path to device or use make dev
 .PHONY: monitor
 monitor: | check-monitor
 	@make --no-print-directory -C docker \
