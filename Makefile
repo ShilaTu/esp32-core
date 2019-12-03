@@ -1,6 +1,7 @@
 
 VARIABLE+=DEV
 HELP_DEV=which device to flash/monitor
+$(shell [ -f .dev ] && ((cat .dev; echo -e "all:\n\t@true") | make -f - 2>/dev/null ) || (echo ".dev config file contains errors and will be removed" >&2 ; rm -f .dev ) )
 -include .dev
 DEV?=none
 
@@ -142,9 +143,10 @@ dev:
 	(for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
 	| dialog \
 		--stdout \
-		--menu "choose which device to flash" 0 0 0 \
+		--menu "choose which device to use" 0 0 0 "none" "disable device passthrough"\
 		--file /dev/stdin \
 	>> ./.dev
+	echo >> ./.dev
 	clear
 
 TARGET_dev += check-dev
