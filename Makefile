@@ -144,6 +144,7 @@ dev:
 		--menu "choose which device to flash" 0 0 0 \
 		--file /dev/stdin \
 	>> ./.dev
+	clear
 
 TARGET_dev += check-dev
 HELP_check-dev = checks if device is specified
