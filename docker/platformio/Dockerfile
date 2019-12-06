@@ -17,4 +17,4 @@ ENV PATH="${PATH}:/home/developer/.platformio/packages/toolchain-xtensa32/bin/"
 
 ARG platformio_version
 RUN pip3 install --no-cache --upgrade pip setuptools wheel platformio==${platformio_version}
-RUN pio platform install espressif32@1.11.1 --with-package framework-espidf
+RUN pio platform install espressif32 --with-package framework-espidf
