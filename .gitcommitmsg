@@ -1,0 +1,12 @@
+#please uncomment at least one of these scopes
+#makefile:fix
+#makefile:feature
+#docker:fix
+#docker:feature
+#pio:fix
+#pio:feature
+#esp32:fix
+#esp32:feature
+#ulp:fix
+#ulp:feature
+

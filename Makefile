@@ -1,6 +1,7 @@
 
 VARIABLE+=DEV
 HELP_DEV=which device to flash/monitor
+$(shell [ -f .dev ] && ((cat .dev; echo -e "all:\n\t@true") | make -f - 2>/dev/null ) || (echo ".dev config file contains errors and will be removed" >&2 ; rm -f .dev ) )
 -include .dev
 DEV?=none
 
@@ -46,6 +47,11 @@ TARGET += all
 HELP_all = builds, flashes and starts monitor
 .PHONY: all
 all: build flash monitor
+
+TARGET += setup
+HELP_setup = sets up project environment
+.PHONY: setup
+setup: setup-git
 
 TARGET += check
 HELP_check = checks if everything is correctly setup
@@ -142,9 +148,10 @@ dev:
 	(for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
 	| dialog \
 		--stdout \
-		--menu "choose which device to flash" 0 0 0 \
+		--menu "choose which device to use" 0 0 0 "none" "disable device passthrough"\
 		--file /dev/stdin \
 	>> ./.dev
+	echo >> ./.dev
 	clear
 
 TARGET_dev += check-dev
@@ -185,3 +192,10 @@ HELP_check-docker = checks if docker is installed
 .PHONY: check-docker
 check-docker:
 	@make --no-print-directory -C docker check
+
+### git targets
+
+SETUP += setup-git
+.PHONY: setup-git
+setup-git:
+	git config --replace-all commit.template .gitcommitmsg
