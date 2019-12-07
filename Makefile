@@ -48,6 +48,11 @@ HELP_all = builds, flashes and starts monitor
 .PHONY: all
 all: build flash monitor
 
+TARGET += setup
+HELP_setup = sets up project environment
+.PHONY: setup
+setup: setup-git
+
 TARGET += check
 HELP_check = checks if everything is correctly setup
 .PHONY: check
@@ -187,3 +192,10 @@ HELP_check-docker = checks if docker is installed
 .PHONY: check-docker
 check-docker:
 	@make --no-print-directory -C docker check
+
+### git targets
+
+SETUP += setup-git
+.PHONY: setup-git
+setup-git:
+	git config --replace-all commit.template .gitcommitmsg
