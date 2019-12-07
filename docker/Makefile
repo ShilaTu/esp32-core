@@ -84,45 +84,33 @@ docker: docker-platformio docker-qemu docker-vscode
 TARGET_docker += docker-platformio
 HELP_docker-platformio = builds docker platformio image
 .PHONY: docker-platformio
-docker-platformio: platformio/Dockerfile.log
-
-platformio/Dockerfile.log: platformio/Dockerfile | check-docker
+docker-platformio: | check-docker
 	docker build \
 		--build-arg=platformio_version=$(PLATFORMIO_VERSION) \
 		--build-arg=UID=$(UID) \
 		--build-arg=GID=$(GID) \
 		-t "lifesensor/platformio:$(PLATFORMIO_VERSION)" \
-		platformio 2>&1 \
-	| tee -a $@.part
-	mv $@.part $@
+		platformio
 
 TARGET_docker += docker-qemu
 HELP_docker-qemu = buils docker qemu image
 .PHONY: docker-qemu
-docker-qemu: qemu/Dockerfile.log
-
-qemu/Dockerfile.log: qemu/Dockerfile docker-platformio | check-docker
+docker-qemu: docker-platformio | check-docker
 	docker build \
 		--build-arg=platformio_version=$(PLATFORMIO_VERSION) \
 		--build-arg=qemu_commit=$(QEMU_COMMIT) \
 		-t "lifesensor/qemu:$(QEMU_COMMIT)" \
-		qemu \
-	| tee -a $@.part
-	mv $@.part $@
+		qemu
 
 TARGET_docker += docker-vscode
 HELP_docker-vscode = buils docker vscode image
 .PHONY: docker-vscode
-docker-vscode: vscode/Dockerfile.log
-
-vscode/Dockerfile.log: vscode/Dockerfile docker-qemu | check-docker
+docker-vscode:  docker-qemu | check-docker
 	docker build \
 		--build-arg=platformio_version=$(PLATFORMIO_VERSION) \
 		--build-arg=qemu_commit=$(QEMU_COMMIT) \
 		-t "lifesensor/vscode:latest" \
-		vscode \
-	| tee -a $@.part
-	mv $@.part $@
+		vscode
 		
 TARGET += pio 
 HELP_pio = runs platformio container
@@ -193,7 +181,6 @@ TARGET_clean += clean-docker-platformio
 HELP_clean-docker-platformio = removes platformio volume
 .PHONY: clean-docker-platformio
 clean-docker-platformio:
-	rm -f platformio/Dockerfile.log
 	-docker volume rm pio-home
 
 TARGET_clean += clean-docker-qemu
@@ -221,21 +208,18 @@ TARGET_distclean += distclean-docker-platformio
 HELP_distclean-docker-platformio = removes platformio docker image
 .PHONY: distclean-docker-platformio
 distclean-docker-platformio: clean-docker-platformio
-	rm -f platformio/Dockerfile.log
 	-docker image remove "lifesensor/platformio:$(PLATFORMIO_VERSION)"
 	
 TARGET_distclean += distclean-docker-qemu
 HELP_distclean-docker-qemu = removes qemu docker image
 .PHONY: distclean-docker-qemu
 distclean-docker-qemu: clean-docker-qemu
-	rm -f qemu/Dockerfile.log
 	-docker image remove "lifesensor/qemu:$(QEMU_COMMIT)"
 
 TARGET_distclean += distclean-docker-vscode
 HELP_distclean-docker-vscode = removes vscode docker image
 .PHONY: distclean-docker-vscode
 distclean-docker-vscode: clean-docker-vscode
-	rm -f vscode/Dockerfile.log
 	-docker image remove "lifesensor/vscode:latest"
 
 .PHONY: clean-check
