@@ -58,7 +58,7 @@ monitor: | check-monitor
 		EXEC="sudo chgrp developer $(DEV); \
 			python3 \
 				/home/developer/.platformio/packages/framework-espidf/tools/idf_monitor.py \
-				/mnt/.pio/build/pico32/firmware.elf \
+				.pio/build/pico32/firmware.elf \
 				--port $(DEV)" \
 		DEV=$(DEV)
 
