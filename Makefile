@@ -1,120 +1,65 @@
 
+### variables ###
+
 VARIABLE+=DEV
 HELP_DEV=which device to flash/monitor
 $(shell [ -f .dev ] && ((cat .dev; echo -e "all:\n\t@true") | make -f - 2>/dev/null ) || (echo ".dev config file contains errors and will be removed" >&2 ; rm -f .dev ) )
 -include .dev
 DEV?=none
 
-.DEFAULT_GOAL=default
-
-.PHONY: help
-help:
-	@echo "--- help ---"
-	@[ -n "$(HELP_$(.DEFAULT_GOAL))" ] && echo -e "make\n\t$(HELP_$(.DEFAULT_GOAL))" || true;
-	@$(foreach \
-		target, \
-		$(TARGET), \
-		echo "make $(target)"; \
-		[ -n "$(HELP_$(target))" ] && echo -e "\t$(HELP_$(target))"; \
-	)
-	@$(foreach \
-		target, \
-		$(TARGET), \
-		[ -n "$(TARGET_$(target))" ] && echo -e "\n--- $(target) sub targets ---"  || true; \
-		$(foreach \
-			subtarget, \
-			$(TARGET_$(target)), \
-				echo "make $(subtarget)"; \
-				[ -n "$(HELP_$(subtarget))" ] && echo -e "\t$(HELP_$(subtarget))" || true; \
-		) \
-	)
-	@[ -n "$(VARIABLE)" ] && echo -e "\n--- VARIABLES ---"  || true;
-	@$(foreach \
-		variable, \
-		$(VARIABLE), \
-		echo "$(variable)"; \
-		[ -n "$(HELP_$(variable))" ] && echo -e "\t$(HELP_$(variable))" || true; \
-		echo -e "\t(currently: $($(variable)))"; \
-	)
-
-
-TARGET += default
-HELP_default  = builds project
-.PHONY: default
-default: build
-
-TARGET += all
-HELP_all = builds, flashes and starts monitor
-.PHONY: all
-all: build flash monitor
-
-TARGET += setup
-HELP_setup = sets up project environment
-.PHONY: setup
-setup: setup-git
-
-TARGET += check
-HELP_check = checks if everything is correctly setup
-.PHONY: check
-check: check-build check-flash check-monitor
-
-TARGET += clean
-HELP_clean = cleans up project
-.PHONY: clean
-clean: clean-build clean-flash clean-monitor clean-dev
-	@make --no-print-directory -C docker clean
-
-TARGET += distclean
-HELP_distclean = removes all generated files
-.PHONY: distclean
-distclean: clean distclean-build distclean-flash distclean-monitor distclean-dev
-	@make --no-print-directory -C docker distclean
-
 ### build targets ###
 
-TARGET += build
-HELP_build = builds project
 .PHONY: build
+TARGET += build
+DEFAULT += build
+ALL += build
+HELP_build = builds project
 build: | check-build
 	@make --no-print-directory -C docker pio EXEC="pio run"
 
 .PHONY: check-build
+CHECK += check-build
 check-build: check-docker
 
 .PHONY: clean-build
+CLEAN += clean-build
 clean-build:
 	@make --no-print-directory -C docker pio EXEC="pio run -t clean"
 
 .PHONY: distclean-build
+DISTCLEAN += distclean-build
 distclean-build: clean-build
 	rm -rf .pio
 
 ### flash targets ###
 
+.PHONY: flash
 TARGET += flash
 HELP_flash = flashes project to esp. Use DEV=path to provide  path to device or use make dev
-.PHONY: flash
 flash: | check-flash
 	@make --no-print-directory -C docker \
 		pio \
 		EXEC="sudo chgrp developer $(DEV); pio run --upload-port '$(DEV)' -t upload" DEV="$(DEV)"
 
 .PHONY: check-flash
+CHECK += check-flash
 check-flash: | check-docker check-dev
 
-.PHONY: clean-flash
-clean-flash:
-	@true
+#.PHONY: clean-flash
+#CLEAN += clean-flash
+#clean-flash:
+#	@true
 
-.PHONY: distclean-flash
-distclean-flash: clean-flash
-	@true
+#.PHONY: distclean-flash
+#DISTCLEAN += clean-flash
+#distclean-flash: clean-flash
+#	@true
 
 ### monitor targets ###
 
+.PHONY: monitor
 TARGET += monitor
 HELP_monitor = connects to esp32 via serial. Use DEV=path to provide path to device or use make dev
-.PHONY: monitor
 monitor: | check-monitor
 	@make --no-print-directory -C docker \
 		pio \
@@ -125,24 +70,25 @@ monitor: | check-monitor
 				--port $(DEV)" \
 		DEV=$(DEV)
 
-TARGET_monitor += check-monitor
-HELP_check-monitor = checks if monitor is usable
 .PHONY: check-monitor
+TARGET_monitor += check-monitor
+CHECK += check-monitor
+HELP_check-monitor = checks if monitor is usable
 check-monitor: | check-docker check-dev
 
-.PHONY: clean-monitor
-clean-monitor:
-	@true
+#.PHONY: clean-monitor
+#clean-monitor:
+#	@true
 
-.PHONY: distclean-monitor
-distclean-monitor: clean-monitor
-	@true
+#.PHONY: distclean-monitor
+#distclean-monitor: clean-monitor
+#	@true
 
 ### dev targets ###
 
+.PHONY: dev
 TARGET += dev
 HELP_dev = specifies which USB device to connect to
-.PHONY: dev
 dev:
 	echo -n "DEV=" > ./.dev; \
 	(for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
@@ -154,9 +100,10 @@ dev:
 	echo >> ./.dev
 	clear
 
-TARGET_dev += check-dev
-HELP_check-dev = checks if device is specified
 .PHONY: check-dev
+TARGET_dev += check-dev
+CHECK += check-dev
+HELP_check-dev = checks if device is specified
 check-dev:
 	@if [ "$(DEV)" == "none" ]; \
 	then \
@@ -177,19 +124,23 @@ check-dev:
 		exit 1;\
 	fi
 
-TARGET_dev += clean-dev
-HELP_clean-dev = resets specified device
 .PHONY: clean-dev
+TARGET_dev += clean-dev
+CLEAN += clean-dev
+HELP_clean-dev = resets specified device
 clean-dev:
 	rm -f .dev
 
-.PHONY: distclean-dev
-distclean-dev: clean-dev
+#.PHONY: distclean-dev
+#distclean-dev: clean-dev
+#	@true
 
-### misc targets ###
-TARGET += check-docker
-HELP_check-docker = checks if docker is installed
+### docker targets ###
+
 .PHONY: check-docker
+TARGET += check-docker
+CHECK += check-docker
+HELP_check-docker = checks if docker is installed
 check-docker:
 	@make --no-print-directory -C docker check
 
@@ -199,3 +150,5 @@ SETUP += setup-git
 .PHONY: setup-git
 setup-git:
 	git config --replace-all commit.template .gitcommitmsg
+
+include .Makefile
