@@ -123,8 +123,8 @@ pio platformio: | docker-platformio check-docker
 		-ti \
 		$(DOCKER_DEV) \
 		-v pio-home:/home/developer:rw \
-		-v $(shell pwd)/..:/mnt:rw \
-		-w /mnt \
+		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
+		-w "$(shell pwd)/.." \
 		--hostname platformio \
 		$(DOCKEROPTS) \
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
@@ -139,8 +139,8 @@ qemu: | docker-qemu check-docker
 		-ti \
 		$(DOCKER_DEV) \
 		-v qemu-home:/home/developer:rw \
-		-v $(shell pwd)/..:/mnt:rw \
-		-w /mnt \
+		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
+		-w "$(shell pwd)/.." \
 		--hostname qemu \
 		$(DOCKEROPTS) \
 		lifesensor/qemu:$(QEMU_COMMIT) \
@@ -161,8 +161,8 @@ code vscode: | docker-vscode check-docker
 		-v /tmp/.X11-unix/:/tmp/.X11-unix \
 		-e DISPLAY=$(DISPLAY) \
 		-e LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 \
-		-v $(shell pwd)/..:/mnt:rw \
-		-w /mnt \
+		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
+		-w "$(shell pwd)/.." \
 		--shm-size=512m \
 		--hostname vscode \
 		$(DOCKEROPTS) \
