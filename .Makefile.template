@@ -51,6 +51,17 @@ help:
 				[ -n "$(HELP_$(subtarget))" ] && echo -e "\t$(HELP_$(subtarget))" || true; \
 		) \
 	)
+	@$(foreach \
+		main, \
+		CHECK SETUP CLEAN DISTCLEAN, \
+		[ -n "$($(main))" ] && echo -e "\n--- $(main) sub targets ---"  || true; \
+		$(foreach \
+			target, \
+			$($(main)), \
+			echo "make $(target)"; \
+			[ -n "$(HELP_$(target))" ] && echo -e "\t$(HELP_$(target))" || true; \
+		) \
+	)
 	@[ -n "$(VARIABLE)" ] && echo -e "\n--- VARIABLES ---"  || true;
 	@$(foreach \
 		variable, \
