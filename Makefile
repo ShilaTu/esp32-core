@@ -14,20 +14,18 @@ TARGET += build
 DEFAULT += build
 ALL += build
 HELP_build = builds project
-build: | check-build
+build: | check-docker
 	@make --no-print-directory -C docker pio EXEC="pio run"
-
-.PHONY: check-build
-CHECK += check-build
-check-build: check-docker
 
 .PHONY: clean-build
 CLEAN += clean-build
-clean-build:
+HELP_clean-build = let pio clean generated files
+clean-build: | check-docker
 	@make --no-print-directory -C docker pio EXEC="pio run -t clean"
 
 .PHONY: distclean-build
 DISTCLEAN += distclean-build
+HELP_distclean-build = removes all generated files by platformio
 distclean-build: clean-build
 	rm -rf .pio
 
@@ -43,6 +41,7 @@ flash: | check-flash
 
 .PHONY: check-flash
 CHECK += check-flash
+HELP_check-flash = checks env if flashing is possible
 check-flash: | check-docker check-dev
 
 ### monitor targets ###
@@ -61,9 +60,8 @@ monitor: | check-monitor
 		DEV=$(DEV)
 
 .PHONY: check-monitor
-TARGET_monitor += check-monitor
 CHECK += check-monitor
-HELP_check-monitor = checks if monitor is usable
+HELP_check-monitor = checks env if monitor is possible
 check-monitor: | check-docker check-dev
 
 ### dev targets ###
@@ -83,7 +81,6 @@ dev:
 	clear
 
 .PHONY: check-dev
-TARGET_dev += check-dev
 CHECK += check-dev
 HELP_check-dev = checks if device is specified
 check-dev:
@@ -107,7 +104,6 @@ check-dev:
 	fi
 
 .PHONY: clean-dev
-TARGET_dev += clean-dev
 CLEAN += clean-dev
 HELP_clean-dev = resets specified device
 clean-dev:
@@ -116,16 +112,16 @@ clean-dev:
 ### docker targets ###
 
 .PHONY: check-docker
-TARGET += check-docker
 CHECK += check-docker
-HELP_check-docker = checks if docker is installed
+HELP_check-docker = checks if docker is usable
 check-docker:
 	@make --no-print-directory -C docker check
 
 ### git targets
 
-SETUP += setup-git
 .PHONY: setup-git
+SETUP += setup-git
+HELP_setup-git = setup git commit message
 setup-git:
 	git config --replace-all commit.template .gitcommitmsg
 
