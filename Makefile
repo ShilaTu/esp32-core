@@ -45,16 +45,6 @@ flash: | check-flash
 CHECK += check-flash
 check-flash: | check-docker check-dev
 
-#.PHONY: clean-flash
-#CLEAN += clean-flash
-#clean-flash:
-#	@true
-
-#.PHONY: distclean-flash
-#DISTCLEAN += clean-flash
-#distclean-flash: clean-flash
-#	@true
-
 ### monitor targets ###
 
 .PHONY: monitor
@@ -75,14 +65,6 @@ TARGET_monitor += check-monitor
 CHECK += check-monitor
 HELP_check-monitor = checks if monitor is usable
 check-monitor: | check-docker check-dev
-
-#.PHONY: clean-monitor
-#clean-monitor:
-#	@true
-
-#.PHONY: distclean-monitor
-#distclean-monitor: clean-monitor
-#	@true
 
 ### dev targets ###
 
@@ -130,10 +112,6 @@ CLEAN += clean-dev
 HELP_clean-dev = resets specified device
 clean-dev:
 	rm -f .dev
-
-#.PHONY: distclean-dev
-#distclean-dev: clean-dev
-#	@true
 
 ### docker targets ###
 
