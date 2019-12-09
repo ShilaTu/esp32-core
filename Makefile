@@ -6,7 +6,7 @@
 
 VARIABLE+=DEV
 HELP_DEV=which device to flash/monitor
-$(shell [ -f .dev ] && ((cat .dev; echo -e "all:\n\t@true") | make -f - 2>/dev/null ) || (echo ".dev config file contains errors and will be removed" >&2 ; rm -f .dev ) )
+$(shell [ -f .dev ] && (((cat .dev; echo -e "all:\n\t@true") | make -f - 2>/dev/null ) || (echo ".dev config file contains errors and will be removed" >&2 ; rm -f .dev ) ))
 -include .dev
 DEV?=none
 
