@@ -1,3 +1,6 @@
+#
+# see .Makefile.template for help
+#
 
 ### variables ###
 
