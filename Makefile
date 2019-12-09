@@ -128,4 +128,4 @@ HELP_setup-git = setup git commit message
 setup-git:
 	git config --replace-all commit.template .gitcommitmsg
 
-include .Makefile
+include .Makefile.template
