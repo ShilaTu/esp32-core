@@ -4,10 +4,12 @@
 
 ### variables ###
 
+VARIABLE+=USERSHELL
+HELP_USERSHELL=what shell to spawn when setting env
+USERSHELL?=$(shell awk -F ':' '/^'$$(id -un)':/{print $$NF}' /etc/passwd)
+
 VARIABLE+=DEV
 HELP_DEV=which device to flash/monitor
-$(shell [ -f .dev ] && (((cat .dev; echo -e "all:\n\t@true") | make -f - 2>/dev/null ) || (echo ".dev config file contains errors and will be removed" >&2 ; rm -f .dev ) ))
--include .dev
 DEV?=none
 
 ### build targets ###
@@ -73,15 +75,13 @@ check-monitor: | check-docker check-dev
 TARGET += dev
 HELP_dev = specifies which USB device to connect to
 dev:
-	echo -n "DEV=" > ./.dev; \
-	(for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
+	export DEV=$$((for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
 	| dialog \
 		--stdout \
 		--menu "choose which device to use" 0 0 0 "none" "disable device passthrough"\
-		--file /dev/stdin \
-	>> ./.dev
-	echo >> ./.dev
-	clear
+		--file /dev/stdin);\
+		clear; \
+		exec $(USERSHELL)
 
 .PHONY: check-dev
 CHECK += check-dev
