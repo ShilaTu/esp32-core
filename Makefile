@@ -105,12 +105,26 @@ check-dev:
 		) >&2;\
 		exit 1;\
 	fi
-
-.PHONY: clean-dev
-CLEAN += clean-dev
-HELP_clean-dev = resets specified device
-clean-dev:
-	rm -f .dev
+	@if [ ! -c $(DEV) ]; \
+	then \
+		( \
+		echo "#############################"; \
+		echo "# FLASH DEVICE IS NOT VALID #"; \
+		echo "#############################"; \
+		echo; \
+		echo "the specified device ($(DEV)) is not a character device!";\
+		echo;\
+		echo "specify device by adding DEV as parameter";\
+		echo;\
+		echo "make $(MAKECMDGOALS) DEV=/path/to/device";\
+		echo;\
+		echo "or by running";\
+		echo;\
+		echo "make dev";\
+		echo;\
+		) >&2;\
+		exit 1;\
+	fi
 
 ### docker targets ###
 
