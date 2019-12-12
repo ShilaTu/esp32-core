@@ -19,42 +19,9 @@
 #include "driver/adc.h"
 #include "driver/dac.h"
 #include "esp32/ulp.h"
-#include "ulp_main.h"
+#include "ulp_adc_example.h"
 
-extern const uint8_t ulp_main_bin_start[] asm("_binary_ulp_main_bin_start");
-extern const uint8_t ulp_main_bin_end[]   asm("_binary_ulp_main_bin_end");
-
-/* This function is called once after power-on reset, to load ULP program into
- * RTC memory and configure the ADC.
- */
-static void init_ulp_program();
-
-/* This function is called every time before going into deep sleep.
- * It starts the ULP program and resets measurement counter.
- */
-static void start_ulp_program();
-
-void app_main()
-{
-    esp_sleep_wakeup_cause_t cause = esp_sleep_get_wakeup_cause();
-    if (cause != ESP_SLEEP_WAKEUP_ULP) {
-        printf("Not ULP wakeup\n");
-        init_ulp_program();
-    } else {
-        printf("Deep sleep wakeup\n");
-        printf("ULP did %d measurements since last reset\n", ulp_sample_counter & UINT16_MAX);
-        printf("Thresholds:  low=%d  high=%d\n", ulp_low_thr, ulp_high_thr);
-        ulp_last_result &= UINT16_MAX;
-        printf("Value=%d was %s threshold\n", ulp_last_result,
-                ulp_last_result < ulp_low_thr ? "below" : "above");
-    }
-    printf("Entering deep sleep\n\n");
-    start_ulp_program();
-    ESP_ERROR_CHECK( esp_sleep_enable_ulp_wakeup() );
-    esp_deep_sleep_start();
-}
-
-static void init_ulp_program()
+void init_ulp_program()
 {
     esp_err_t err = ulp_load_binary(0, ulp_main_bin_start,
             (ulp_main_bin_end - ulp_main_bin_start) / sizeof(uint32_t));
@@ -83,7 +50,7 @@ static void init_ulp_program()
     esp_deep_sleep_disable_rom_logging(); // suppress boot messages
 }
 
-static void start_ulp_program()
+void start_ulp_program()
 {
     /* Reset sample counter */
     ulp_sample_counter = 0;
