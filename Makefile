@@ -75,6 +75,9 @@ check-monitor: | check-docker check-dev
 TARGET += dev
 HELP_dev = specifies which USB device to connect to
 dev:
+ifeq (,$(shell which dialog))
+	$(error dialog is not installed)
+endif
 	export DEV=$$((for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
 	| dialog \
 		--stdout \
