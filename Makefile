@@ -74,10 +74,7 @@ check-monitor: | check-docker check-dev
 .PHONY: dev
 TARGET += dev
 HELP_dev = specifies which USB device to connect to
-dev:
-ifeq (,$(shell which dialog))
-	$(error dialog is not installed)
-endif
+dev: | check-dialog
 	export DEV=$$((for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
 	| dialog \
 		--stdout \
@@ -90,44 +87,61 @@ endif
 CHECK += check-dev
 HELP_check-dev = checks if device is specified
 check-dev:
-	@if [ "$(DEV)" == "none" ]; \
-	then \
-		( \
-		echo "##############################"; \
-		echo "# FLASH DEVICE NOT SPECIFIED #"; \
-		echo "##############################"; \
-		echo;\
-		echo "specify device by adding DEV as parameter";\
-		echo;\
-		echo "make $(MAKECMDGOALS) DEV=/path/to/device";\
-		echo;\
-		echo "or by running";\
-		echo;\
-		echo "make dev";\
-		echo;\
-		) >&2;\
-		exit 1;\
-	fi
-	@if [ ! -c $(DEV) ]; \
-	then \
-		( \
-		echo "#############################"; \
-		echo "# FLASH DEVICE IS NOT VALID #"; \
-		echo "#############################"; \
-		echo; \
-		echo "the specified device ($(DEV)) is not a character device!";\
-		echo;\
-		echo "specify device by adding DEV as parameter";\
-		echo;\
-		echo "make $(MAKECMDGOALS) DEV=/path/to/device";\
-		echo;\
-		echo "or by running";\
-		echo;\
-		echo "make dev";\
-		echo;\
-		) >&2;\
-		exit 1;\
-	fi
+ifeq ($(DEV),none)
+	@1>&2 echo "##############################"
+	@1>&2 echo "# FLASH DEVICE NOT SPECIFIED #"
+	@1>&2 echo "##############################"
+	@1>&2 echo
+	@1>&2 echo "specify device by adding DEV as parameter"
+	@1>&2 echo
+	@1>&2 echo "make $(MAKECMDGOALS) DEV=/path/to/device"
+	@1>&2 echo
+	@1>&2 echo "or by running"
+	@1>&2 echo
+	@1>&2 echo "make dev"
+	@1>&2 echo
+	@exit 1
+endif
+ifeq ($(shell ! test -c $(DEV); echo $$?),0)
+	@1>&2 echo "#############################"
+	@1>&2 echo "# FLASH DEVICE IS NOT VALID #"
+	@1>&2 echo "#############################"
+	@1>&2 echo
+	@1>&2 echo "the specified device ($(DEV)) is not a character device!"
+	@1>&2 echo
+	@1>&2 echo "specify device by adding DEV as parameter"
+	@1>&2 echo
+	@1>&2 echo "make $(MAKECMDGOALS) DEV=/path/to/device"
+	@1>&2 echo
+	@1>&2 echo "or by running"
+	@1>&2 echo
+	@1>&2 echo "make dev"
+	@1>&2 echo
+	@exit 1
+endif
+
+.PHONY: check-dialog
+CHECK += check-dialog
+HELP_check-dialog = checks if dialog is installed
+check-dialog:
+ifeq ($(shell which dialog),)
+	@1>&2 echo "###########################"
+	@1>&2 echo "# DIALOG IS NOT INSTALLED #"
+	@1>&2 echo "###########################"
+	@1>&2 echo
+	@1>&2 echo "Consider installing dialog."
+	@1>&2 echo
+	@1>&2 echo "on debian based systems:"
+	@1>&2 echo "    sudo apt-get install dialog"
+	@1>&2 echo
+	@1>&2 echo "on arch based systems:"
+	@1>&2 echo "    sudo pacman -S dialog"
+	@1>&2 echo
+	@exit 1
+endif
+
+
+
 
 ### docker targets ###
 
