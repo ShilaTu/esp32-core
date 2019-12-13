@@ -124,7 +124,7 @@ endif
 CHECK += check-dialog
 HELP_check-dialog = checks if dialog is installed
 check-dialog:
-ifeq ($(shell which dialog),)
+ifeq ($(shell which dialog 2> /dev/null),)
 	@1>&2 echo "###########################"
 	@1>&2 echo "# DIALOG IS NOT INSTALLED #"
 	@1>&2 echo "###########################"
