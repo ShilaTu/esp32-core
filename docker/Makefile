@@ -29,15 +29,10 @@ EXEC?=bash
 VARIABLE += DOCKEROPTS
 HELP_DOCKEROPTS = additional docker options
 
-.PHONY: docker
-TARGET += docker
-HELP_docker = build all docker containers
-docker: platformio-image qemu-image vscode-image
-
 .PHONY: platformio-image
 ALL += platformio-image
 DEFAULT += platformio-image
-TARGET_docker += platformio-image
+TARGET_platformio += platformio-image
 HELP_platformio-image = builds docker platformio image
 platformio-image: | check-docker
 	docker build \
@@ -50,7 +45,7 @@ platformio-image: | check-docker
 .PHONY: qemu-image
 ALL += qemu-image
 DEFAULT += qemu-image
-TARGET_docker += qemu-image
+TARGET_qemu += qemu-image
 HELP_qemu-image = buils docker qemu image
 qemu-image: platformio-image | check-docker
 	docker build \
@@ -61,7 +56,7 @@ qemu-image: platformio-image | check-docker
 
 .PHONY: vscode-image
 ALL += vscode-image
-TARGET_docker += vscode-image
+TARGET_vscode += vscode-image
 HELP_vscode-image = buils docker vscode image
 vscode-image:  qemu-image | check-docker
 	docker build \
@@ -127,62 +122,44 @@ code vscode: | vscode-image check-docker
 		lifesensor/vscode:latest \
 		/bin/sh -c '$(EXEC)'
 
-.PHONY: clean
-TARGET += clean
-HELP_clean = cleans docker volumes
-clean: clean-docker
-
-.PHONY: clean-docker
-clean-docker: clean-platformio-image clean-qemu-image clean-vscode-image
-
-.PHONY: clean-platformio-image
-TARGET_clean += clean-platformio-image
-HELP_clean-platformio-image = removes platformio volume
-clean-platformio-image:
+.PHONY: clean-platformio
+CLEAN += clean-platformio
+HELP_clean-platformio = removes platformio volume
+clean-platformio:
 	-docker volume rm pio-home
 
-.PHONY: clean-qemu-image
-TARGET_clean += clean-qemu-image
-HELP_clean-qemu-image = removes qemu volume
-clean-qemu-image:
+.PHONY: clean-qemu
+CLEAN += clean-qemu
+HELP_clean-qemu = removes qemu volume
+clean-qemu:
 	-docker volume rm qemu-home
 
-.PHONY: clean-vscode-image
-TARGET_clean += clean-vscode-image
-HELP_clean-vscode-image = removes vscode volume
-clean-vscode-image:
+.PHONY: clean-vscode
+CLEAN += clean-vscode
+HELP_clean-vscode = removes vscode volume
+clean-vscode:
 	-docker volume rm vscode-home
 
-.PHONY: distclean
-TARGET += distclean
-HELP_distclean = removes all generated files by docker
-distclean: clean distclean-check distclean-docker
-
-.PHONY: distclean-docker
-distclean-docker: clean-docker distclean-platformio-image distclean-qemu-image distclean-vscode-image
-	-docker image prune
-
-.PHONY: distclean-platformio-image
-TARGET_distclean += distclean-platformio-image
-HELP_distclean-platformio-image = removes platformio docker image
-distclean-platformio-image: clean-platformio-image
+.PHONY: distclean-platformio
+DISTCLEAN += distclean-platformio
+HELP_distclean-platformio = removes platformio docker image
+distclean-platformio: clean-platformio
 	-docker image remove "lifesensor/platformio:$(PLATFORMIO_VERSION)"
+	docker image prune
 	
-.PHONY: distclean-qemu-image
-TARGET_distclean += distclean-qemu-image
-HELP_distclean-qemu-image = removes qemu docker image
-distclean-qemu-image: clean-qemu-image
+.PHONY: distclean-qemu
+DISTCLEAN += distclean-qemu
+HELP_distclean-qemu = removes qemu docker image
+distclean-qemu: clean-qemu
 	-docker image remove "lifesensor/qemu:$(QEMU_COMMIT)"
+	docker image prune
 
-.PHONY: distclean-vscode-image
-TARGET_distclean += distclean-vscode-image
-HELP_distclean-vscode-image = removes vscode docker image
-distclean-vscode-image: clean-vscode-image
+.PHONY: distclean-vscode
+DISTCLEAN += distclean-vscode
+HELP_distclean-vscode = removes vscode docker image
+distclean-vscode: clean-vscode
 	-docker image remove "lifesensor/vscode:latest"
-
-.PHONY: clean-check
-clean-check:
-	@true
+	docker image prune
 
 .PHONY: distclean-check
 TARGET_distclean += distclean-check
