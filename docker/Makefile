@@ -88,7 +88,7 @@ TARGET += qemu
 HELP_qemu = runs qemu container
 qemu: | qemu-image check-docker
 	docker run \
-	 	--rm \
+		--rm \
 		-ti \
 		$(DOCKER_DEV) \
 		-v qemu-home:/home/developer:rw \
@@ -161,98 +161,71 @@ distclean-vscode: clean-vscode
 	-docker image remove "lifesensor/vscode:latest"
 	docker image prune
 
-.PHONY: distclean-check
-TARGET_distclean += distclean-check
-HELP_distclean-check = removes check result if docker is installed
-distclean-check: distclean-check-docker
-
-.PHONY: distclean-check-docker
-distclean-check-docker: distclean-check-docker-installed distclean-check-docker-group
-
-.PHONY: distclean-check-docker-installed
-distclean-check-docker-installed:
-	rm -f .check-docker-installed
-
-.PHONY: distclean-check-docker-group
-distclean-check-docker-group:
-	rm -f .check-docker-group
-
 .PHONY: check-docker
 CHECK += check-docker
 check-docker: check-docker-installed check-docker-group
 
 .PHONY: check-docker-installed
-check-docker-installed: | ./.check-docker-installed
-
-./.check-docker-installed:
-	@if which docker > /dev/null 2>&1; \
-	then \
-		touch $@; \
-	else \
-		( \
-		echo "########################################"; \
-		echo "# DOCKER DOES NOT SEEM TO BE INSTALLED #"; \
-		echo "########################################"; \
-		echo "the docker binary could not be found in your PATH!"; \
-		echo "This usally means docker is simply not installed."; \
-		echo -n "I detected your platform as "; \
-		if cat /etc/*-release | grep -qi debian; \
-		then \
-			echo DEBIAN, so please run; \
-			echo; \
-			make -sn install-docker-debian; \
-			echo; \
-			echo OR simply; \
-			echo; \
-			echo make install-docker-debian; \
-			echo; \
-		elif cat /etc/*-release | grep -qi ubuntu ; \
-		then \
-			echo UBUNTU, so please run; \
-			echo; \
-			make -sn install-docker-ubuntu; \
-			echo; \
-			echo OR simply; \
-			echo; \
-			echo make install-docker-ubuntu; \
-			echo; \
-		elif cat /etc/*-release | grep -qi "arch linux" ; \
-		then \
-			echo ARCHLINUX, so please run; \
-			echo; \
-			make -sn install-docker-archlinux; \
-			echo; \
-			echo OR simply; \
-			echo; \
-			echo make install-docker-archlinux; \
-			echo; \
-		elif cat /etc/*-release | grep -qi centos ; \
-		then \
-			echo CENTOS, so please run; \
-			echo; \
-			make -sn install-docker-centos; \
-			echo; \
-			echo OR simply; \
-			echo; \
-			echo make install-docker-centos; \
-			echo; \
-		elif cat /etc/*-release | grep -qi fedora ; \
-		then \
-			echo FEDORA, so please run; \
-			echo; \
-			make -sn install-docker-fedora; \
-			echo; \
-			echo OR simply; \
-			echo; \
-			echo make install-docker-fedora; \
-			echo; \
-		else \
-			echo UNKNOWN; \
-			echo please run your package manager to install docker; \
-		fi; \
-		) 1>&2; \
-		exit 1; \
-	fi
+check-docker-installed:
+ifeq (,$(shell which docker 2> /dev/null))
+	@1>&2 echo "########################################"
+	@1>&2 echo "# DOCKER DOES NOT SEEM TO BE INSTALLED #"
+	@1>&2 echo "########################################"
+	@1>&2 echo "the docker binary could not be found in your PATH!"
+	@1>&2 echo "This usally means docker is simply not installed."
+	@1>&2 echo
+ifneq (,$(shell grep -i debian /etc/*-release))
+	@1>&2 echo "I detected your platform as DEBIAN, so please run"
+	@1>&2 echo
+	@1>&2 make -sn install-docker-debian
+	@1>&2 echo
+	@1>&2 echo OR simply
+	@1>&2 echo
+	@1>&2 echo make install-docker-debian
+	@1>&2 echo
+else ifneq (,$(shell grep -i ubuntu /etc/*-release))
+	@1>&2 echo "I detected your platform as UBUNTU, so please run"
+	@1>&2 echo
+	@1>&2 make -sn install-docker-ubuntu
+	@1>&2 echo
+	@1>&2 echo OR simply
+	@1>&2 echo
+	@1>&2 echo make install-docker-ubuntu
+	@1>&2 echo
+else ifneq (,$(shell grep -i "arch linux" /etc/*-release))
+	@1>&2 echo "I detected your platform as ARCHLINUX, so please run"
+	@1>&2 echo
+	@1>&2 make -sn install-docker-archlinux
+	@1>&2 echo
+	@1>&2 echo OR simply
+	@1>&2 echo
+	@1>&2 echo make install-docker-archlinux
+	@1>&2 echo
+else ifneq (,$(shell grep -i centos /etc/*-release))
+	@1>&2 echo "I detected your platform as CENTOS, so please run"
+	@1>&2 echo
+	@1>&2 make -sn install-docker-centos
+	@1>&2 echo
+	@1>&2 echo OR simply
+	@1>&2 echo
+	@1>&2 echo make install-docker-centos
+	@1>&2 echo
+else ifneq (,$(shell grep -i fedora /etc/*-release))
+	@1>&2 echo "I detected your platform as FEDORA, so please run"
+	@1>&2 echo
+	@1>&2 make -sn install-docker-fedora
+	@1>&2 echo
+	@1>&2 echo OR simply
+	@1>&2 echo
+	@1>&2 echo make install-docker-fedora
+	@1>&2 echo
+else
+	@1>&2 echo "I detected your platform as UNKNOWN, so please run"
+	@1>&2 echo
+	@1>&2 echo please run your package manager to install docker
+endif
+	@exit 1
+endif
 
 .PHONY: install-docker-debian
 install-docker-debian:
@@ -289,24 +262,17 @@ install-docker-fedora:
 	sudo dnf install docker-ce docker-ce-cli containerd.io
 
 .PHONY: check-docker-group
-check-docker-group: | ./.check-docker-group
-
-./.check-docker-group:
-	@if groups | grep -q docker; \
-	then \
-		touch $@; \
-	else \
-		( \
-		echo "##############################################"; \
-		echo "# YOUR USER IS NOT PART OF THE DOCKER GROUP! #"; \
-		echo "##############################################"; \
-		echo "This means you need to execute every docker command with sudo"; \
-		echo "To avoid this, please add your user ($$USER) to the docker group with the following command:"; \
-		echo; \
-		echo "sudo usermod -a -G docker $$USER"; \
-		echo; \
-		) 1>&2; \
-		exit 1; \
-	fi
+check-docker-group:
+ifneq (,$(shell groups | grep -q docker))
+	@1>&2 echo "##############################################"
+	@1>&2 echo "# YOUR USER IS NOT PART OF THE DOCKER GROUP! #"
+	@1>&2 echo "##############################################"
+	@1>&2 echo "This means you need to execute every docker command with sudo"
+	@1>&2 echo "To avoid this, please add your user ($$USER) to the docker group with the following command:"
+	@1>&2 echo
+	@1>&2 echo "sudo usermod -a -G docker $$USER"
+	@1>&2 echo
+	@exit 1
+endif
 
 include ../.Makefile.template
