@@ -9,7 +9,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: build image
-      run: make -C docker docker-platformio
-    - name: build
+    - name: build platformio image
+      run: make -C docker platformio-image
+    - name: build platformio project
       run: make -C docker pio DOCKEROPTS=--tty=false EXEC="pio run"
