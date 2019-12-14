@@ -144,5 +144,6 @@ SETUP += setup-git
 HELP_setup-git = setup git commit message
 setup-git:
 	git config --replace-all commit.template .gitcommitmsg
+	git config --replace-all pull.rebase true
 
 include .Makefile.template
