@@ -29,59 +29,14 @@ EXEC?=bash
 VARIABLE += DOCKEROPTS
 HELP_DOCKEROPTS = additional docker options
 
-.DEFAULT_GOAL=default
-
-.PHONY: help
-help:
-	@echo "--- help ---"
-	@[ -n "$(HELP_$(.DEFAULT_GOAL))" ] && echo -e "make\n\t$(HELP_$(.DEFAULT_GOAL))" || true;
-	@$(foreach \
-		target, \
-		$(TARGET), \
-		echo "make $(target)"; \
-		[ -n "$(HELP_$(target))" ] && echo -e "\t$(HELP_$(target)) || true"; \
-	)
-	@$(foreach \
-		target, \
-		$(TARGET), \
-		[ -n "$(TARGET_$(target))" ] && echo -e "\n--- $(target) sub targets ---"  || true; \
-		$(foreach \
-			subtarget, \
-			$(TARGET_$(target)), \
-				echo "make $(subtarget)"; \
-				[ -n "$(HELP_$(subtarget))" ] && echo -e "\t$(HELP_$(subtarget))" || true; \
-		) \
-	)
-	@[ -n "$(VARIABLE)" ] && echo -e "\n--- VARIABLES ---"  || true;
-	@$(foreach \
-		variable, \
-		$(VARIABLE), \
-		echo "$(variable)"; \
-		[ -n "$(HELP_$(variable))" ] && echo -e "\t$(HELP_$(variable))" || true; \
-		echo -e "\t(currently: '$($(variable))')"; \
-	)
-
-.PHONY: default
-TARGET += default
-HELP_default = checks docker, builds platformio/qemu docker image
-default: check docker-platformio docker-qemu
-
-.PHONY: all
-TARGET += all
-HELP_all = checks docker and build all containers
-all: check docker
-
-.PHONY: check
-TARGET += check
-HELP_check = checks if docker is installed
-check: check-docker
-
 .PHONY: docker
 TARGET += docker
 HELP_docker = build all docker containers
 docker: docker-platformio docker-qemu docker-vscode
 
 .PHONY: docker-platformio
+ALL += docker-platformio
+DEFAULT += docker-platformio
 TARGET_docker += docker-platformio
 HELP_docker-platformio = builds docker platformio image
 docker-platformio: | check-docker
@@ -93,6 +48,8 @@ docker-platformio: | check-docker
 		platformio
 
 .PHONY: docker-qemu
+ALL += docker-qemu
+DEFAULT += docker-qemu
 TARGET_docker += docker-qemu
 HELP_docker-qemu = buils docker qemu image
 docker-qemu: docker-platformio | check-docker
@@ -103,6 +60,7 @@ docker-qemu: docker-platformio | check-docker
 		qemu
 
 .PHONY: docker-vscode
+ALL += docker-vscode
 TARGET_docker += docker-vscode
 HELP_docker-vscode = buils docker vscode image
 docker-vscode:  docker-qemu | check-docker
@@ -243,6 +201,7 @@ distclean-check-docker-group:
 	rm -f .check-docker-group
 
 .PHONY: check-docker
+CHECK += check-docker
 check-docker: check-docker-installed check-docker-group
 
 .PHONY: check-docker-installed
@@ -373,3 +332,4 @@ check-docker-group: | ./.check-docker-group
 		exit 1; \
 	fi
 
+include ../.Makefile.template
