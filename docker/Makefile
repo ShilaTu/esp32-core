@@ -220,7 +220,7 @@ else ifneq (,$(shell grep -i fedora /etc/*-release))
 	@1>&2 echo make install-docker-fedora
 	@1>&2 echo
 else
-	@1>&2 echo "I detected your platform as UNKNOWN, so please run"
+	@1>&2 echo "I detected your platform as UNKNOWN,"
 	@1>&2 echo
 	@1>&2 echo please run your package manager to install docker
 endif
