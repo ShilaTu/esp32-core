@@ -1,3 +1,9 @@
+#
+# see ../.Makefile.template for help
+#
+
+### variables ###
+
 VARIABLE += PLATFORMIO_VERSION
 HELP_PLATFORMIO_VERSION = which platformio version to use
 PLATFORMIO_VERSION?=4.1.0
@@ -28,6 +34,8 @@ EXEC?=bash
 
 VARIABLE += DOCKEROPTS
 HELP_DOCKEROPTS = additional docker options
+
+### docker build targets ###
 
 .PHONY: platformio-image
 ALL += platformio-image
@@ -64,7 +72,9 @@ vscode-image:  qemu-image | check-docker
 		--build-arg=qemu_commit=$(QEMU_COMMIT) \
 		-t "lifesensor/vscode:latest" \
 		vscode
-		
+
+### docker run targets ###
+
 .PHONY: pio platformio
 TARGET += pio 
 HELP_pio = runs platformio container
@@ -122,6 +132,8 @@ code vscode: | vscode-image check-docker
 		lifesensor/vscode:latest \
 		/bin/sh -c '$(EXEC)'
 
+### docker remove volume targets ###
+
 .PHONY: clean-platformio
 CLEAN += clean-platformio
 HELP_clean-platformio = removes platformio volume
@@ -139,6 +151,8 @@ CLEAN += clean-vscode
 HELP_clean-vscode = removes vscode volume
 clean-vscode:
 	-docker volume rm vscode-home
+
+### docker remove image targets ###
 
 .PHONY: distclean-platformio
 DISTCLEAN += distclean-platformio
@@ -160,6 +174,8 @@ HELP_distclean-vscode = removes vscode docker image
 distclean-vscode: clean-vscode
 	-docker image remove "lifesensor/vscode:latest"
 	docker image prune
+
+### docker check installation targets ###
 
 .PHONY: check-docker
 CHECK += check-docker
@@ -227,6 +243,8 @@ endif
 	@exit 1
 endif
 
+### docker install targets ###
+
 .PHONY: install-docker-debian
 install-docker-debian:
 	sudo apt-get update
@@ -260,6 +278,8 @@ install-docker-fedora:
 	sudo dnf -y install dnf-plugins-core
 	sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
 	sudo dnf install docker-ce docker-ce-cli containerd.io
+
+### docker check group target ###
 
 .PHONY: check-docker-group
 check-docker-group:
