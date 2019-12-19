@@ -1,0 +1,396 @@
+digraph G {
+
+node [shape=parallelogram, style=filled, fillcolor=lightskyblue]
+### BEGIN FIFO/QUEUE STRUCTURES ###
+fifo_ulp
+fifo_adc
+fifo_movavg
+### END FIFO/QUEUE STRUCTURES ###
+
+node [shape=octagon, style=filled, fillcolor=lightsalmon]
+### BEGIN TASKS ###
+ulp
+movavg
+uart
+### END TASKS ###
+
+node [shape=doubleoctagon, style=filled, fillcolor=orange]
+### BEGIN INTERRUPT SERVICE ROUTINES ###
+isr_ulp
+### END INTERRUPT SERVICE ROUTINES ###
+
+node [shape=star, style=filled, fillcolor=red]
+
+### BEGIN EDGES ###
+left:ADC1_0 -> ulp -> fifo_ulp -> isr_ulp -> fifo_adc -> movavg -> fifo_movavg -> uart -> right:U0_TXD
+left:HS2CLK -> fifo_adc -> uart
+### END EDGES ###
+
+
+
+  graph [layout=neato]
+  overlap=false
+  splines=true
+
+
+  left [shape=plaintext, style="", pos="-5,0!"  label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="1">
+  <TR>
+    <TD ROWSPAN="1">3v3</TD>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="1">EN</TD>
+    <TD ROWSPAN="1">9</TD>
+      <TD BGCOLOR="lightgray" PORT="CHIPPU">CHIPPU</TD>
+  </TR>
+    <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">SVP</TD>
+    <TD ROWSPAN="5">5</TD>
+      <TD BGCOLOR="lightgray" PORT="ADC_PA0">ADC_PA0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO0">RTCIO0</TD></TR><TR>
+      <TD BGCOLOR="lightgreen" PORT="ADC1_0">ADC1_0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SENSVP">SENSVP</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO36">GPIO36</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">SVN</TD>
+    <TD ROWSPAN="5">8</TD>
+      <TD BGCOLOR="lightgray" PORT="ADC_PA1">ADC_PA1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO3">RTCIO3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC1_3">ADC1_3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SENSVN">SENSVN</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO39">GPIO39</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="4">IO34</TD>
+    <TD ROWSPAN="4">10</TD>
+      <TD BGCOLOR="lightgray" PORT="RTCIO4">RTCIO4</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC1_6">ADC1_6</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="VDET1">VDET1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO34">GPIO34</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="4">IO35</TD>
+    <TD ROWSPAN="4">11</TD>
+      <TD BGCOLOR="lightgray" PORT="RTCIO5">RTCIO5</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC1_7">ADC1_7</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="VDET2">VDET2</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO35">GPIO35</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">IO32</TD>
+    <TD ROWSPAN="5">12</TD>
+      <TD BGCOLOR="lightgray" PORT="XTAL32_0">XTAL32_0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="TOUCH9">TOUCH9</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO9">RTCIO9</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC1_4">ADC1_4</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO32">GPIO32</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">IO33</TD>
+    <TD ROWSPAN="5">13</TD>
+      <TD BGCOLOR="lightgray" PORT="XTAL32_1">XTAL32_1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="TOUCH8">TOUCH8</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO8">RTCIO8</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC1_5">ADC1_5</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO33">GPIO33</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">IO25</TD>
+    <TD ROWSPAN="5">14</TD>
+      <TD BGCOLOR="lightgray" PORT="DAC1">DAC1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO6">RTCIO6</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_8">ADC2_8</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_RXD0">EMAC_RXD0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO25">GPIO25</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">IO26</TD>
+    <TD ROWSPAN="5">15</TD>
+      <TD BGCOLOR="lightgray" PORT="DAC2">DAC2</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO7">RTCIO7</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_9">ADC2_9</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_RXD1">EMAC_RXD1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO25">GPIO25</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">IO27</TD>
+    <TD ROWSPAN="5">16</TD>
+      <TD BGCOLOR="lightgray" PORT="TOUCH7">TOUCH7</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO17">RTCIO17</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_7">ADC2_7</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_RXDV">EMAC_RXDV</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO27">GPIO27</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="6">IO14</TD>
+    <TD ROWSPAN="6">17</TD>
+      <TD BGCOLOR="lightgray" PORT="TMS">TMS</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="TOUCH6">TOUCH6</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO16">RTCIO16</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_6">ADC2_6</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_TXD2">EMAC_TXD2</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO14">GPIO14</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="6">IO12</TD>
+    <TD ROWSPAN="6">18</TD>
+      <TD BGCOLOR="lightgray" PORT="TDI">TDI</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="TOUCH5">TOUCH5</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO15">RTCIO15</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_5">ADC2_5</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_TXD3">EMAC_TXD3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO12">GPIO12</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="1">GND</TD>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="9">IO13</TD>
+    <TD ROWSPAN="9">20</TD>
+      <TD BGCOLOR="lightgreen" PORT="HS2CLK">HS2CLK</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SDCLK">SDCLK</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HSPICLK">HSPICLK</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="MTMS">MTMS</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="TOUCH4">TOUCH4</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO14">RTCIO14</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_4">ADC2_4</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_RXER">EMAC_RXER</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO13">GPIO13</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">SD2</TD>
+    <TD ROWSPAN="5">28</TD>
+      <TD BGCOLOR="lightgray" PORT="SDDATA2">SDDATA2</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HSIDATA2">HSIDATA2</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U1RXD">U1RXD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SPIHD">SPIHD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO9">GPIO9</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">SD3</TD>
+    <TD ROWSPAN="5">29</TD>
+      <TD BGCOLOR="lightgray" PORT="SDDATA3">SDDATA3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HSIDATA3">HSIDATA3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U1TXD">U1TXD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SPIWP">SPIWP</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO10">GPIO10</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="5">CMD</TD>
+    <TD ROWSPAN="5">30</TD>
+      <TD BGCOLOR="lightgray" PORT="SDCMD">SDDATA3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HSICMD">HSIDATA3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U1RTS">U1TXD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SPI_CS0">SPIWP</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_11">GPIO10</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="1">5V</TD>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+  </TR>
+</TABLE>>]
+
+  right [shape=plaintext, style="", pos="5,0!",  label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="1">
+  <TR>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+    <TD ROWSPAN="1">GND</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_23">GPIO_23</TD>
+    <TD ROWSPAN="3">36</TD>
+    <TD ROWSPAN="3">IO23</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="VSPI_ID">VSPI_ID</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS1_STROBE">HS1_STROBE</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_22">GPIO_22</TD>
+    <TD ROWSPAN="4">39</TD>
+    <TD ROWSPAN="4">IO22</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_TXD1">EMAC_TXD1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U0_RTS">U0_RTS</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="VSPI_WP">VSPI_WP</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_1">GPIO_1</TD>
+    <TD ROWSPAN="4">41</TD>
+    <TD ROWSPAN="4">TXD0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_RXD2">EMAC_RXD2</TD></TR><TR>
+      <TD BGCOLOR="lightgreen" PORT="U0_TXD">U0_TXD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="CLK_OUT3">CLK_OUT3</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_3">GPIO_3</TD>
+    <TD ROWSPAN="3">40</TD>
+    <TD ROWSPAN="3">RXD0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U0_RXD">U0_RXD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="CLK_OUT2">CLK_OUT2</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_21">GPIO_21</TD>
+    <TD ROWSPAN="3">40</TD>
+    <TD ROWSPAN="3">IO21</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_TXEN">EMAC_TXEN</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="VSPI_HD">VSPI_HD</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+    <TD ROWSPAN="1" BORDER="0"></TD>
+    <TD ROWSPAN="1">GND</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_19">GPIO_19</TD>
+    <TD ROWSPAN="4">38</TD>
+    <TD ROWSPAN="4">IO19</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_TXD0">EMAC_TXD0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U0_CTS">U0_CTS</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="VSPI_Q">VSPI_Q</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_18">GPIO_18</TD>
+    <TD ROWSPAN="3">35</TD>
+    <TD ROWSPAN="3">IO18</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="VSPI_CLK">VSPI_CLK</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS1_DATA7">HS1_DATA7</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_5">GPIO_5</TD>
+    <TD ROWSPAN="4">34</TD>
+    <TD ROWSPAN="4">IO5</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_RXCLK">EMAC_RXCLK</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="VSPI_CS0">VSPI_CS0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS1_DATA6">HS1_DATA6</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_17">GPIO_17</TD>
+    <TD ROWSPAN="4">27</TD>
+    <TD ROWSPAN="4">IO17</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_CO180">EMAC_CO180</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U2_TXD">U2_TXD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS1_DATA5">HS1_DATA5</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_16">GPIO_16</TD>
+    <TD ROWSPAN="4">25</TD>
+    <TD ROWSPAN="4">IO16</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_CLKOUT">EMAC_CLKOUT</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U2_RXD">U2_RXD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS1_DATA4">HS1_DATA4</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_4">GPIO_4</TD>
+    <TD ROWSPAN="8">25</TD>
+    <TD ROWSPAN="8">IO4</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_TXER">EMAC_TXER</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_0">ADC2_0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO_10">RTCIO_10</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="TOUCH_0">TOUCH_0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HSPI_HD">HSPI_HD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SD_DATA1">SD_DATA1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS2_DATA1">HS2_DATA1</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_0">GPIO_0</TD>
+    <TD ROWSPAN="6">23</TD>
+    <TD ROWSPAN="6">IO0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_TXCLK">EMAC_TXCLK</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_1">ADC2_1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO_11">RTCIO_11</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="TOUCH_1">TOUCH_1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="CLK_OUT1">CLK_OUT1</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_2">GPIO_2</TD>
+    <TD ROWSPAN="5">22</TD>
+    <TD ROWSPAN="5">IO2</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HSPI_WP">HSPI_WP</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_2">ADC2_2</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO_12">RTCIO_12</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="TOUCH_2">TOUCH_2</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_15">GPIO_15</TD>
+    <TD ROWSPAN="9">21</TD>
+    <TD ROWSPAN="9">IO15</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="EMAC_RXD3">EMAC_RXD3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="ADC2_3">ADC2_3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="RTCIO_13">RTCIO_13</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="TOUCH_3">TOUCH_3</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="MT_D0">MT_D0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HSPI_CS0">HSPI_CS0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SD_CMD">SD_CMD</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS2_CMD">HS2_CMD</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_8">GPIO_8</TD>
+    <TD ROWSPAN="5">33</TD>
+    <TD ROWSPAN="5">SD1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SPI_D">SPI_D</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U2_CTS">U2_CTS</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS1_DATA1">HS1_DATA1</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SD_DATA1">SD_DATA1</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_7">GPIO_7</TD>
+    <TD ROWSPAN="5">32</TD>
+    <TD ROWSPAN="5">SD0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SPI_Q">SPI_Q</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U2_RTS">U2_RTS</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS1_DATA0">HS1_DATA0</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SD_DATA0">SD_DATA0</TD>
+  </TR>
+  <TR><TD BORDER="0"> </TD></TR>
+  <TR>
+      <TD BGCOLOR="lightgray" PORT="GPIO_6">GPIO_6</TD>
+    <TD ROWSPAN="5">31</TD>
+    <TD ROWSPAN="5">CLK</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SPI_CLK">SPI_CLK</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="U1_CTS">U1_CTS</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="HS1_CLK">HS1_CLK</TD></TR><TR>
+      <TD BGCOLOR="lightgray" PORT="SD_CLK">SD_CLK</TD>
+  </TR>
+</TABLE>>]
+
+}
