@@ -15,3 +15,4 @@ void app_main()
 {
 	spo2_init("SpO2", &spo2_task);
 }
+

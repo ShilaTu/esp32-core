@@ -75,3 +75,4 @@ spo2_read(spo2_adc_sample *sample)
 {
 	spo2_read_adc(sample);
 }
+
