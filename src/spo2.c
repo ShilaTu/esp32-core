@@ -1,88 +1,77 @@
+#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+#include "esp_log.h"
+
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#include "ls_task.h"
 #include "spo2.h"
 #include "spo2_driver.h"
 
 
-ls_task spo2_task;
+static const char* TAG = "SpO2";
 
 
 /**
- * do_spo2() - spo2 task worker function
+ * spo2_runner() - spo2 task worker function
  * @pvParameters:	void* to pass function parameters.
  *
  * This worker function retrieves an input data sample from the ADCs. This
  * is the place where further processing of the data will happen.
  */
-static void do_spo2(void *pvParameters);
+static void spo2_runner(void *pvParameters);
 
 /**
  * spo2_read() - read a single input data sample
- * @data:	space for sample readings
+ * @sample:	space for sample readings
  *
  * Read out a single data sample using the different peripherals needed.
  */
-static void spo2_read(uint32_t *data);
-
-/**
- * print_values() - print aquired values
- * @data:	space for sample readings
- *
- * Print values to serial out that have been aquired through the peripherals
- * for demonstration and/or debug purpuses.
- */
-static void print_values(uint32_t *data);
+static void spo2_read(spo2_adc_sample *sample);
 
 
 void
-spo2
-(void)
+spo2_init
+(const char* name, _spo2_task *spo2_task)
 {
 	spo2_init_peripherals();
 
-	spo2_task.handle = xTaskCreateStatic(
-		do_spo2,
-		SPO2_TASK_NAME,
-		LS_TASK_STACK_SIZE,
+	spo2_task->handle = xTaskCreateStatic(
+		spo2_runner,
+		name,
+		SPO2_STACK_SIZE,
 		NULL,
 		tskIDLE_PRIORITY,
-		spo2_task.stack,
-		&spo2_task.data
+		spo2_task->stack,
+		&spo2_task->tcb
 	);
 }
 
 
 static
 void
-do_spo2
+spo2_runner
 (void *pvParameters)
 {
-	uint32_t data[4] = { 0 };
+	spo2_adc_sample sample;
 
 	for(;;)
 	{
-		spo2_read(data);
-		print_values(data);
+		spo2_read(&sample);
+		ESP_LOGD(
+			TAG,
+			"RED-DC=%-4d IRD-DC=%-4d RED-AC=%-4d IRD-AC=%-4d",
+			sample.red_dc,
+			sample.red_ac,
+			sample.ird_dc,
+			sample.ird_ac
+		);
 		vTaskDelay(SPO2_READ_PERIOD);
 	}
 }
 
 static
 void
-spo2_read(uint32_t *data)
+spo2_read(spo2_adc_sample *sample)
 {
-	spo2_read_adc(data);
-}
-
-static
-void
-print_values
-(uint32_t *data)
-{
-	printf(
-		"RED-DC=%-4d IRD-DC=%-4d RED-AC=%-4d IRD-AC=%-4d\n",
-		data[0], data[1], data[2], data[3]
-	);
+	spo2_read_adc(sample);
 }
