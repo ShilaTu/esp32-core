@@ -62,3 +62,4 @@ void spo2_init_peripherals(void);
 void spo2_read_adc(spo2_adc_sample *sample);
 
 #endif
+

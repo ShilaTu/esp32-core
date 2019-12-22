@@ -133,3 +133,4 @@ spo2_init_io
 	ESP_ERROR_CHECK(gpio_config(&gpio_agc_up_config));
 	ESP_ERROR_CHECK(gpio_config(&gpio_agc_inc_config));
 }
+
