@@ -1,6 +1,9 @@
 #include "spo2.h"
 
 
+_spo2_task spo2_task;
+
+
 /**
  * app_main() - main thread after boot process
  *
@@ -10,5 +13,5 @@
  */
 void app_main()
 {
-	spo2();
+	spo2_init("SpO2", &spo2_task);
 }

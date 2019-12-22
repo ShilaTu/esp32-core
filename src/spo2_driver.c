@@ -86,20 +86,20 @@ spo2_init_peripherals
 
 void
 spo2_read_adc
-(uint32_t *data)
+(spo2_adc_sample *sample)
 {
 	for(int i=0; i<SPO2_ADC_ROUNDS; i++)
 	{	
-		data[0] = adc1_get_raw(SPO2_ADC_RED_DC);
-		data[1] = adc1_get_raw(SPO2_ADC_IRD_DC);
-		data[2] = adc1_get_raw(SPO2_ADC_RED_AC);
-		data[3] = adc1_get_raw(SPO2_ADC_IRD_AC);
+		sample->red_dc += adc1_get_raw(SPO2_ADC_RED_DC);
+		sample->ird_dc += adc1_get_raw(SPO2_ADC_IRD_DC);
+		sample->red_ac += adc1_get_raw(SPO2_ADC_RED_AC);
+		sample->ird_ac += adc1_get_raw(SPO2_ADC_IRD_AC);
 	}
 
-	data[0] /= SPO2_ADC_ROUNDS;
-	data[1] /= SPO2_ADC_ROUNDS;
-	data[2] /= SPO2_ADC_ROUNDS;
-	data[3] /= SPO2_ADC_ROUNDS;
+	sample->red_dc /= SPO2_ADC_ROUNDS;
+	sample->ird_dc /= SPO2_ADC_ROUNDS;
+	sample->red_ac /= SPO2_ADC_ROUNDS;
+	sample->ird_ac /= SPO2_ADC_ROUNDS;
 }
 
 

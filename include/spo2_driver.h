@@ -24,6 +24,23 @@
 
 
 /**
+ * struct spo2_adc_sample - life-sensor spo2 adc sample struct
+ * @red_dc:	red LED DC value
+ * @ird_dc:	infrared LED DC value
+ * @red_ac:	red LED AC value
+ * @ird_ac:	infrared LED AC value
+ *
+ * This struct saves an ADC sample necessary for the spo2 calculations.
+ */
+typedef struct {
+	int red_dc;
+	int ird_dc;
+	int red_ac;
+	int ird_ac;
+} spo2_adc_sample;
+
+
+/**
  * spo2_init_peripherals() - initialization of necessary peripherals
  *
  * Peripherals that are initialized are 2xADC for each of the multiplexed
@@ -37,11 +54,11 @@ void spo2_init_peripherals(void);
 
 /**
  * spo2_read_adc() - read in a complete ADC data set
- * @data	One integer for each ADC.
+ * @sample	single set of ADC readings
  *
  * Read all ADC values that are necessary to perform calculations and save
  * each of it to data. The data is an average of SPO2_ADC_ROUNDS measurements.
  */
-void spo2_read_adc(uint32_t *data);
+void spo2_read_adc(spo2_adc_sample *sample);
 
 #endif
