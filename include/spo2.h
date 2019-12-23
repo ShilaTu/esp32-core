@@ -31,7 +31,6 @@ typedef struct {
  * data. After initialization a thread is started which periodically reads in
  * input data.
  */
-void spo2_init(const char*, _spo2_task*);
+void spo2_init(const char *name, _spo2_task *spo2_task);
 
 #endif 
-
