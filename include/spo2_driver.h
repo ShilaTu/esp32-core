@@ -31,12 +31,13 @@
  * @ird_ac:	infrared LED AC value
  *
  * This struct saves an ADC sample necessary for the spo2 calculations.
+ * NOTE: Only the lower 16 bit are relevant.
  */
-typedef struct {
-	int red_dc;
-	int ird_dc;
-	int red_ac;
-	int ird_ac;
+typedef struct __attribute__((packed)) {
+	uint32_t red_dc;
+	uint32_t ird_dc;
+	uint32_t red_ac;
+	uint32_t ird_ac;
 } spo2_adc_sample;
 
 

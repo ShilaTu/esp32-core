@@ -1,7 +1,21 @@
+#include "ulp.h"
 #include "spo2.h"
 
 
-_spo2_task spo2_task;
+static uint8_t spo2_queue_buffer[SPO2_QUEUE_BUFFER_SIZE];
+static StackType_t spo2_task_stack[SPO2_TASK_STACK_SIZE];
+
+_spo2_queue spo2_queue = {
+	.length = SPO2_QUEUE_LENGTH,
+	.item_size = SPO2_QUEUE_ITEM_SIZE,
+	.buffer = spo2_queue_buffer
+};
+
+_spo2_task spo2_task = {
+	.name = SPO2_TASK_NAME,
+	.priority = tskIDLE_PRIORITY,
+	.stack = spo2_task_stack
+};
 
 
 /**
@@ -13,6 +27,7 @@ _spo2_task spo2_task;
  */
 void app_main()
 {
-	spo2_init("SpO2", &spo2_task);
+	spo2_init(&spo2_task, &spo2_queue);
+	ulp_init(&spo2_queue);
 }
 
