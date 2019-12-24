@@ -1,0 +1,43 @@
+#include "esp32/ulp.h"
+#include "soc/rtc_cntl_reg.h"
+#include "driver/rtc_cntl.h"
+#include "spo2.h"
+#include "ulp.h"
+
+
+static void ulp_isr(void *args);
+
+
+void
+ulp_init
+(_spo2_queue *spo2_queue)
+{
+	/* write ulp binary to RTC_SLOW_MEM */
+	size_t program_size = (ulp_bin_end - ulp_bin_start) / sizeof(uint32_t);
+	ESP_ERROR_CHECK(ulp_load_binary(0, ulp_bin_start, program_size));
+
+	/* set reload period */
+	ESP_ERROR_CHECK(ulp_set_wakeup_period(0, ULP_SAMPLING_PERIOD_US));
+
+	/* register ulp isr */
+	ESP_ERROR_CHECK(rtc_isr_register(
+		&ulp_isr,
+		(void*)spo2_queue,
+		RTC_CNTL_SAR_INT_ST_M
+	));
+
+	/* enable rtc interupt */
+	REG_SET_BIT(RTC_CNTL_INT_ENA_REG, RTC_CNTL_ULP_CP_INT_ENA_M);
+
+	/* run ulp program */
+	ESP_ERROR_CHECK(ulp_run(&ulp_entry - RTC_SLOW_MEM));
+}
+
+
+static
+void
+ulp_isr
+(void *args)
+{
+	xQueueSendFromISR(((_spo2_queue*)args)->queue, (void*)ulp_sample, pdFALSE);
+}
