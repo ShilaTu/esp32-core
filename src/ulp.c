@@ -5,6 +5,14 @@
 #include "ulp.h"
 
 
+/*
+ * ulp_isr() - Ultra-low-power coprocessor interrupt service routine
+ * @args	void pointer to isr arguments
+ *
+ * After registering this function as RTC ISR using rtc_isr_register()
+ * the function will will the spo2 queue everytime a new sample from the ulp
+ * is available.
+ */
 static void ulp_isr(void *args);
 
 
@@ -39,5 +47,5 @@ void
 ulp_isr
 (void *args)
 {
-	xQueueSendFromISR(((_spo2_queue*)args)->queue, (void*)ulp_sample, pdFALSE);
+	xQueueSendFromISR(&((_spo2_queue*)args)->queue, (void*)ulp_sample, pdFALSE);
 }

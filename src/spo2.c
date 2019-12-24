@@ -3,12 +3,11 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/queue.h>
 
+#include "ulp.h"
 #include "spo2.h"
 #include "spo2_driver.h"
-
-
-static const char* TAG = "SpO2";
 
 
 /**
@@ -20,27 +19,26 @@ static const char* TAG = "SpO2";
  */
 static void spo2_runner(void *pvParameters);
 
-/**
- * spo2_read() - read a single input data sample
- * @sample:	space for sample readings
- *
- * Read out a single data sample using the different peripherals needed.
- */
-static void spo2_read(spo2_adc_sample *sample);
-
 
 void
 spo2_init
-(const char* name, _spo2_task *spo2_task)
+(_spo2_task *spo2_task, _spo2_queue *spo2_queue)
 {
 	spo2_init_peripherals();
 
+	spo2_queue->handle = xQueueCreateStatic(
+		spo2_queue->length,
+		spo2_queue->item_size,
+		spo2_queue->buffer,
+		&spo2_queue->queue
+	);
+
 	spo2_task->handle = xTaskCreateStatic(
 		spo2_runner,
-		name,
-		SPO2_STACK_SIZE,
-		NULL,
-		tskIDLE_PRIORITY,
+		spo2_task->name,
+		SPO2_TASK_STACK_SIZE,
+		(void*)spo2_queue,
+		spo2_task->priority,
 		spo2_task->stack,
 		&spo2_task->tcb
 	);
@@ -53,26 +51,20 @@ spo2_runner
 (void *pvParameters)
 {
 	spo2_adc_sample sample;
+	_spo2_queue *spo2_queue = (_spo2_queue*)pvParameters;
 
 	for(;;)
 	{
-		spo2_read(&sample);
-		ESP_LOGD(
-			TAG,
-			"RED-DC=%-4d IRD-DC=%-4d RED-AC=%-4d IRD-AC=%-4d",
-			sample.red_dc,
-			sample.red_ac,
-			sample.ird_dc,
-			sample.ird_ac
-		);
-		vTaskDelay(SPO2_READ_PERIOD);
-	}
-}
+		xQueueReceive(&spo2_queue->queue, &sample, portMAX_DELAY);
 
-static
-void
-spo2_read(spo2_adc_sample *sample)
-{
-	spo2_read_adc(sample);
+		ESP_LOGD(
+			SPO2_TASK_NAME,
+			"RED-DC=%-4d IRD-DC=%-4d RED-AC=%-4d IRD-AC=%-4d",
+			(uint16_t)sample.red_dc,
+			(uint16_t)sample.ird_dc,
+			(uint16_t)sample.red_ac,
+			(uint16_t)sample.ird_ac
+		);
+	}
 }
 
