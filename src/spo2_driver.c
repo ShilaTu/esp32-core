@@ -84,24 +84,6 @@ spo2_init_peripherals
 	spo2_init_io();
 }
 
-void
-spo2_read_adc
-(spo2_adc_sample *sample)
-{
-	for(int i=0; i<SPO2_ADC_ROUNDS; i++)
-	{	
-		sample->red_dc += adc1_get_raw(SPO2_ADC_RED_DC);
-		sample->ird_dc += adc1_get_raw(SPO2_ADC_IRD_DC);
-		sample->red_ac += adc1_get_raw(SPO2_ADC_RED_AC);
-		sample->ird_ac += adc1_get_raw(SPO2_ADC_IRD_AC);
-	}
-
-	sample->red_dc /= SPO2_ADC_ROUNDS;
-	sample->ird_dc /= SPO2_ADC_ROUNDS;
-	sample->red_ac /= SPO2_ADC_ROUNDS;
-	sample->ird_ac /= SPO2_ADC_ROUNDS;
-}
-
 
 static
 void
@@ -113,6 +95,7 @@ spo2_init_adc
 	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_IRD_DC, SPO2_ADC_ATTEN));
 	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_RED_AC, SPO2_ADC_ATTEN));
 	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_IRD_AC, SPO2_ADC_ATTEN));
+	adc1_ulp_enable();
 }
 
 static
