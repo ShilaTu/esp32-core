@@ -77,6 +77,34 @@ CHECK += check-monitor
 HELP_check-monitor = checks env if monitor is possible
 check-monitor: | check-docker check-dev check-env
 
+### simulate targets ###
+
+DOCKER_LOCAL_HOST ?= 172.17.0.3
+DOCKER_QEMU_GDB_PORT ?= 1234
+DOCKER_QEMU_MONITOR_PORT ?= 1235
+HOST_QEMU_GDB_PORT ?= 1234
+HOST_QEMU_MONITOR_PORT ?= 1235
+
+.PHONY: sim
+TARGET += sim
+HELP_sim = simulates the project with qemu
+sim:
+	@make --no-print-directory -C docker \
+		qemu \
+		EXEC="\
+			qemu-system-xtensa \
+				-cpu dc232b \
+				-M sim \
+				-m 128M \
+				-gdb tcp:$(DOCKER_LOCAL_HOST):$(DOCKER_QEMU_GDB_PORT) \
+				-monitor telnet:$(DOCKER_LOCAL_HOST):$(DOCKER_QEMU_MONITOR_PORT),server,nowait \
+				-nographic \
+				-kernel .pio/build/$(PIO_ENV)/firmware.elf" \
+		DOCKEROPTS="\
+			   -p $(HOST_QEMU_GDB_PORT):$(DOCKER_QEMU_GDB_PORT) \
+			   -p $(HOST_QEMU_MONITOR_PORT):$(DOCKER_QEMU_MONITOR_PORT)" \
+
+
 ### dev targets ###
 
 .PHONY: dev
