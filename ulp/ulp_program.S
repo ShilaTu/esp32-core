@@ -20,9 +20,9 @@ sample:
 entry:
 	MOVE r3, sample
 	STAGE_RST
+	MOVE r0, 0
 
 measure_adc4:
-	MOVE r0, 0
 	ADC r1, 0, adc_channel_4
 	ADD r0, r0, r1
 
@@ -32,9 +32,9 @@ measure_adc4:
 	RSH r0, r0, oversampling_log
 	ST r0, r3, 0
 	STAGE_RST
+	MOVE r0, 0
 
 measure_adc5:
-	MOVE r0, 0
 	ADC r1, 0, adc_channel_5
 	ADD r0, r0, r1
 
@@ -44,9 +44,9 @@ measure_adc5:
 	RSH r0, r0, oversampling_log
 	ST r0, r3, 4
 	STAGE_RST
+	MOVE r0, 0
 
 measure_adc6:
-	MOVE r0, 0
 	ADC r1, 0, adc_channel_6
 	ADD r0, r0, r1
 
@@ -56,9 +56,9 @@ measure_adc6:
 	RSH r0, r0, oversampling_log
 	ST r0, r3, 8
 	STAGE_RST
+	MOVE r0, 0
 
 measure_adc7:
-	MOVE r0, 0
 	ADC r1, 0, adc_channel_7
 	ADD r0, r0, r1
 

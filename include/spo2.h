@@ -10,8 +10,29 @@
 #define SPO2_TASK_NAME "SpO2"
 #define SPO2_TASK_STACK_SIZE 0x1000
 #define SPO2_QUEUE_LENGTH 16
-#define SPO2_QUEUE_ITEM_SIZE sizeof(spo2_adc_sample)
+#define SPO2_QUEUE_ITEM_SIZE sizeof(_spo2_adc_sample)
 #define SPO2_QUEUE_BUFFER_SIZE (SPO2_QUEUE_ITEM_SIZE * SPO2_QUEUE_LENGTH)
+
+
+/**
+ * struct _spo2_sample - life-sensor sample struct
+ * @ird_dc:		infrared DC value
+ * @red_dc:		red DC value
+ * @ird_ac:		infrared AC value
+ * @red_ac:		red AC value
+ * @ird_acdc:	infrared error of DC and pre-processed DC
+ * @red_acdc:	red error of DC and pre-processed DC
+ *
+ * This struct holds pre-processed sensor values
+ */
+typedef struct {
+	int32_t ird_dc;
+	int32_t red_dc;
+	int32_t ird_ac;
+	int32_t red_ac;
+	int32_t ird_acdc;
+	int32_t red_acdc;
+} _spo2_input_sample;
 
 
 /**
