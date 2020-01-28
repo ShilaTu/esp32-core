@@ -79,17 +79,27 @@ check-monitor: | check-docker check-dev check-env
 
 ### simulate targets ###
 
+# Does this differ from build to build?
 DOCKER_LOCAL_HOST ?= 172.17.0.3
+
+# Technically those dont matter since they are inside the container anyway
 DOCKER_QEMU_GDB_PORT ?= 1234
 DOCKER_QEMU_MONITOR_PORT ?= 1235
+
+VARIABLE+=HOST_QEMU_GDB_PORT
 HOST_QEMU_GDB_PORT ?= 1234
+HELP_HOST_QEMU_GDB_PORT = The port on the host to attach gdb to
+
+VARIABLE+=HOST_QEMU_MONITOR_PORT
 HOST_QEMU_MONITOR_PORT ?= 1235
+HELP_HOST_QEMU_MONITOR_PORT = The port on the host to attach the qemu monitor to
 
 .PHONY: sim
 TARGET += sim
 HELP_sim = simulates the project with qemu
 sim:
-	@make --no-print-directory -C docker \
+	@echo Attach to the qemu monitor with \"telnet localhost $(HOST_QEMU_MONITOR_PORT)\" ; \
+	make --no-print-directory -C docker \
 		qemu \
 		EXEC="\
 			qemu-system-xtensa \
