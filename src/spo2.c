@@ -8,6 +8,7 @@
 #include "ulp.h"
 #include "spo2.h"
 #include "spo2_driver.h"
+#include "spo2_filter.h"
 
 
 /**
@@ -50,20 +51,24 @@ void
 spo2_runner
 (void *pvParameters)
 {
-	spo2_adc_sample sample;
+	static _spo2_input_sample sample = {0};
+	static _spo2_adc_sample adc_sample;
 	_spo2_queue *spo2_queue = (_spo2_queue*)pvParameters;
 
 	for(;;)
 	{
-		xQueueReceive(&spo2_queue->queue, &sample, portMAX_DELAY);
+		xQueueReceive(&spo2_queue->queue, &adc_sample, portMAX_DELAY);
+		spo2_filter(&sample, &adc_sample);
 
 		ESP_LOGD(
 			SPO2_TASK_NAME,
-			"RED-DC=%-4d IRD-DC=%-4d RED-AC=%-4d IRD-AC=%-4d",
-			(uint16_t)sample.red_dc,
-			(uint16_t)sample.ird_dc,
-			(uint16_t)sample.red_ac,
-			(uint16_t)sample.ird_ac
+			"RED-DC=%-4d IRD-DC=%-4d RED-AC=%-4d IRD-AC=%-4d RED-ACDC=%-4d IRD-ACDC=%-4d",
+			sample.red_dc,
+			sample.ird_dc,
+			sample.red_ac,
+			sample.ird_ac,
+			sample.red_acdc,
+			sample.ird_acdc
 		);
 	}
 }

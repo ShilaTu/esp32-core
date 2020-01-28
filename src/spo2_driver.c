@@ -30,6 +30,15 @@ static void spo2_init_ledc(void);
  */
 static void spo2_init_io(void);
 
+/**
+ * spo2_init_dcp() - initialize digital controlled potentiometer (DCP)
+ *
+ * Since the CS pin is connected to GND we do never use the internal non-
+ * volatile storage to write the 7-bit value of the current DCP value. Instead
+ * on each startup the DCP is set down to 1kOhm initially.
+ */
+static void spo2_init_dcp(void);
+
 
 static ledc_timer_config_t led_timer_config = {
 	.timer_num = LEDC_TIMER_0,
@@ -59,7 +68,7 @@ static ledc_channel_config_t ird_channel_config = {
 };
 
 static gpio_config_t gpio_agc_up_config = {
-	.pin_bit_mask = SPO2_AGC_UP_PIN,
+	.pin_bit_mask = SPO2_DCP_UD_PIN,
 	.mode = GPIO_MODE_OUTPUT,
 	.pull_down_en = GPIO_PULLDOWN_ENABLE,
 	.pull_up_en = GPIO_PULLUP_DISABLE,
@@ -67,7 +76,7 @@ static gpio_config_t gpio_agc_up_config = {
 };
 
 static gpio_config_t gpio_agc_inc_config = {
-	.pin_bit_mask = SPO2_AGC_INC_PIN,
+	.pin_bit_mask = SPO2_DCP_INC_PIN,
 	.mode = GPIO_MODE_OUTPUT,
 	.pull_down_en = GPIO_PULLDOWN_ENABLE,
 	.pull_up_en = GPIO_PULLUP_DISABLE,
@@ -82,6 +91,7 @@ spo2_init_peripherals
 	spo2_init_adc();
 	spo2_init_ledc();
 	spo2_init_io();
+	spo2_init_dcp();
 }
 
 
@@ -115,5 +125,19 @@ spo2_init_io
 {
 	ESP_ERROR_CHECK(gpio_config(&gpio_agc_up_config));
 	ESP_ERROR_CHECK(gpio_config(&gpio_agc_inc_config));
+}
+
+static
+void
+spo2_init_dcp
+(void)
+{
+	ESP_ERROR_CHECK(gpio_set_level(SPO2_DCP_UD_PIN, 0));
+	ESP_ERROR_CHECK(gpio_set_level(SPO2_DCP_INC_PIN, 0));
+
+	for(int i=0; i<SPO2_DCP_STEP_COUNT; i++)
+	{
+
+	}
 }
 
