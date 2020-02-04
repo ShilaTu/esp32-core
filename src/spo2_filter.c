@@ -1,7 +1,31 @@
 #include "spo2_filter.h"
 
 
-void spo2_filter(_spo2_input_sample *sample, _spo2_adc_sample *raw_data)
+/**
+ * spo2_ac_lowpass_no_offset() - 5 Hz digital low-pass filter (without offset)
+ * @feedback:	previous filter output
+ * @adc_value:	current filter input
+ *
+ * This sigital filter gives a bound at 5 Hz filter. Additionally it removes an
+ * offset of 50% of the input voltage. It is used pre-process the red and ird
+ * sensor values.
+ */
+static int32_t spo2_ac_lowpass_no_offset(int32_t feedback, int32_t adc_value);
+
+/**
+ * spo2_dc_lowpass() - 0.5 Hz digital low-pass filter
+ * @feedback:	previous filter output
+ * @adc_value:	current filter input
+ *
+ * This sigital filter gives a bound at 0.5 Hz filter. It is used pre-process
+ * the red and ird sensor values.
+ */
+static int32_t spo2_dc_lowpass(int32_t feedback, int32_t adc_value);
+
+
+void
+spo2_filter
+(_spo2_input_sample *sample, _spo2_adc_sample *raw_data)
 {
 	/*
 	 * 5Hz low-pass filtering and removing the 2.5 V offset 
@@ -23,3 +47,22 @@ void spo2_filter(_spo2_input_sample *sample, _spo2_adc_sample *raw_data)
 	sample->ird_acdc = ((uint16_t)raw_data->ird_dc) - sample->ird_dc;
 	sample->red_acdc = ((uint16_t)raw_data->red_dc) - sample->red_dc;
 }
+
+
+static
+int32_t
+spo2_dc_lowpass
+(int32_t feedback, int32_t adc_value)
+{
+	return (126 * feedback >> 7) + (2 * adc_value >> 7);
+}
+
+static
+int32_t
+spo2_ac_lowpass_no_offset
+(int32_t feedback, int32_t adc_value)
+{
+	adc_value = adc_value - ADC_OFFSET_HALF;
+	return (115 * feedback >> 7) + (13 * adc_value >> 7);
+}
+
