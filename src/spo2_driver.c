@@ -101,10 +101,14 @@ spo2_init_adc
 (void)
 {
 	ESP_ERROR_CHECK(adc1_config_width(ADC_WIDTH_BIT_12));
-	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_RED_DC, SPO2_ADC_ATTEN));
-	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_IRD_DC, SPO2_ADC_ATTEN));
-	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_RED_AC, SPO2_ADC_ATTEN));
-	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_IRD_AC, SPO2_ADC_ATTEN));
+	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_RED_DC,
+			SPO2_ADC_ATTEN));
+	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_IRD_DC,
+			SPO2_ADC_ATTEN));
+	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_RED_AC,
+			SPO2_ADC_ATTEN));
+	ESP_ERROR_CHECK(adc1_config_channel_atten(SPO2_ADC_IRD_AC,
+			SPO2_ADC_ATTEN));
 	adc1_ulp_enable();
 }
 

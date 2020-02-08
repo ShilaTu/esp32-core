@@ -62,7 +62,8 @@ spo2_runner
 
 		ESP_LOGD(
 			SPO2_TASK_NAME,
-			"RED-DC=%-4d IRD-DC=%-4d RED-AC=%-4d IRD-AC=%-4d RED-ACDC=%-4d IRD-ACDC=%-4d",
+			"RED-DC=%-4d IRD-DC=%-4d RED-AC=%-4d IRD-AC=%-4d"
+			" RED-ACDC=%-4d IRD-ACDC=%-4d",
 			sample.red_dc,
 			sample.ird_dc,
 			sample.red_ac,
