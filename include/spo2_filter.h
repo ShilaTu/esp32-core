@@ -9,8 +9,9 @@
 
 /**
  * spo2_filter() - Applies digital filters to adc sample
- * @sample:		source and(!) target sample that contains (previous) filtered values
- * @adc_sample:	source sample that cntains raw adc readings
+ * @sample:     source and(!) target sample that contains (previous) filtered
+ *              values
+ * @adc_sample: source sample that cntains raw adc readings
  *
  * This function applies digital filters to the values from `adc_sample` while
  * additionally using the old values from the previous filtered `sample`.

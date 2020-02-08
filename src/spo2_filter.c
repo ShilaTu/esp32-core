@@ -31,14 +31,18 @@ spo2_filter
 	 * 5Hz low-pass filtering and removing the 2.5 V offset 
 	 * from the amplified AC input values
 	 */
-	sample->ird_ac = spo2_ac_lowpass_no_offset(sample->ird_ac, (uint16_t)raw_data->ird_ac);
-	sample->red_ac = spo2_ac_lowpass_no_offset(sample->red_ac, (uint16_t)raw_data->red_ac);
+	sample->ird_ac = spo2_ac_lowpass_no_offset(sample->ird_ac,
+						   (uint16_t)raw_data->ird_ac);
+	sample->red_ac = spo2_ac_lowpass_no_offset(sample->red_ac,
+			                           (uint16_t)raw_data->red_ac);
 
 	/*
 	 * 0.5 Hz low-pass filtering the input adc DC values
 	 */
-	sample->ird_dc = spo2_dc_lowpass(sample->ird_dc, (uint16_t)raw_data->ird_dc);
-	sample->red_dc = spo2_dc_lowpass(sample->red_dc, (uint16_t)raw_data->red_dc);
+	sample->ird_dc = spo2_dc_lowpass(sample->ird_dc,
+					 (uint16_t)raw_data->ird_dc);
+	sample->red_dc = spo2_dc_lowpass(sample->red_dc,
+					 (uint16_t)raw_data->red_dc);
 
 	/*
 	 * 0.5Hz high-pass filtered AC values on top of 
