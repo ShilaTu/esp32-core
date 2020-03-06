@@ -1,5 +1,6 @@
 #include "ulp.h"
 #include "spo2.h"
+#include "wifi.h"
 
 
 static uint8_t spo2_queue_buffer[SPO2_QUEUE_BUFFER_SIZE];
@@ -29,5 +30,7 @@ void app_main()
 {
 	spo2_init(&spo2_task, &spo2_queue);
 	ulp_init(&spo2_queue);
+	wifi_init();
+	wifi_wait_connected();
 }
 
