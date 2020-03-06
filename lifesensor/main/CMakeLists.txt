@@ -1,7 +1,8 @@
 idf_component_register(
-  SRCS
-    main.c
+  SRC_DIRS
+    "."
   REQUIRES
     spo2
     ulp
+    nvs_flash
 )
