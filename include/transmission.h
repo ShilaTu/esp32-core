@@ -21,6 +21,6 @@ void transmission_shutdown(void);
  * Return:
  *      err: < 0 on failure
  */
-int32_t transmission_send(char *data);
+int32_t transmission_send(char *data, unsigned int size);
 
 #endif

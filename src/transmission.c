@@ -39,9 +39,9 @@ transmission_shutdown(void)
 }
 
 int32_t
-transmission_send(char *data)
+transmission_send(char *data, unsigned int size)
 {
-    int32_t err = sendto(sock, data, sizeof(data), 0,
+    int32_t err = sendto(sock, data, size, 0,
                          (struct sockaddr *)&dest_addr,
                          sizeof(dest_addr));
     return err;
