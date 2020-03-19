@@ -27,7 +27,8 @@ If applicable, add screenshots or code to help explain your problem.
 Add any other context about the problem here.
 
 **Checklist**
-- [ ] clean build
-- [ ] clean workspace
-- [ ] clean container
+- [ ] git pull
+- [ ] make clean
+- [ ] make dirclean
+- [ ] make distclean
 - [ ] no related issue
