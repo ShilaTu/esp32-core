@@ -8,6 +8,10 @@ VARIABLE += PLATFORMIO_VERSION
 HELP_PLATFORMIO_VERSION = which platformio version to use
 PLATFORMIO_VERSION?=4.1.0
 
+VARIABLE += IDF_VERSION
+HELP_IDF_VERSION = which idf version to use
+IDF_VERSION?=v4.0
+
 VARIABLE += QEMU_COMMIT
 HELP_QEMU_COMMIT = which qemu commit to checkout
 QEMU_COMMIT?=esp-develop
@@ -50,6 +54,19 @@ platformio-image: | check-docker
 		-t "lifesensor/platformio:$(PLATFORMIO_VERSION)" \
 		platformio
 
+.PHONY: idf-image
+ALL += idf-image
+DEFAULT += idf-image
+TARGET_idf += idf-image
+HELP_idf-image = builds docker idf image
+idf-image: | check-docker
+	docker build \
+		--build-arg=idf_version=$(IDF_VERSION) \
+		--build-arg=UID=$(UID) \
+		--build-arg=GID=$(GID) \
+		-t "lifesensor/idf:$(IDF_VERSION)" \
+		idf
+
 .PHONY: qemu-image
 ALL += qemu-image
 DEFAULT += qemu-image
@@ -91,6 +108,22 @@ pio platformio: | platformio-image check-docker
 		--hostname platformio \
 		$(DOCKEROPTS) \
 		lifesensor/platformio:$(PLATFORMIO_VERSION) \
+		/bin/sh -c '$(EXEC)'
+
+.PHONY: idf
+TARGET += idf 
+HELP_idf = runs idf container
+idf: | idf-image check-docker
+	docker run \
+		--rm \
+		-ti \
+		$(DOCKER_DEV) \
+		-v idf-home:/home/developer:rw \
+		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
+		-w "$(shell pwd)/.." \
+		--hostname idf \
+		$(DOCKEROPTS) \
+		lifesensor/idf:$(IDF_VERSION) \
 		/bin/sh -c '$(EXEC)'
 
 .PHONY: qemu
@@ -140,6 +173,12 @@ HELP_clean-platformio = removes platformio volume
 clean-platformio:
 	-docker volume rm pio-home
 
+.PHONY: clean-idf
+CLEAN += clean-idf
+HELP_clean-idf = removes idf volume
+clean-idf:
+	-docker volume rm idf-home
+
 .PHONY: clean-qemu
 CLEAN += clean-qemu
 HELP_clean-qemu = removes qemu volume
@@ -159,6 +198,13 @@ DISTCLEAN += distclean-platformio
 HELP_distclean-platformio = removes platformio docker image
 distclean-platformio: clean-platformio
 	-docker image remove "lifesensor/platformio:$(PLATFORMIO_VERSION)"
+	docker image prune
+
+.PHONY: distclean-idf
+DISTCLEAN += distclean-idf
+HELP_distclean-idf = removes idf docker image
+distclean-idf: clean-idf
+	-docker image remove "lifesensor/idf:$(IDF_VERSION)"
 	docker image prune
 	
 .PHONY: distclean-qemu
