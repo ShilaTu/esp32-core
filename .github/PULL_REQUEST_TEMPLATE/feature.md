@@ -15,8 +15,6 @@ A clear and concise description of what you want to happen.
 
 **Checklist**
 - [ ] issue was filed
-- [ ] clean build
-- [ ] clean workspace
-- [ ] clean container
+- [ ] tests added
+- [ ] documentation added 
 - [ ] no related PR
-
