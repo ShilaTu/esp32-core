@@ -12,8 +12,6 @@ Name the the issues, this bugfix solves.
 
 **Checklist**
 - [ ] issue was filed
-- [ ] clean build
-- [ ] clean workspace
-- [ ] clean container
+- [ ] tests added
+- [ ] documentation added
 - [ ] no related PR
-
