@@ -11,8 +11,8 @@
 #define SERVER_IP "192.168.100.1"
 #define PORT 4321
 
-struct sockaddr_in dest_addr;
-int32_t sock = -1;
+static struct sockaddr_in dest_addr;
+static int32_t sock = -1;
 
 void
 transmission_init(void)
