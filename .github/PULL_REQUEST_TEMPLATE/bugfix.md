@@ -7,8 +7,11 @@ assignees: ''
 
 ---
 
-**Related**
-Name the the issues, this bugfix solves.
+**Related Issues & PRs**
+Name the issues & PRs, this bugfix solves or relates to.
+If no issue exists, please create one!
+- #??
+- #??
 
 **Checklist**
 - [ ] tests added
