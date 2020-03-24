@@ -20,15 +20,5 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-**Screenshots/Code**
-If applicable, add screenshots or code to help explain your problem.
-
-**Additional context**
-Add any other context about the problem here.
-
-**Checklist**
-- [ ] git pull
-- [ ] make clean
-- [ ] make dirclean
-- [ ] make distclean
-- [ ] no related issue
+**Context**
+If applicable, add screenshots or code to help explain your problem and any other context about the problem here.
