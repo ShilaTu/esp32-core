@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define SERVER_IP "192.168.100.1"
+#define PORT 4321
+
 /**
  * Initialise transmission environment
  */
