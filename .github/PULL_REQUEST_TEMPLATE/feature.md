@@ -7,14 +7,18 @@ assignees: ''
 
 ---
 
-**Related**
+**Related Issues & PRs**
 Name related PR and issues.
+If no issue exists, please create one!
+- #??
+- #??
 
 **Description**
 A clear and concise description of what you want to happen.
 
+**Context**
+If applicable, add screenshots or code to help explain your problem and any other context about the problem here.
+
 **Checklist**
-- [ ] issue was filed
 - [ ] tests added
 - [ ] documentation added 
-- [ ] no related PR
