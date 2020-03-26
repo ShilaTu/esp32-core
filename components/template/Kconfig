@@ -1,0 +1,22 @@
+menu "Counter"
+    menuconfig COUNTER_TEST_ENABLE
+        bool "Enable unit test"
+        default y
+    if COUNTER_TEST_ENABLE
+        config COUNTER_TEST_ENABLE_RESET
+            bool "Reset"
+            default y
+        config COUNTER_TEST_ENABLE_INCREMENT
+            bool "Increment"
+            default y
+        config COUNTER_TEST_ENABLE_DECREMENT
+            bool "Decrement"
+            default y
+        config COUNTER_TEST_ENABLE_ADD
+            bool "Add"
+            default y
+        config COUNTER_TEST_ENABLE_SUB
+            bool "Sub"
+            default y
+    endif
+endmenu
