@@ -9,7 +9,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: build platformio image
-      run: make -C docker platformio-image
-    - name: build platformio project
-      run: make -C docker pio DOCKEROPTS=--tty=false EXEC="pio run"
+    - name: build idf image
+      run: make -C docker idf-image
+    - name: build idf project
+      run: make -C docker idf DOCKEROPTS=--tty=false EXEC="idf.py build"

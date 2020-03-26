@@ -16,8 +16,8 @@
 void ulp_init();
 
 
-extern const uint8_t ulp_bin_start[] asm("_binary_ulp_main_bin_start");
-extern const uint8_t ulp_bin_end[] asm("_binary_ulp_main_bin_end");
+extern const uint8_t ulp_bin_start[] asm("_binary_ulp_adc_bin_start");
+extern const uint8_t ulp_bin_end[] asm("_binary_ulp_adc_bin_end");
 
 extern uint32_t ulp_entry;
 extern uint32_t ulp_sample[4];

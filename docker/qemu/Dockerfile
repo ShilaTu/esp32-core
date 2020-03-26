@@ -1,5 +1,5 @@
-ARG platformio_version
-FROM lifesensor/platformio:${platformio_version}
+ARG idf_version
+FROM lifesensor/idf:${idf_version}
 
 RUN sudo apt-get -y install zlib1g-dev pkg-config libffi-dev gettext libxml2-dev libcairo2-dev libreadline-dev libglib2.0-dev libgsl-dev bison flex
 
