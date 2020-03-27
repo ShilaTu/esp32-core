@@ -13,11 +13,18 @@ HELP_DEV=which device to flash/monitor
 DEV?=none
 
 ### menuconfig targets ###
+
 .PHONY: menuconfig
 TARGET += menuconfig
 HELP_menuconfig = configures project
 menuconfig: | check-docker
 	@make --no-print-directory -C docker idf EXEC="idf.py menuconfig"
+
+.PHONY: menuconfig-test
+TARGET += menuconfig-test
+HELP_menuconfig-test = configures test project
+menuconfig-test: | check-docker
+	@make --no-print-directory -C docker idf EXEC="cd test; idf.py menuconfig"
 
 ### build targets ###
 
@@ -39,8 +46,34 @@ clean-build: | check-docker
 DISTCLEAN += distclean-build
 HELP_distclean-build = removes all generated files
 distclean-build:
-	rm sdkconfig
+	rm -f  sdkconfig
 	rm -rf build
+
+### test targets ###
+
+.PHONY: test
+TARGET += test
+HELP_test = build test project, flash it, monitor it
+test: build-test flash-test monitor-test
+
+.PHONY: build-test
+TARGET_build += build-test
+HELP_build-test = builds tests
+build-test: | check-docker
+	@make --no-print-directory -C docker idf EXEC="cd test; idf.py build"
+
+.PHONY: clean-test
+CLEAN += clean-test
+HELP_clean-test: let idf clean generated files of the test build
+clean-test: | check-docker
+	@make --no-print-directory -C docker idf EXEC="cd test; idf.py clean"
+
+.PHONY: distclean-test
+DISTCLEAN += distclean-test
+HELP_distclean-test = removes all generated files of the test build
+distclean-test:
+	rm -f  test/sdkconfig
+	rm -rf test/build
 
 ### flash targets ###
 
@@ -51,6 +84,14 @@ flash: | check-flash
 	@make --no-print-directory -C docker \
 		idf \
 		EXEC="sudo chgrp developer $(DEV); idf.py flash -p '$(DEV)'"
+
+.PHONY: flash-test
+TARGET_flash += flash-test
+HELP_flash-test = flashes tests to esp. Use DEV=path to provide  path to device or use make dev
+flash-test: | check-flash
+	@make --no-print-directory -C docker \
+		idf \
+		EXEC="sudo chgrp developer $(DEV); cd test; idf.py flash -p '$(DEV)'"
 
 .PHONY: check-flash
 CHECK += check-flash
@@ -66,6 +107,14 @@ monitor: | check-monitor
 	@make --no-print-directory -C docker \
 		idf \
 		EXEC="sudo chgrp developer $(DEV); idf.py monitor -p '$(DEV)'"
+
+.PHONY: monitor-test
+TARGET += monitor-test
+HELP_monitor-test = connects to esp32 via serial. Use DEV=path to provide path to device or use make dev
+monitor-test: | check-monitor
+	@make --no-print-directory -C docker \
+		idf \
+		EXEC="sudo chgrp developer $(DEV); cd test; idf.py monitor -p '$(DEV)'"
 
 .PHONY: check-monitor
 CHECK += check-monitor
