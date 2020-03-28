@@ -56,6 +56,13 @@ typedef struct channel {
     Channel_callback callback;
 } Channel;
 
+typedef struct broadcast {
+    Channel *ch;
+    Channel *pos;
+    void *data;
+    TickType_t timeout;
+} Broadcast;
+
 #ifndef STR
 #define STR(X) _STR(X)
 #define _STR(X) #X
@@ -116,7 +123,7 @@ static
 void
 inline __attribute__((always_inline))
 channel_setContext 
-(Channel * const ch, void * const ctx) {
+(Channel * ch, void * const ctx) {
     ch->ctx = ctx;
 }
 
@@ -129,22 +136,8 @@ static
 void 
 inline __attribute__((always_inline))
 channel_setCallback
-(Channel * const ch, const Channel_callback callback) {
+(Channel * ch, const Channel_callback callback) {
     ch->callback = callback;
-}
-
-/**
- * channel_init_broadcast - helper function to initialize position element in broadcast
- * @ch: pointer to channel object
- * @ctx: pointer to position element
- */
-static
-void
-inline __attribute__((always_inline))
-channel_init_broadcast
-(Channel * const ch, Channel ** pos)
-{
-    *pos = ch;
 }
 
 /**
@@ -165,27 +158,8 @@ channel_register
  * @ch: channel element to remove
  */
 void
-channel_deregister
-(Channel * const ch);
-
-/**
- * channel_broadcast - send a message to all who registered on this channels identifier
- * @ch: the channel structure that holds informations for this channel
- * @tmp: iterator pointer, needs to be initialized by channel_init_broadcast or reused to continue broadcast
- * @data: the pointer to the message
- * @timeout: how many time-slices each callback may block before aborting
- * @return: returns pdPass (=1) if broadcast to was successful, if non-one value is returned, iteration was stopped, because a callback failed 
- * 
- * Iterates over all elements in the same list, that registered on this channels identifier
- * and calls the callback function on it. May return with error_code before all elements were notified, allowing for custom error handling
- * Example for skipping failing callbacks:
- *  Channel **pos;
- *  channel_init_broadcast(ch,pos);
- *  while(!channel_broadcast(ch,pos,data,timeout));
- */
-BaseType_t
-channel_broadcast
-(Channel * const ch, Channel ** tmp, const void * const data, const TickType_t timeout);
+channel_unregister
+(Channel *ch);
 
 /**
  * channel_send - sends a message to a single channel object
@@ -198,6 +172,59 @@ channel_broadcast
  */
 BaseType_t
 channel_send
-(Channel * const ch, const void * const data, const TickType_t timeout, const BaseType_t flags);
+(const Channel *ch, const void *data, const TickType_t timeout);
+
+/**
+ * channel_broadcast_init - helper function to initialize broadcast handler
+ * @handle: pointer to broadcast object
+ * @ch: pointer to channel object initiating the broadcast
+ * @data: pointer to data to be transferred
+ * @timeout: number of time-slices each receiver may block 
+ */
+static
+void
+inline __attribute__((always_inline))
+channel_broadcast_init
+(Broadcast *handle, const Channel * ch, const void *data, const TickType_t timeout)
+{
+    handle->ch = (void*) ch;
+    handle->pos = (void*) ch;
+    handle->data = (void*) data;
+    handle->timeout = timeout;
+}
+
+/**
+ * channel_broadcast_finished - helper function to determine if broadcast finished
+ * @ch: pointer to channel object
+ * @pos: location of pointer where broadcast stopped 
+ */
+static
+bool
+inline __attribute__((always_inline))
+channel_broadcast_finished
+(const Broadcast *handle)
+{
+    return handle->pos == NULL;
+}
+
+/**
+ * channel_broadcast - send a message to all who registered on this channels identifier
+ * @handle: the broadcast handle to act on
+ * @return: returns callback return value each time iteration was stopped 
+ * 
+ * Iterates over all elements in the same list, that registered on this channels identifier
+ * and calls the callback function on it. May return with error_code before all elements were notified, allowing for custom error handling
+ * Example for skipping failing callbacks:
+ *  Channel ch;
+ *  Channel *pos;
+ *  Broadcast handle;
+ *  channel_broadcast_init(&handle,&ch,data,timeout);
+ *  while(!channel_broadcast_finished(&handle)) {
+ *    channel_broadcast(&handle);
+ *  }
+ */
+BaseType_t
+channel_broadcast
+(Broadcast *handle);
 
 #endif
