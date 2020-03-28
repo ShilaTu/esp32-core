@@ -3,45 +3,62 @@
 #include <string.h>
 #include <freertos/projdefs.h>
 
-
-// root channel of the unique channel list
-static CHANNEL(root, "", NULL, 0, NULL);
+static CHANNEL(root_channel, "", NULL, 0, NULL);
 
 void 
 channel_register
 (Channel *ch) 
 {
     Channel *curr;
-    list_for_each_entry(curr, &root.unique, unique) {
+    list_for_each_entry(curr, &root_channel.unique, unique) {
         if (strcmp(ch->identifier, curr->identifier) == 0) {
             list_add(&ch->same, &curr->same);
             return;
         }
     }
 
-    list_add(&ch->unique, &root.unique);
+    list_add(&ch->unique, &root_channel.unique);
 }
 
-BaseType_t
-channel_broadcast
-(Channel * const ch, Channel ** pos, const void * const data, const TickType_t timeout)
+void 
+channel_unregister
+(Channel *ch) 
 {
-    Channel *curr = *pos;
-    list_for_each_entry_continue(curr, &ch->same, same) {
-        if (curr->callback) {
-            BaseType_t status = curr->callback(curr->ctx, data, timeout, curr->flags);
-            if (!status) {
-                *pos = curr;
-                return status;
-            };
-        }
+    int isUnique = ! list_empty(&ch->unique);
+    int isSame   = ! list_empty(&ch->same);
+
+    //channel is not registered
+    if (!isUnique && !isSame) {
+        return;
     }
-    return pdPASS;
+    //channel is not in the unique chain so just delete it
+    if (!isUnique && isSame) {
+        list_del(&ch->same);
+        INIT_LIST_HEAD(&ch->same);
+        return;
+    }
+    //channel is in the unique list, but single element so also just delete it
+    if (isUnique && !isSame) {
+        list_del(&ch->unique);
+        INIT_LIST_HEAD(&ch->unique);
+        return;
+    }
+    //channel is in unique list and there are others in same list, so replace channel
+    if (isUnique && isSame) {
+        Channel *nextSame = list_entry(ch->same.next, struct channel, same);
+        Channel *nextUniq = list_entry(ch->unique.next, struct channel, unique);
+        list_del(&ch->same);
+        INIT_LIST_HEAD(&ch->same);
+        list_del(&ch->unique);
+        INIT_LIST_HEAD(&ch->unique);
+        list_add(&nextSame->unique, &nextUniq->unique);
+        return;
+    }
 }
 
 BaseType_t
 channel_send
-(Channel * const ch, const void * const data, const TickType_t timeout, const BaseType_t flags)
+(const Channel *ch, const void *data, const TickType_t timeout)
 {
     if (!ch->callback) {
         return pdPASS;
@@ -49,32 +66,27 @@ channel_send
     return ch->callback(ch->ctx, data, timeout, ch->flags);
 }
 
-void 
-channel_unregister
-(Channel *ch) 
+BaseType_t
+channel_broadcast
+(Broadcast *handle)
 {
-    int unique = ! list_empty(&ch->unique);
-    int same   = ! list_empty(&ch->same);
-
-    //channel is not registered
-    if (!unique && !same) {
-        return;
+    Channel *ch  = handle->ch;
+    Channel *pos = handle->pos;
+    void *data   = handle->data;
+    TickType_t timeout = handle->timeout; 
+    list_for_each_entry_continue(pos, (&ch->same), same) {
+        BaseType_t status;
+        if (pos->callback) {
+            status = pos->callback(pos->ctx,
+                                   data,
+                                   timeout,
+                                   pos->flags);
+            if (!status) {
+                handle->pos = pos;
+                return status;
+            };
+        }
     }
-    //channel is not in the unique chain so just delete it
-    if (!unique && same) {
-        list_del(&ch->same);
-        return;
-    }
-    //channel is in the unique list, but single element so also just delete it
-    if (unique && !same) {
-        list_del(&ch->unique);
-        return;
-    }
-    //channel is in unique list and there are others in same list, so replace channel
-    if (unique && same) {
-        list_add(&ch->unique, &list_entry(ch->same.next, struct channel, same)->unique);
-        list_del(&ch->unique);
-        list_del(&ch->same);
-        return;
-    }
+    handle->pos = NULL;
+    return channel_send(handle->ch, handle->data, handle->timeout);
 }
