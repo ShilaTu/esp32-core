@@ -1,0 +1,38 @@
+menu "Channel"
+    menuconfig CHANNEL_TEST_ENABLE
+        bool "Enable unit test"
+        default y
+        select CHANNEL_INTERNAL_EXPORT_SYMBOLS
+    if CHANNEL_TEST_ENABLE
+        config CHANNEL_TEST_ENABLE_INIT
+            bool "init"
+            default y
+        config CHANNEL_TEST_ENABLE_SETCONTEXT
+            bool "setContext"
+            default y
+        config CHANNEL_TEST_ENABLE_SETCALLBACK
+            bool "setCallback"
+            default y
+        config CHANNEL_TEST_ENABLE_REGISTER
+            bool "register"
+            default y
+        config CHANNEL_TEST_ENABLE_UNREGISTER
+            bool "unregister"
+            default y
+        config CHANNEL_TEST_ENABLE_SEND
+            bool "send"
+            default y
+        config CHANNEL_TEST_ENABLE_BROADCAST_INIT
+            bool "broadcast_init"
+            default y
+        config CHANNEL_TEST_ENABLE_BROADCAST_FINISHED
+            bool "broadcast_finished"
+            default y
+        config CHANNEL_TEST_ENABLE_RESETROOT
+            bool "resetRoot"
+            default y
+    endif
+    config CHANNEL_INTERNAL_EXPORT_SYMBOLS
+        bool "Export internal functions"
+        default n
+endmenu

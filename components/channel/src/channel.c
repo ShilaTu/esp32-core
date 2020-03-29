@@ -1,12 +1,52 @@
 #include "channel.h"
+#include "channel_internal.h"
 
 #include <string.h>
 #include <freertos/projdefs.h>
 
+/**
+ * CHANNEL_INIT - Macro to provide initialization for channel object
+ */
+#define CHANNEL_INIT(name, identifier, ctx, flags, callback) { "" identifier "", LIST_HEAD_INIT(name.same), LIST_HEAD_INIT(name.unique), ctx, flags, callback }
+
+/**
+ * CHANNEL - Macro to create and initialize channel object
+ */
+#define CHANNEL(name, identifier, ctx, flags, callback) Channel name = CHANNEL_INIT(name, "" identifier "", ctx, flags, callback)
+
 static CHANNEL(root_channel, "", NULL, 0, NULL);
 
+void
+channel_init
+(Channel *ch, const char *identifier, void *ctx, const BaseType_t flags, Channel_callback callback)
+{
+    channel_internal_init(ch, identifier, ctx, flags, callback);
+    channel_internal_register(ch);
+}
+
+EXPORT
+void
+channel_internal_init 
+(Channel *ch, const char *identifier, void *ctx, const BaseType_t flags, Channel_callback callback)
+{
+    ch->identifier = identifier;
+    INIT_LIST_HEAD(&ch->unique);
+    INIT_LIST_HEAD(&ch->same);
+    ch->ctx = ctx;
+    ch->flags = flags;
+    ch->callback = callback;
+}
+
+void
+channel_reset
+(Channel *ch)
+{
+    channel_internal_unregister(ch);
+}
+
+EXPORT
 void 
-channel_register
+channel_internal_register
 (Channel *ch) 
 {
     Channel *curr;
@@ -20,8 +60,9 @@ channel_register
     list_add(&ch->unique, &root_channel.unique);
 }
 
+EXPORT
 void 
-channel_unregister
+channel_internal_unregister
 (Channel *ch) 
 {
     int isUnique = ! list_empty(&ch->unique);
@@ -68,7 +109,7 @@ channel_send
 
 BaseType_t
 channel_broadcast
-(Broadcast *handle)
+(Channel_broadcast *handle)
 {
     Channel *ch  = handle->ch;
     Channel *pos = handle->pos;
@@ -89,4 +130,14 @@ channel_broadcast
     }
     handle->pos = NULL;
     return channel_send(handle->ch, handle->data, handle->timeout);
+}
+
+EXPORT
+void
+__attribute__((unused))
+channel_internal_resetRoot
+(void)
+{
+    INIT_LIST_HEAD(&root_channel.unique);
+    INIT_LIST_HEAD(&root_channel.same);
 }
