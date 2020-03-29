@@ -1,6 +1,6 @@
 idf_component_register(
-  SRCS
-    channel.c
+  SRC_DIRS
+    src
   INCLUDE_DIRS
     include
   REQUIRES

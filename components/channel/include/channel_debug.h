@@ -1,3 +1,6 @@
+#ifndef CHANNEL_DEBUG_H_
+#define CHANNEL_DEBUG_H_
+
 #include "channel.h"
 
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
@@ -38,7 +41,7 @@ __attribute__((unused))
 channel_debug_print_dot
 (const char *prefix, const Channel *ch)
 {
-    if (strcmp("",ch->identifier)==0) {
+    if (strcmp("",ch->identifier) == 0) {
         ESP_LOGD(prefix, "x%p [label=\"%p\\n%s\", shape=box];",
                  ch, ch, ch->identifier);
     } else {
@@ -127,35 +130,4 @@ channel_debug_printAll_dot
     ESP_LOGD(prefix,"}");
 }
 
-/**
- * channel_debug_resetRoot - search global channel root and reset it
- * ATTENTION: THIS ONLY RESETS THE GLOBAL ROOT CHANNEL!
- *            ALL OTHER CHANNELS OBJECTS WILL BE BROKEN! 
- * @ch: channel object to start search from 
- * @return: true if root channel was found, false if not
- */
-static
-bool
-__attribute__((unused))
-channel_debug_resetRoot
-(const Channel *ch)
-{
-    Channel *chUniq;
-    list_for_each_entry(chUniq, &ch->unique, unique) {
-        if (strcmp("",chUniq->identifier)==0) {
-            channel_init(chUniq, "", NULL, 0, NULL);
-            return true;
-        }
-    }
-    Channel *chSame;
-    list_for_each_entry(chSame, &ch->same, same) {
-        Channel *currUniq;
-        list_for_each_entry(currUniq, &chSame->unique, unique) {
-            if (strcmp("",currUniq->identifier)==0) {
-                channel_init(currUniq, "", NULL, 0, NULL);
-                return true;
-            }
-        }
-    }
-    return false;
-}
+#endif

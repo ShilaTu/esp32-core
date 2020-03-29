@@ -45,23 +45,27 @@
 
 #include "list.h"
 
-typedef BaseType_t (*Channel_callback) (void *ctx, const void * const data, TickType_t timeout, const BaseType_t flags);
+typedef BaseType_t (*Channel_callback) (void *ctx, const void *data, const TickType_t timeout, const BaseType_t flags);
 
-typedef struct channel {
+struct channel {
     const char *identifier;
     struct list_head same;
     struct list_head unique;
     void *ctx;
     BaseType_t flags;
     Channel_callback callback;
-} Channel;
+};
+
+typedef struct channel Channel;
+typedef struct channel Channel_in;
+typedef struct channel Channel_out;
 
 typedef struct broadcast {
     Channel *ch;
     Channel *pos;
     void *data;
     TickType_t timeout;
-} Broadcast;
+} Channel_broadcast;
 
 #ifndef STR
 #define STR(X) _STR(X)
@@ -69,49 +73,44 @@ typedef struct broadcast {
 #endif
 
 /**
- * CHANNEL_INIT - Macro to provide initialization for channel object
- */
-#define CHANNEL_INIT(name, identifier, ctx, flags, callback) { "" identifier "", LIST_HEAD_INIT(name.same), LIST_HEAD_INIT(name.unique), ctx, flags, callback }
-
-/**
- * CHANNEL - Macro to create and initialize channel object
- */
-#define CHANNEL(name, identifier, ctx, flags, callback) Channel name = CHANNEL_INIT(name, "" identifier "", ctx, flags, callback)
-
-/*
- * OUTPUT - Macro to create and initialize channel object used by producer
- */
-#define OUTPUT(name) CHANNEL(name, STR(name), NULL, 0, NULL)
-
-/*
- * INPUT - Macro to create and initialize channel object used by consumer
- */
-#define INPUT(name, ctx, flags, callback) CHANNEL(name, STR(name), ctx, flags, callback)
-
-/*
- * INPUT_QUEUE - Macro to create and initialize channel object used by consumer for queues
- */
-#define INPUT_QUEUE(name, queue) CHANNEL(name, STR(name), queue, queueSEND_TO_BACK, &xQueueGenericSend)
-
-/**
- * channel_init - helper function to initialize channel object
+ * channel_init - initialize & register channel object
  * @ch: pointer to channel object to initialize
  * @identifier: identifier string of the channel
  * @ctx: pointer to context of the callback
  * @flags: additional flags for the callback to modify behaviour
  * @callback: function to call on new data  
  */ 
+void
+channel_init 
+(Channel *ch, const char *identifier, void *ctx, const BaseType_t flags, Channel_callback callback);
+
+/**
+ * channel_init_input - helper function to initialize channel input object
+ * @ch: pointer to channel object to initialize
+ * @identifier: identifier string of the channel
+ * @queue: queue handle to send input to 
+ */
 static
 void
 inline __attribute__((always_inline))
-channel_init 
-(Channel * const ch, const char * const identifier, void * const ctx, const BaseType_t flags, Channel_callback callback) {
-    ch->identifier = identifier;
-    INIT_LIST_HEAD(&ch->unique);
-    INIT_LIST_HEAD(&ch->same);
-    ch->ctx = ctx;
-    ch->flags = flags;
-    ch->callback = callback;
+channel_init_input
+(Channel_in *ch, const char *identifier, QueueHandle_t queue)
+{
+    return channel_init(ch, identifier, queue, queueSEND_TO_BACK, &xQueueGenericSend);
+}
+
+/**
+ * channel_init_output - helper function to initialize channel output object
+ * @ch: pointer to channel object to initialize
+ * @identifier: identifier string of the channel
+ */
+static
+void
+inline __attribute__((always_inline))
+channel_init_output
+(Channel_out *ch, const char *identifier)
+{
+    return channel_init(ch, identifier, NULL, 0, NULL);
 }
 
 /**
@@ -123,7 +122,8 @@ static
 void
 inline __attribute__((always_inline))
 channel_setContext 
-(Channel * ch, void * const ctx) {
+(Channel *ch, void *ctx)
+{
     ch->ctx = ctx;
 }
 
@@ -136,29 +136,17 @@ static
 void 
 inline __attribute__((always_inline))
 channel_setCallback
-(Channel * ch, const Channel_callback callback) {
+(Channel *ch, const Channel_callback callback)
+{
     ch->callback = callback;
 }
 
 /**
- * channel_register - register a channel
- * @ch: channel to register
- * 
- * This function adds channel to the message passing structure. 
- * It doesn't make a difference whether this is a message
- * provider or consumer. The difference is only made by the channels
- * callback implementation.
+ * reset_channel - removes a channel input or output from the message structure
+ * @ch: channel element to reset
  */
 void
-channel_register
-(Channel * const ch);
-
-/**
- * unregister_channel - removes a channel input or output from the message structure
- * @ch: channel element to remove
- */
-void
-channel_unregister
+channel_reset
 (Channel *ch);
 
 /**
@@ -172,7 +160,7 @@ channel_unregister
  */
 BaseType_t
 channel_send
-(const Channel *ch, const void *data, const TickType_t timeout);
+(const Channel_in *ch, const void *data, const TickType_t timeout);
 
 /**
  * channel_broadcast_init - helper function to initialize broadcast handler
@@ -185,7 +173,7 @@ static
 void
 inline __attribute__((always_inline))
 channel_broadcast_init
-(Broadcast *handle, const Channel * ch, const void *data, const TickType_t timeout)
+(Channel_broadcast *handle, const Channel_out *ch, const void *data, const TickType_t timeout)
 {
     handle->ch = (void*) ch;
     handle->pos = (void*) ch;
@@ -202,7 +190,7 @@ static
 bool
 inline __attribute__((always_inline))
 channel_broadcast_finished
-(const Broadcast *handle)
+(const Channel_broadcast *handle)
 {
     return handle->pos == NULL;
 }
@@ -213,18 +201,11 @@ channel_broadcast_finished
  * @return: returns callback return value each time iteration was stopped 
  * 
  * Iterates over all elements in the same list, that registered on this channels identifier
- * and calls the callback function on it. May return with error_code before all elements were notified, allowing for custom error handling
- * Example for skipping failing callbacks:
- *  Channel ch;
- *  Channel *pos;
- *  Broadcast handle;
- *  channel_broadcast_init(&handle,&ch,data,timeout);
- *  while(!channel_broadcast_finished(&handle)) {
- *    channel_broadcast(&handle);
- *  }
+ * and calls the callback function on it. May return with error_code before all elements were notified,
+ * allowing for custom error handling.
  */
 BaseType_t
 channel_broadcast
-(Broadcast *handle);
+(Channel_broadcast *handle);
 
 #endif

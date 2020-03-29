@@ -1,7 +1,7 @@
 #include "unity.h"
 #include <freertos/FreeRTOS.h>
 #include "channel.h"
-#include "channel_debug.h"
+#include "channel_internal.h"
 
 static void *callback_ctx;
 static void *callback_data;
@@ -77,6 +77,7 @@ returnErrQUEUE_FULL
   TEST_ASSERT_EQUAL_PTR((head)->next, (head)->prev); \
 } 
 
+#ifdef CONFIG_CHANNEL_TEST_ENABLE_INIT
 TEST_CASE("channel_init", "[channel]")
 {
   Channel ch;
@@ -84,7 +85,7 @@ TEST_CASE("channel_init", "[channel]")
   void *ctx = (void*)0x1;
   BaseType_t flags = 0x2;
   Channel_callback callback = &returnPdPASS;
-  channel_init(&ch, identifier, ctx, flags, callback);
+  channel_internal_init(&ch, identifier, ctx, flags, callback);
 
   TEST_ASSERT_NOT_NULL(ch.identifier);
   TEST_ASSERT_EQUAL_STRING(identifier, ch.identifier);
@@ -100,7 +101,9 @@ TEST_CASE("channel_init", "[channel]")
   TEST_ASSERT_NOT_NULL(ch.callback);
   TEST_ASSERT_EQUAL_PTR(ch.callback, callback);
 }
+#endif
 
+#ifdef CONFIG_CHANNEL_TEST_ENABLE_SETCONTEXT
 TEST_CASE("channel_setContext", "[channel]")
 {
   Channel ch;
@@ -109,14 +112,16 @@ TEST_CASE("channel_setContext", "[channel]")
   void *ctx1 = (void*)0x2;
   BaseType_t flags = 0x3;
   Channel_callback callback = &returnPdPASS;
-  channel_init(&ch, identifier, ctx0, flags, callback);
+  channel_internal_init(&ch, identifier, ctx0, flags, callback);
 
   channel_setContext(&ch, ctx1);
 
   TEST_ASSERT_NOT_NULL(ch.ctx);
   TEST_ASSERT_EQUAL_PTR(ch.ctx, ctx1);
 }
+#endif
 
+#ifdef CONFIG_CHANNEL_TEST_ENABLE_SETCONTEXT
 TEST_CASE("channel_setCallback", "[channel]")
 {
   Channel ch;
@@ -125,16 +130,19 @@ TEST_CASE("channel_setCallback", "[channel]")
   BaseType_t flags = 0x2;
   Channel_callback callback0 = &returnPdPASS;
   Channel_callback callback1 = &returnErrQUEUE_FULL;
-  channel_init(&ch, identifier, ctx, flags, callback0);
+  channel_internal_init(&ch, identifier, ctx, flags, callback0);
 
   channel_setCallback(&ch, callback1);
 
   TEST_ASSERT_NOT_NULL(ch.callback);
   TEST_ASSERT_EQUAL_PTR(ch.callback, callback1);
 }
+#endif
 
-TEST_CASE("channel_register", "[channel]")
+#ifdef CONFIG_CHANNEL_TEST_ENABLE_INTERNAL_REGISTER
+TEST_CASE(INCREMENT"channel_internal_register", "[channel]")
 {
+  channel_internal_resetRoot();
   Channel ch0, ch1, ch2, ch3, ch4, ch5;
   char identifier0[] = "test_channel0";
   char identifier1[] = "test_channel1";
@@ -142,24 +150,24 @@ TEST_CASE("channel_register", "[channel]")
   void *ctx = (void*)0x1;
   BaseType_t flags = 0x2;
   Channel_callback callback = &returnPdPASS;
-  channel_init(&ch0, identifier0, ctx, flags, callback);
-  channel_init(&ch1, identifier0, ctx, flags, callback);
-  channel_init(&ch2, identifier0, ctx, flags, callback);
-  channel_init(&ch3, identifier1, ctx, flags, callback);
-  channel_init(&ch4, identifier1, ctx, flags, callback);
-  channel_init(&ch5, identifier2, ctx, flags, callback);
+  channel_internal_init(&ch0, identifier0, ctx, flags, callback);
+  channel_internal_init(&ch1, identifier0, ctx, flags, callback);
+  channel_internal_init(&ch2, identifier0, ctx, flags, callback);
+  channel_internal_init(&ch3, identifier1, ctx, flags, callback);
+  channel_internal_init(&ch4, identifier1, ctx, flags, callback);
+  channel_internal_init(&ch5, identifier2, ctx, flags, callback);
 
-  channel_register(&ch0);
+  channel_internal_register(&ch0);
   TEST_ASSERT_LIST_EMPTY(&ch0.same);
   TEST_ASSERT_LIST_LENGTH(&ch0.unique, 2);
 
-  channel_register(&ch1);
+  channel_internal_register(&ch1);
   TEST_ASSERT_LIST_LENGTH(&ch0.unique, 2);
   TEST_ASSERT_LIST_EMPTY (&ch1.unique);
   TEST_ASSERT_LIST_LENGTH(&ch0.same, 2);
   TEST_ASSERT_LIST_LENGTH(&ch1.same, 2);
 
-  channel_register(&ch2);
+  channel_internal_register(&ch2);
   TEST_ASSERT_LIST_LENGTH(&ch0.unique, 2);
   TEST_ASSERT_LIST_EMPTY (&ch1.unique);
   TEST_ASSERT_LIST_EMPTY (&ch2.unique);
@@ -167,7 +175,7 @@ TEST_CASE("channel_register", "[channel]")
   TEST_ASSERT_LIST_LENGTH(&ch1.same, 3);
   TEST_ASSERT_LIST_LENGTH(&ch2.same, 3);
 
-  channel_register(&ch3);
+  channel_internal_register(&ch3);
   TEST_ASSERT_LIST_LENGTH(&ch0.unique, 3);
   TEST_ASSERT_LIST_EMPTY (&ch1.unique);
   TEST_ASSERT_LIST_EMPTY (&ch2.unique);
@@ -177,7 +185,7 @@ TEST_CASE("channel_register", "[channel]")
   TEST_ASSERT_LIST_LENGTH(&ch2.same, 3);
   TEST_ASSERT_LIST_EMPTY (&ch3.same);
 
-  channel_register(&ch4);
+  channel_internal_register(&ch4);
   TEST_ASSERT_LIST_LENGTH(&ch0.unique, 3);
   TEST_ASSERT_LIST_EMPTY (&ch1.unique);
   TEST_ASSERT_LIST_EMPTY (&ch2.unique);
@@ -189,7 +197,7 @@ TEST_CASE("channel_register", "[channel]")
   TEST_ASSERT_LIST_LENGTH(&ch3.same, 2);
   TEST_ASSERT_LIST_LENGTH(&ch4.same, 2);
 
-  channel_register(&ch5);
+  channel_internal_register(&ch5);
   TEST_ASSERT_LIST_LENGTH(&ch0.unique, 4);
   TEST_ASSERT_LIST_EMPTY (&ch1.unique);
   TEST_ASSERT_LIST_EMPTY (&ch2.unique);
@@ -203,11 +211,14 @@ TEST_CASE("channel_register", "[channel]")
   TEST_ASSERT_LIST_LENGTH(&ch4.same, 2);
   TEST_ASSERT_LIST_EMPTY (&ch5.same);
 
-  TEST_ASSERT(channel_debug_resetRoot(&ch0));
+  channel_internal_resetRoot();
 }
+#endif
 
-TEST_CASE("channel_unregister", "[channel]")
+#ifdef CONFIG_CHANNEL_TEST_ENABLE_INTERNAL_UNREGISTER
+TEST_CASE("channel_internal_unregister", "[channel]")
 {
+  channel_internal_resetRoot();
   Channel ch0, ch1, ch2, ch3, ch4, ch5;
   char identifier0[] = "test_channel0";
   char identifier1[] = "test_channel1";
@@ -222,13 +233,6 @@ TEST_CASE("channel_unregister", "[channel]")
   channel_init(&ch4, identifier1, ctx, flags, callback);
   channel_init(&ch5, identifier2, ctx, flags, callback);
 
-  channel_register(&ch0);
-  channel_register(&ch1);
-  channel_register(&ch2);
-  channel_register(&ch3);
-  channel_register(&ch4);
-  channel_register(&ch5);
-
   TEST_ASSERT_LIST_LENGTH(&ch0.unique, 4);
   TEST_ASSERT_LIST_EMPTY (&ch1.unique);
   TEST_ASSERT_LIST_EMPTY (&ch2.unique);
@@ -242,7 +246,8 @@ TEST_CASE("channel_unregister", "[channel]")
   TEST_ASSERT_LIST_LENGTH(&ch4.same, 2);
   TEST_ASSERT_LIST_EMPTY (&ch5.same);
 
-  channel_unregister(&ch3);
+  // unregister unique& same channel
+  channel_internal_unregister(&ch3);
   TEST_ASSERT_LIST_LENGTH(&ch0.unique, 4);
   TEST_ASSERT_LIST_EMPTY (&ch1.unique);
   TEST_ASSERT_LIST_EMPTY (&ch2.unique);
@@ -260,9 +265,46 @@ TEST_CASE("channel_unregister", "[channel]")
   TEST_ASSERT_LIST_EMPTY (&ch4.same);
   TEST_ASSERT_LIST_EMPTY (&ch5.same);
 
-  TEST_ASSERT(channel_debug_resetRoot(&ch0));
-}
+  // unregister same channel
+  channel_internal_unregister(&ch2);
+  TEST_ASSERT_LIST_LENGTH(&ch0.unique, 4);
+  TEST_ASSERT_LIST_EMPTY (&ch1.unique);
+  TEST_ASSERT_LIST_EMPTY (&ch2.unique);
+  TEST_ASSERT_LIST_EMPTY (&ch3.unique);
+  TEST_ASSERT_LIST_LENGTH(&ch4.unique, 4);
+  TEST_ASSERT_LIST_LENGTH(&ch5.unique, 4);
+  //ch0 & ch1 same should decrement
+  TEST_ASSERT_LIST_LENGTH(&ch0.same, 2);
+  TEST_ASSERT_LIST_LENGTH(&ch1.same, 2);
+  //ch2 same should be empty
+  TEST_ASSERT_LIST_EMPTY (&ch2.same);
+  TEST_ASSERT_LIST_EMPTY (&ch3.same);
+  TEST_ASSERT_LIST_EMPTY (&ch4.same);
+  TEST_ASSERT_LIST_EMPTY (&ch5.same);
 
+  // unregister unique channel
+  channel_internal_unregister(&ch5);
+  //ch0 unique should decrement
+  TEST_ASSERT_LIST_LENGTH(&ch0.unique, 3);
+  TEST_ASSERT_LIST_EMPTY (&ch1.unique);
+  TEST_ASSERT_LIST_EMPTY (&ch2.unique);
+  TEST_ASSERT_LIST_EMPTY (&ch3.unique);
+  //ch4 unique should decrement
+  TEST_ASSERT_LIST_LENGTH(&ch4.unique, 3);
+  //ch5 uniq should be empty
+  TEST_ASSERT_LIST_EMPTY (&ch5.unique);
+  TEST_ASSERT_LIST_LENGTH(&ch0.same, 2);
+  TEST_ASSERT_LIST_LENGTH(&ch1.same, 2);
+  TEST_ASSERT_LIST_EMPTY (&ch2.same);
+  TEST_ASSERT_LIST_EMPTY (&ch3.same);
+  TEST_ASSERT_LIST_EMPTY (&ch4.same);
+  TEST_ASSERT_LIST_EMPTY (&ch5.same);
+
+  channel_internal_resetRoot();
+}
+#endif
+
+#ifdef CONFIG_CHANNEL_TEST_ENABLE_SEND
 TEST_CASE("channel_send", "[channel]")
 {
   Channel ch;
@@ -270,7 +312,7 @@ TEST_CASE("channel_send", "[channel]")
   void *ctx = (void*)0x1;
   BaseType_t flags = 0x2;
   Channel_callback callback = &returnPdPASS;
-  channel_init(&ch, identifier, ctx, flags, callback);
+  channel_internal_init(&ch, identifier, ctx, flags, callback);
 
   callback_ctx = NULL;
   callback_data = NULL;
@@ -286,7 +328,9 @@ TEST_CASE("channel_send", "[channel]")
   TEST_ASSERT_EQUAL_UINT(callback_timeout, timeout);
   TEST_ASSERT_EQUAL_UINT(callback_flags, flags);
 }
+#endif
 
+#ifdef CONFIG_CHANNEL_TEST_ENABLE_BROADCAST_INIT
 TEST_CASE("channel_broadcast_init", "[channel]")
 {
   Channel ch;
@@ -294,9 +338,9 @@ TEST_CASE("channel_broadcast_init", "[channel]")
   void *ctx = (void*) 0x1;
   BaseType_t flags = 0x2;
   Channel_callback callback = &returnPdPASS;
-  channel_init(&ch, identifier, ctx, flags, callback);
+  channel_internal_init(&ch, identifier, ctx, flags, callback);
 
-  Broadcast handle;
+  Channel_broadcast handle;
   void *data = (void*) 0x3;
   TickType_t timeout = 0x4;
   channel_broadcast_init(&handle, &ch, data, timeout);
@@ -306,7 +350,9 @@ TEST_CASE("channel_broadcast_init", "[channel]")
   TEST_ASSERT_EQUAL_PTR(handle.data,data);
   TEST_ASSERT_EQUAL_UINT(handle.timeout,timeout);
 }
+#endif
 
+#ifdef CONFIG_CHANNEL_TEST_ENABLE_BROADCAST_FINISHED
 TEST_CASE("channel_broadcast_finished", "[channel]")
 {
   Channel ch;
@@ -314,9 +360,9 @@ TEST_CASE("channel_broadcast_finished", "[channel]")
   void *ctx = (void*) 0x1;
   BaseType_t flags = 0x2;
   Channel_callback callback = NULL;
-  channel_init(&ch, identifier, ctx, flags, callback);
+  channel_internal_init(&ch, identifier, ctx, flags, callback);
 
-  Broadcast handle;
+  Channel_broadcast handle;
   void *data = (void*) 0x3;
   TickType_t timeout = 0x4;
   channel_broadcast_init(&handle, &ch, data, timeout);
@@ -325,9 +371,12 @@ TEST_CASE("channel_broadcast_finished", "[channel]")
   channel_broadcast(&handle);
   TEST_ASSERT_TRUE(channel_broadcast_finished(&handle));
 }
+#endif
 
+#ifdef CONFIG_CHANNEL_TEST_ENABLE_BROADCAST
 TEST_CASE("channel_broadcast", "[channel]")
 {
+  channel_internal_resetRoot();
   Channel ch0, ch1, ch2;
   char identifier0[] = "test_channel0";
   char identifier1[] = "test_channel1";
@@ -340,10 +389,6 @@ TEST_CASE("channel_broadcast", "[channel]")
   channel_init(&ch0, identifier0, ctx0, flags0, &returnErrQUEUE_FULL);
   channel_init(&ch1, identifier1, ctx1, flags1, &returnPdPASS);
   channel_init(&ch2, identifier1, ctx2, flags2, &returnErrQUEUE_FULL);
-
-  channel_register(&ch0);
-  channel_register(&ch1);
-  channel_register(&ch2);
 
   callback_ctx = NULL;
   callback_data = NULL;
@@ -359,7 +404,7 @@ TEST_CASE("channel_broadcast", "[channel]")
   TickType_t timeout2 = 0xC;
 
   BaseType_t result;
-  Broadcast handle;
+  Channel_broadcast handle;
   channel_broadcast_init(&handle, &ch0, data0, timeout0);
   result = channel_broadcast(&handle);
 
@@ -394,5 +439,6 @@ TEST_CASE("channel_broadcast", "[channel]")
   TEST_ASSERT_EQUAL_UINT(callback_timeout, timeout1);
   TEST_ASSERT_EQUAL_UINT(callback_flags, flags1);
 
-  TEST_ASSERT(channel_debug_resetRoot(&ch0));
+  channel_internal_resetRoot();
 }
+#endif
