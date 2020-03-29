@@ -139,7 +139,9 @@ dev: | check-dialog
 CHECK += check-dev
 HELP_check-dev = checks if device is specified
 check-dev:
+	@1>&2 echo -n "checking if device is valid & specified..."
 ifeq ($(DEV),none)
+	@1>&2 echo
 	@1>&2 echo "##############################"
 	@1>&2 echo "# FLASH DEVICE NOT SPECIFIED #"
 	@1>&2 echo "##############################"
@@ -155,6 +157,7 @@ ifeq ($(DEV),none)
 	@exit 1
 endif
 ifeq ($(shell ! test -c $(DEV); echo $$?),0)
+	@1>&2 echo
 	@1>&2 echo "#############################"
 	@1>&2 echo "# FLASH DEVICE IS NOT VALID #"
 	@1>&2 echo "#############################"
@@ -171,12 +174,15 @@ ifeq ($(shell ! test -c $(DEV); echo $$?),0)
 	@1>&2 echo
 	@exit 1
 endif
+	@1>&2 echo "SUCCESS"
 
 .PHONY: check-dialog
 CHECK += check-dialog
 HELP_check-dialog = checks if dialog is installed
 check-dialog:
+	@1>&2 echo -n "checking if dialog is installed..."
 ifeq ($(shell which dialog 2> /dev/null),)
+	@1>&2 echo
 	@1>&2 echo "###########################"
 	@1>&2 echo "# DIALOG IS NOT INSTALLED #"
 	@1>&2 echo "###########################"
@@ -191,6 +197,7 @@ ifeq ($(shell which dialog 2> /dev/null),)
 	@1>&2 echo
 	@exit 1
 endif
+	@1>&2 echo "SUCCESS"
 
 ### docker targets ###
 

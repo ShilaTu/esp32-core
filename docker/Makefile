@@ -180,7 +180,9 @@ check-docker: check-docker-installed check-docker-group
 
 .PHONY: check-docker-installed
 check-docker-installed:
+	@1>&2 echo -n "checking if docker is installed..."
 ifeq (,$(shell which docker 2> /dev/null))
+	@1>&2 echo
 	@1>&2 echo "########################################"
 	@1>&2 echo "# DOCKER DOES NOT SEEM TO BE INSTALLED #"
 	@1>&2 echo "########################################"
@@ -239,6 +241,8 @@ else
 endif
 	@exit 1
 endif
+	@1>&2 echo "SUCCESS"
+
 
 ### docker install targets ###
 
@@ -280,7 +284,9 @@ install-docker-fedora:
 
 .PHONY: check-docker-group
 check-docker-group:
+	@1>&2 echo -n "checking if user is in docker group..."
 ifneq (,$(shell groups | grep -q docker))
+	@1>&2 echo 
 	@1>&2 echo "##############################################"
 	@1>&2 echo "# YOUR USER IS NOT PART OF THE DOCKER GROUP! #"
 	@1>&2 echo "##############################################"
@@ -291,5 +297,6 @@ ifneq (,$(shell groups | grep -q docker))
 	@1>&2 echo
 	@exit 1
 endif
+	@1>&2 echo "SUCCESS"
 
 include ../.Makefile.template
