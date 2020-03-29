@@ -5,7 +5,7 @@ This directory contains the Dockerfiles for the containers used in this project.
 The images are build and run by make.
 Run `make help` for more information.
 
-## PlatformIO
+## idf
 
 - used to build the src and to create the resulting image
 

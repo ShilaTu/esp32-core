@@ -1,11 +1,10 @@
+# Test build
+This directory contains a test build of the project
 
-This directory is intended for PIO Unit Testing and project tests.
+## Building & Running
+Run `make test` from the projects root
 
-Unit Testing is a software testing method by which individual units of
-source code, sets of one or more MCU program modules together with associated
-control data, usage procedures, and operating procedures, are tested to
-determine whether they are fit for use. Unit testing finds problems early
-in the development cycle.
-
-More information about PIO Unit Testing:
-- https://docs.platformio.org/page/plus/unit-testing.html
+## Adding tests
+To add the unit test of a component,
+append the component name to the `TEST_COMPONENTS` variable
+in the `CMakeLists.txt` .

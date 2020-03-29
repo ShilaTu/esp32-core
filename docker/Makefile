@@ -4,9 +4,9 @@
 
 ### variables ###
 
-VARIABLE += PLATFORMIO_VERSION
-HELP_PLATFORMIO_VERSION = which platformio version to use
-PLATFORMIO_VERSION?=4.1.0
+VARIABLE += IDF_VERSION
+HELP_IDF_VERSION = which idf version to use
+IDF_VERSION?=v4.0
 
 VARIABLE += QEMU_COMMIT
 HELP_QEMU_COMMIT = which qemu commit to checkout
@@ -37,27 +37,27 @@ HELP_DOCKEROPTS = additional docker options
 
 ### docker build targets ###
 
-.PHONY: platformio-image
-ALL += platformio-image
-DEFAULT += platformio-image
-TARGET_platformio += platformio-image
-HELP_platformio-image = builds docker platformio image
-platformio-image: | check-docker
+.PHONY: idf-image
+ALL += idf-image
+DEFAULT += idf-image
+TARGET_idf += idf-image
+HELP_idf-image = builds docker idf image
+idf-image: | check-docker
 	docker build \
-		--build-arg=platformio_version=$(PLATFORMIO_VERSION) \
+		--build-arg=idf_version=$(IDF_VERSION) \
 		--build-arg=UID=$(UID) \
 		--build-arg=GID=$(GID) \
-		-t "lifesensor/platformio:$(PLATFORMIO_VERSION)" \
-		platformio
+		-t "lifesensor/idf:$(IDF_VERSION)" \
+		idf
 
 .PHONY: qemu-image
 ALL += qemu-image
 DEFAULT += qemu-image
 TARGET_qemu += qemu-image
 HELP_qemu-image = buils docker qemu image
-qemu-image: platformio-image | check-docker
+qemu-image: idf-image | check-docker
 	docker build \
-		--build-arg=platformio_version=$(PLATFORMIO_VERSION) \
+		--build-arg=idf_version=$(IDF_VERSION) \
 		--build-arg=qemu_commit=$(QEMU_COMMIT) \
 		-t "lifesensor/qemu:$(QEMU_COMMIT)" \
 		qemu
@@ -68,30 +68,27 @@ TARGET_vscode += vscode-image
 HELP_vscode-image = buils docker vscode image
 vscode-image:  qemu-image | check-docker
 	docker build \
-		--build-arg=platformio_version=$(PLATFORMIO_VERSION) \
 		--build-arg=qemu_commit=$(QEMU_COMMIT) \
 		-t "lifesensor/vscode:latest" \
 		vscode
 
 ### docker run targets ###
 
-.PHONY: pio platformio
-TARGET += pio 
-HELP_pio = runs platformio container
-TARGET += platformio 
-HELP_platformio = runs platformio container
-pio platformio: | platformio-image check-docker
+.PHONY: idf
+TARGET += idf 
+HELP_idf = runs idf container
+idf: | idf-image check-docker
 	docker run \
 		--rm \
 		-ti \
 		$(DOCKER_DEV) \
-		-v pio-home:/home/developer:rw \
+		-v idf-home:/home/developer:rw \
 		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
 		-w "$(shell pwd)/.." \
-		--hostname platformio \
+		--hostname idf \
 		$(DOCKEROPTS) \
-		lifesensor/platformio:$(PLATFORMIO_VERSION) \
-		/bin/sh -c '$(EXEC)'
+		lifesensor/idf:$(IDF_VERSION) \
+		/bin/bash -ic '$(EXEC)'
 
 .PHONY: qemu
 TARGET += qemu
@@ -134,11 +131,11 @@ code vscode: | vscode-image check-docker
 
 ### docker remove volume targets ###
 
-.PHONY: clean-platformio
-CLEAN += clean-platformio
-HELP_clean-platformio = removes platformio volume
-clean-platformio:
-	-docker volume rm pio-home
+.PHONY: clean-idf
+CLEAN += clean-idf
+HELP_clean-idf = removes idf volume
+clean-idf:
+	-docker volume rm idf-home
 
 .PHONY: clean-qemu
 CLEAN += clean-qemu
@@ -154,11 +151,11 @@ clean-vscode:
 
 ### docker remove image targets ###
 
-.PHONY: distclean-platformio
-DISTCLEAN += distclean-platformio
-HELP_distclean-platformio = removes platformio docker image
-distclean-platformio: clean-platformio
-	-docker image remove "lifesensor/platformio:$(PLATFORMIO_VERSION)"
+.PHONY: distclean-idf
+DISTCLEAN += distclean-idf
+HELP_distclean-idf = removes idf docker image
+distclean-idf: clean-idf
+	-docker image remove "lifesensor/idf:$(IDF_VERSION)"
 	docker image prune
 	
 .PHONY: distclean-qemu
@@ -183,7 +180,9 @@ check-docker: check-docker-installed check-docker-group
 
 .PHONY: check-docker-installed
 check-docker-installed:
+	@1>&2 echo -n "checking if docker is installed..."
 ifeq (,$(shell which docker 2> /dev/null))
+	@1>&2 echo
 	@1>&2 echo "########################################"
 	@1>&2 echo "# DOCKER DOES NOT SEEM TO BE INSTALLED #"
 	@1>&2 echo "########################################"
@@ -242,6 +241,8 @@ else
 endif
 	@exit 1
 endif
+	@1>&2 echo "SUCCESS"
+
 
 ### docker install targets ###
 
@@ -283,7 +284,9 @@ install-docker-fedora:
 
 .PHONY: check-docker-group
 check-docker-group:
+	@1>&2 echo -n "checking if user is in docker group..."
 ifneq (,$(shell groups | grep -q docker))
+	@1>&2 echo 
 	@1>&2 echo "##############################################"
 	@1>&2 echo "# YOUR USER IS NOT PART OF THE DOCKER GROUP! #"
 	@1>&2 echo "##############################################"
@@ -294,5 +297,6 @@ ifneq (,$(shell groups | grep -q docker))
 	@1>&2 echo
 	@exit 1
 endif
+	@1>&2 echo "SUCCESS"
 
 include ../.Makefile.template

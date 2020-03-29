@@ -1,4 +1,4 @@
-name: Build
+name: Build test
 
 on: [push, pull_request]
 
@@ -11,5 +11,5 @@ jobs:
     - uses: actions/checkout@v1
     - name: build idf image
       run: make -C docker idf-image
-    - name: build idf project
-      run: make -C docker idf DOCKEROPTS=--tty=false EXEC="idf.py build"
+    - name: build idf test project
+      run: make -C docker idf DOCKEROPTS=--tty=false EXEC="cd test; idf.py build"
