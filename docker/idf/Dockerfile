@@ -1,6 +1,9 @@
 FROM ubuntu:18.04
 
-RUN apt-get update &&apt-get -y install ninja-build libncurses5-dev flex bison gperf python python-pip cmake git sudo libusb-1.0-0
+RUN apt-get update && apt-get -y install ninja-build libncurses5-dev flex bison gperf python3 python3-pip cmake git sudo libusb-1.0-0
+
+RUN ln -sr /usr/bin/python3 /usr/bin/python
+RUN ln -sr /usr/bin/pip3 /usr/bin/pip
 
 ARG UID=1000
 ARG GID=1000
@@ -13,8 +16,13 @@ USER developer
 ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
 
 ARG idf_version
-RUN mkdir ~/git && git clone -b ${idf_version} --recursive https://github.com/espressif/esp-idf.git ~/git/esp-idf
-COPY idf_tools.py.patch git/esp-idf/tools/idf_tools.py.patch
-RUN cd ~/git/esp-idf && git apply ~/git/esp-idf/tools/idf_tools.py.patch
-RUN cd ~/git/esp-idf && ./install.sh
-RUN echo "source $HOME/git/esp-idf/export.sh" >> ~/.bashrc
+RUN sudo git clone -b ${idf_version} --recursive https://github.com/espressif/esp-idf.git /opt/esp-idf
+WORKDIR /opt/esp-idf
+COPY idf_tools.py.patch idf_tools.py.patch
+RUN sudo git apply idf_tools.py.patch
+ENV IDF_TOOLS_PATH=/opt/espressif
+RUN sudo -E python3 tools/idf_tools.py install
+RUN sudo -E python3 tools/idf_tools.py install-python-env
+RUN python3 tools/idf_tools.py export >> ~/.bashrc
+
+WORKDIR /home/developer
