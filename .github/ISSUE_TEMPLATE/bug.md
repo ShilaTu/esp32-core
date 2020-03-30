@@ -7,18 +7,30 @@ assignees: ''
 
 ---
 
-**Description**
-A clear and concise description of what the bug is.
+## Related Issues & PRs
+<!-- List of related PRs and issues. -->
+none
+<!-- or -->
+- #??
+- #??
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## Description
+<!-- List of clear and concise descriptions of the bug. -->
+- this does not work
+- that does not work
 
-**To Reproduce**
-Steps to reproduce the behavior:
+## Expected behavior
+<!-- List of clear and concise description of what you expected to happen. -->
+- expected this
+- expected that
+
+## To Reproduce
+<!-- Steps to reproduce the behavior. -->
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-**Context**
-If applicable, add screenshots or code to help explain your problem and any other context about the problem here.
+## Context
+<!-- Feel free to add screenshots or code to help explain the problem. -->
+none
