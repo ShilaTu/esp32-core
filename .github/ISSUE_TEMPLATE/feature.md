@@ -1,22 +1,32 @@
 ---
 name: feature
-about: Suggest an idea for this project
+about: Suggest a feature for this project
 title: 'feature: '
 labels: enhancement
 assignees: ''
 
 ---
 
-**Description**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## Related Issues & PRs
+<!-- List of related PRs and issues. -->
+none
+<!-- or -->
+- #??
+- #??
 
-**Solution**
-A clear and concise description of your preferred solution.
+## Description
+<!-- A clear and concise description of what the idea is. -->
+I'm always frustrated when...
 
-**Alternative solutions**
-A clear and concise description of any alternative solutions or features you've considered.
+## Solution
+<!-- A clear and concise description of your preferred solution. -->
+This should be solvable by...
+
+## Alternative solutions
+<!-- A clear and concise description of any alternative solutions you've considered. -->
 - first alternative solution
 - second alternative solution
 
-**Context**
-If applicable, add screenshots or code to help explain your problem and any other context about the problem here.
+## Context
+<!-- Add screenshots or code to help explain your idea. --> 
+none
