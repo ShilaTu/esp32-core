@@ -117,6 +117,66 @@ vscode: | check-docker
 		WORKDIR=$(PROJECTDIR) \
 		EXEC="code .; bash"
 
+### qemu targets ###
+
+.PHONY: qemu
+TARGET += qemu
+HELP_qemu = start qemu and run build image
+qemu: qemu-image | check-docker
+	@make --no-print-directory -C $(DOCKERDIR) qemu \
+		EXEC="echo \"############################\"; \
+	        echo \"# TO EXIT QEMU: <CTRL-X A> #\"; \
+	        echo \"############################\"; \
+	        qemu-system-xtensa \
+	          -no-reboot \
+	          -nographic \
+	          -machine esp32 \
+	          -drive file=$(PROJECTDIR)/build/qemu.bin,if=mtd,format=raw \
+	        2>&1 | tee build/qemu.log; \
+	        grep -q \"0 Failures\" build/qemu.log"
+
+.PHONY: qemu-image
+TARGET_qemu += qemu-image
+HELP_qemu-image = converts build image to image runnable by qemu
+qemu-image: $(PROJECTDIR)/build/qemu.bin
+.DELETE_ON_ERROR: $(PROJECTDIR)/build/qemu.bin
+$(PROJECTDIR)/build/qemu.bin: $(PROJECTDIR)/build/$(PROJECT).bin
+	dd if=/dev/zero bs=1024 count=4096 of=$@
+	dd if=$(PROJECTDIR)/build/bootloader/bootloader.bin bs=1 seek=$$((0x1000)) of=$@ conv=notrunc
+	dd if=$(PROJECTDIR)/build/partition_table/partition-table.bin bs=1 seek=$$((0x8000)) of=$@ conv=notrunc
+	dd if=$(PROJECTDIR)/build/$(PROJECT).bin bs=1 seek=$$((0x10000)) of=$@ conv=notrunc
+
+.PHONY: qemu-gdb
+TARGET += qemu-gdb
+HELP_qemu-gdb = start qemu and wait for gdb
+qemu-gdb: qemu-image | check-docker
+	@make --no-print-directory -C $(DOCKERDIR) qemu \
+	  DOCKEROPTS="--name $(PROJECT).qemu" \
+		EXEC="echo \"###################################\"; \
+	        echo \"#        TO START GDB RUN         #\"; \
+	        echo \"# make PROJECT=<PROJECT> gdb-qemu #\"; \
+	        echo \"#        IN ANOTHER SHELL         #\"; \
+	        echo \"###################################\"; \
+	        qemu-system-xtensa \
+	          -s -S \
+	          -no-reboot \
+	          -nographic \
+	          -machine esp32 \
+	          -drive file=build/qemu.bin,if=mtd,format=raw"
+
+
+### gdb targets ###
+
+.PHONY: gdb-qemu
+TARGET += gdb-qemu
+gdb-HELP_qemu = start gdb and connect to qemu
+gdb-qemu: $(PROJECTDIR)/build/$(PROJECT).elf | check-docker
+	docker exec -ti $(PROJECT).qemu \
+	  bash -ic "xtensa-esp32-elf-gdb $^ \
+	                -ex \"target remote :1234\" \
+	                -ex \"tb app_main\" \
+	                -ex \"c\""
+
 ### dev targets ###
 
 .PHONY: dev
