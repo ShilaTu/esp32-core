@@ -8,9 +8,9 @@ VARIABLE += IDF_VERSION
 HELP_IDF_VERSION = which idf version to use
 IDF_VERSION?=v4.0
 
-VARIABLE += QEMU_COMMIT
-HELP_QEMU_COMMIT = which qemu commit to checkout
-QEMU_COMMIT?=esp-develop
+VARIABLE += QEMU_VERSION
+HELP_QEMU_VERSION = which qemu version to use
+QEMU_VERSION?=esp-develop
 
 VARIABLE += DEV
 HELP_DEV = which device to map into container
@@ -58,8 +58,8 @@ HELP_qemu-image = buils docker qemu image
 qemu-image: idf-image | check-docker
 	docker build \
 		--build-arg=idf_version=$(IDF_VERSION) \
-		--build-arg=qemu_commit=$(QEMU_COMMIT) \
-		-t "lifesensor/qemu:$(QEMU_COMMIT)" \
+		--build-arg=qemu_version=$(QEMU_VERSION) \
+		-t "lifesensor/qemu:$(QEMU_VERSION)" \
 		qemu
 
 .PHONY: vscode-image
@@ -68,7 +68,7 @@ TARGET_vscode += vscode-image
 HELP_vscode-image = buils docker vscode image
 vscode-image:  qemu-image | check-docker
 	docker build \
-		--build-arg=qemu_commit=$(QEMU_COMMIT) \
+		--build-arg=qemu_version=$(QEMU_VERSION) \
 		-t "lifesensor/vscode:latest" \
 		vscode
 
@@ -103,8 +103,8 @@ qemu: | qemu-image check-docker
 		-w "$(shell pwd)/.." \
 		--hostname qemu \
 		$(DOCKEROPTS) \
-		lifesensor/qemu:$(QEMU_COMMIT) \
-		/bin/sh -c '$(EXEC)'
+		lifesensor/qemu:$(QEMU_VERSION) \
+		/bin/bash -ic '$(EXEC)'
 
 .PHONY: code vscode
 TARGET += vscode
@@ -127,7 +127,7 @@ code vscode: | vscode-image check-docker
 		--hostname vscode \
 		$(DOCKEROPTS) \
 		lifesensor/vscode:latest \
-		/bin/sh -c '$(EXEC)'
+		/bin/bash -ic '$(EXEC)'
 
 ### docker remove volume targets ###
 
@@ -162,7 +162,7 @@ distclean-idf: clean-idf
 DISTCLEAN += distclean-qemu
 HELP_distclean-qemu = removes qemu docker image
 distclean-qemu: clean-qemu
-	-docker image remove "lifesensor/qemu:$(QEMU_COMMIT)"
+	-docker image remove "lifesensor/qemu:$(QEMU_VERSION)"
 	docker image prune
 
 .PHONY: distclean-vscode
