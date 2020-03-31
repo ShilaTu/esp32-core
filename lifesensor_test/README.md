@@ -2,7 +2,7 @@
 This directory contains a test build of the project
 
 ## Building & Running
-Run `make test` from the projects root
+Run `make PROJECT=lifesensor_test build flash monitor` from the projects root
 
 ## Adding tests
 To add the unit test of a component,

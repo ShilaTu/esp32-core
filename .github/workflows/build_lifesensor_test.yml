@@ -1,4 +1,4 @@
-name: Build
+name: Build project lifesensor_test
 
 on: [push, pull_request]
 
@@ -12,4 +12,4 @@ jobs:
     - name: build idf image
       run: make -C docker idf-image
     - name: build idf project
-      run: make -C docker idf DOCKEROPTS=--tty=false EXEC="idf.py build"
+      run: make -C docker idf DOCKEROPTS=--tty=false EXEC="cd lifesensor_test; idf.py build"
