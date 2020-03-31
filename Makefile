@@ -16,6 +16,10 @@ VARIABLE+=DEV
 HELP_DEV=which device to flash/monitor
 DEV?=none
 
+VARIABLE += DOCKEROPTS
+HELP_DOCKEROPTS = additional docker options
+export DOCKEROPTS
+
 ### menuconfig targets ###
 
 .PHONY: menuconfig
