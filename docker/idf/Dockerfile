@@ -1,6 +1,8 @@
 FROM ubuntu:18.04
 
-RUN apt-get update && apt-get -y install ninja-build libncurses5-dev flex bison gperf python3 python3-pip cmake git sudo libusb-1.0-0
+RUN apt-get update && apt-get -y install ninja-build libncurses5-dev flex \
+                                         bison gperf python3 python3-pip cmake \
+                                         git sudo libusb-1.0-0
 
 RUN ln -sr /usr/bin/python3 /usr/bin/python
 RUN ln -sr /usr/bin/pip3 /usr/bin/pip
@@ -16,7 +18,8 @@ USER developer
 ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
 
 ARG idf_version
-RUN sudo git clone -b ${idf_version} --recursive https://github.com/espressif/esp-idf.git /opt/esp-idf
+RUN sudo git clone -b ${idf_version} \
+        --recursive https://github.com/espressif/esp-idf.git /opt/esp-idf
 WORKDIR /opt/esp-idf
 COPY idf_tools.py.patch idf_tools.py.patch
 RUN sudo git apply idf_tools.py.patch
