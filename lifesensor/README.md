@@ -1,22 +1,9 @@
-# LifeSensor -- Esp32-core
-ESP32 firmware for the lifesensor project.
-
-## Components
-See [components/README.md](components/README.md) for an overview of features. 
-
-## Project flavors
-This repository features multiple idf projects for different purposes.
-
-<dl>
-<dt>lifesensor</dt><dd>main project</dd>
-<dt>lifesensor_test</dt><dd>unit tests of components</dd>
-</dl>
+# Main build
+This directory contains the main build of the project.
 
 ## Build & Flash & Run
 
 * via Docker
-  1. Choose flavor
-     * i.e. `cd lifesensor`
   2. Building
      * `make build`
        1. creates idf docker image if needed
@@ -33,14 +20,9 @@ This repository features multiple idf projects for different purposes.
        1. creates idf docker image if needed
        2. starts idf docker container to connect to ESP via specified device by `make dev`
 * via local esd-idf toolchain
-  1. Choose flavor
-     * i.e. `cd lifesensor`
   2. Building
      * `idf.py build`
   3. Flashing
      * `idf.py flash -p <device>`
   4. Monitoring
      * `idf.py monitor -p <device>`
-
-## Contributing
-See [CONTRIBUTING.md](CONTRIBUTING.md)
