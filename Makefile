@@ -4,6 +4,10 @@
 
 ### variables ###
 
+VARIABLE+=PROJECT
+HELP_PROJECT=what project to run
+PROJECT?=lifesensor
+
 VARIABLE+=USERSHELL
 HELP_USERSHELL=what shell to spawn when setting env
 USERSHELL?=$(shell awk -F ':' '/^'$$(id -un)':/{print $$NF}' /etc/passwd)
@@ -18,13 +22,8 @@ DEV?=none
 TARGET += menuconfig
 HELP_menuconfig = configures project
 menuconfig: | check-docker
-	@make --no-print-directory -C docker idf EXEC="idf.py menuconfig"
-
-.PHONY: menuconfig-test
-TARGET += menuconfig-test
-HELP_menuconfig-test = configures test project
-menuconfig-test: | check-docker
-	@make --no-print-directory -C docker idf EXEC="cd test; idf.py menuconfig"
+	@make --no-print-directory -C docker idf \
+		EXEC="cd $(PROJECT); idf.py menuconfig"
 
 ### build targets ###
 
@@ -34,46 +33,21 @@ DEFAULT += build
 ALL += build
 HELP_build = builds project
 build: | check-docker
-	@make --no-print-directory -C docker idf EXEC="idf.py build"
+	@make --no-print-directory -C docker idf \
+		EXEC="cd $(PROJECT); idf.py reconfigure build"
 
 .PHONY: clean-build
 CLEAN += clean-build
-HELP_clean-build = let idf clean generated files
+HELP_clean = let idf clean generated files
 clean-build: | check-docker
-	@make --no-print-directory -C docker idf EXEC="idf.py clean"
+	rm -rf $(addprefix $(PROJECT)/build/esp-idf/, $(shell ls components) main)
 
 .PHONY: distclean-build
 DISTCLEAN += distclean-build
 HELP_distclean-build = removes all generated files
 distclean-build:
-	rm -f  sdkconfig
-	rm -rf build
-
-### test targets ###
-
-.PHONY: test
-TARGET += test
-HELP_test = build test project, flash it, monitor it
-test: build-test flash-test monitor-test
-
-.PHONY: build-test
-TARGET_build += build-test
-HELP_build-test = builds tests
-build-test: | check-docker
-	@make --no-print-directory -C docker idf EXEC="cd test; idf.py build"
-
-.PHONY: clean-test
-CLEAN += clean-test
-HELP_clean-test: let idf clean generated files of the test build
-clean-test: | check-docker
-	@make --no-print-directory -C docker idf EXEC="cd test; idf.py clean"
-
-.PHONY: distclean-test
-DISTCLEAN += distclean-test
-HELP_distclean-test = removes all generated files of the test build
-distclean-test:
-	rm -f  test/sdkconfig
-	rm -rf test/build
+	rm -f  $(PROJECT)/sdkconfig
+	rm -rf $(PROJECT)/build
 
 ### flash targets ###
 
@@ -81,17 +55,10 @@ distclean-test:
 TARGET += flash
 HELP_flash = flashes project to esp. Use DEV=path to provide  path to device or use make dev
 flash: | check-flash
-	@make --no-print-directory -C docker \
-		idf \
-		EXEC="sudo chgrp developer $(DEV); idf.py flash -p '$(DEV)'"
-
-.PHONY: flash-test
-TARGET_flash += flash-test
-HELP_flash-test = flashes tests to esp. Use DEV=path to provide  path to device or use make dev
-flash-test: | check-flash
-	@make --no-print-directory -C docker \
-		idf \
-		EXEC="sudo chgrp developer $(DEV); cd test; idf.py flash -p '$(DEV)'"
+	@make --no-print-directory -C docker idf \
+		EXEC="sudo chgrp developer $(DEV);\
+		      cd $(PROJECT); \
+		      idf.py flash -p '$(DEV)'"
 
 .PHONY: check-flash
 CHECK += check-flash
@@ -104,17 +71,10 @@ check-flash: | check-docker check-dev
 TARGET += monitor
 HELP_monitor = connects to esp32 via serial. Use DEV=path to provide path to device or use make dev
 monitor: | check-monitor
-	@make --no-print-directory -C docker \
-		idf \
-		EXEC="sudo chgrp developer $(DEV); idf.py monitor -p '$(DEV)'"
-
-.PHONY: monitor-test
-TARGET += monitor-test
-HELP_monitor-test = connects to esp32 via serial. Use DEV=path to provide path to device or use make dev
-monitor-test: | check-monitor
-	@make --no-print-directory -C docker \
-		idf \
-		EXEC="sudo chgrp developer $(DEV); cd test; idf.py monitor -p '$(DEV)'"
+	@make --no-print-directory -C docker idf \
+		EXEC="sudo chgrp developer $(DEV); \
+		      cd $(PROJECT); \
+		      idf.py monitor -p '$(DEV)'"
 
 .PHONY: check-monitor
 CHECK += check-monitor
