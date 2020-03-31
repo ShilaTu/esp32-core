@@ -35,6 +35,10 @@ EXEC?=bash
 VARIABLE += DOCKEROPTS
 HELP_DOCKEROPTS = additional docker options
 
+VARIABLE += WORKDIR
+HELP_WORKDIR = Where to enter docker container
+WORKDIR?=$(shell pwd)/..
+
 ### docker build targets ###
 
 .PHONY: idf-image
@@ -84,7 +88,7 @@ idf: | idf-image check-docker
 		$(DOCKER_DEV) \
 		-v idf-home:/home/developer:rw \
 		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
-		-w "$(shell pwd)/.." \
+		-w "$(WORKDIR)" \
 		--hostname idf \
 		$(DOCKEROPTS) \
 		lifesensor/idf:$(IDF_VERSION) \
@@ -100,7 +104,7 @@ qemu: | qemu-image check-docker
 		$(DOCKER_DEV) \
 		-v qemu-home:/home/developer:rw \
 		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
-		-w "$(shell pwd)/.." \
+		-w "$(WORKDIR)" \
 		--hostname qemu \
 		$(DOCKEROPTS) \
 		lifesensor/qemu:$(QEMU_VERSION) \
@@ -122,7 +126,7 @@ code vscode: | vscode-image check-docker
 		-e DISPLAY=$(DISPLAY) \
 		-e LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 \
 		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
-		-w "$(shell pwd)/.." \
+		-w "$(WORKDIR)" \
 		--shm-size=512m \
 		--hostname vscode \
 		$(DOCKEROPTS) \

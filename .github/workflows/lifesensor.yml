@@ -12,4 +12,4 @@ jobs:
     - name: build idf image
       run: make -C docker idf-image
     - name: build idf project
-      run: make DOCKEROPTS=--tty=false PROJECT=lifesensor build
+      run: make -C lifesensor DOCKEROPTS=--tty=false build

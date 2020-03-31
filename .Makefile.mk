@@ -4,92 +4,114 @@
 
 ### variables ###
 
-VARIABLE+=PROJECT
-HELP_PROJECT=what project to run
-PROJECT?=lifesensor
-
-VARIABLE+=USERSHELL
-HELP_USERSHELL=what shell to spawn when setting env
-USERSHELL?=$(shell awk -F ':' '/^'$$(id -un)':/{print $$NF}' /etc/passwd)
-
 VARIABLE+=DEV
 HELP_DEV=which device to flash/monitor
 DEV?=none
 
-VARIABLE += DOCKEROPTS
-HELP_DOCKEROPTS = additional docker options
+### internal variables ###
+
+# assume /etc/passwd holds right shell of user
+USERSHELL?=$(shell awk -F ':' '/^'$$(id -un)':/{print $$NF}' /etc/passwd)
+
+# export any additional docker options for docker Makefile
 export DOCKEROPTS
+
+# assume we are in projectdir
+PROJECTDIR?=$(shell pwd)
+
+# assume dirname is projectname
+PROJECT?=$(notdir $(shell pwd))
+
+# assume docker Makefile dir
+DOCKERDIR?=../docker
+
+# assume template path
+TEMPLATEPATH?=../.Makefile.template
+
+# assume we want to start where we are
+WORKDIR?=$(PROJECTDIR)
+# export for docker Makefile
+export WORKDIR
+
+### default target ###
+DEFAULT += help
 
 ### menuconfig targets ###
 
 .PHONY: menuconfig
 TARGET += menuconfig
-HELP_menuconfig = configures project
+
+HELP_menuconfig = configure project
 menuconfig: | check-docker
-	@make --no-print-directory -C docker idf \
-		EXEC="cd $(PROJECT); idf.py menuconfig"
+	@make --no-print-directory -C $(DOCKERDIR) idf \
+		EXEC="idf.py menuconfig"
 
 ### build targets ###
 
+.PHONY: reconfigure
+TARGET += reconfigure
+ALL += reconfigure
+HELP_reconfigure = reconfigure project (rebuilds cmake files)
+reconfigure: | check-docker
+	@make --no-print-directory -C $(DOCKERDIR) idf \
+		EXEC="idf.py reconfigure"
+
 .PHONY: build
 TARGET += build
-DEFAULT += build
 ALL += build
-HELP_build = builds project
+HELP_build = build project
 build: | check-docker
-	@make --no-print-directory -C docker idf \
-		EXEC="cd $(PROJECT); idf.py reconfigure build"
+	@make --no-print-directory -C $(DOCKERDIR) idf \
+		EXEC="idf.py build"
 
 .PHONY: clean-build
 CLEAN += clean-build
-HELP_clean = let idf clean generated files
+HELP_clean-build = remove generated files of project components
 clean-build: | check-docker
-	rm -rf $(addprefix $(PROJECT)/build/esp-idf/, $(shell ls components) main)
+	rm -rf $(addprefix $(PROJECTDIR)/build/esp-idf/, $(shell find $(PROJECTDIR)/../components -mindepth 1  -maxdepth 1 -type d -printf "%f\n") main)
 
 .PHONY: distclean-build
 DISTCLEAN += distclean-build
-HELP_distclean-build = removes all generated files
+HELP_distclean-build = remove all generated files
 distclean-build:
-	rm -f  $(PROJECT)/sdkconfig
-	rm -rf $(PROJECT)/build
+	rm -f  $(PROJECTDIR)/sdkconfig
+	rm -rf $(PROJECTDIR)/build
 
 ### flash targets ###
 
 .PHONY: flash
 TARGET += flash
-HELP_flash = flashes project to esp. Use DEV=path to provide  path to device or use make dev
+HELP_flash = flash project to esp. Use DEV=path to provide  path to device or use make dev
 flash: | check-flash
-	@make --no-print-directory -C docker idf \
+	@make --no-print-directory -C $(DOCKERDIR) idf \
 		EXEC="sudo chgrp developer $(DEV);\
-		      cd $(PROJECT); \
 		      idf.py flash -p '$(DEV)'"
 
 .PHONY: check-flash
 CHECK += check-flash
-HELP_check-flash = checks env if flashing is possible
+HELP_check-flash = check env if flashing is possible
 check-flash: | check-docker check-dev
 
 ### monitor targets ###
 
 .PHONY: monitor
 TARGET += monitor
-HELP_monitor = connects to esp32 via serial. Use DEV=path to provide path to device or use make dev
+HELP_monitor = connect to esp32 via serial. Use DEV=path to provide path to device or use make dev
 monitor: | check-monitor
-	@make --no-print-directory -C docker idf \
+	@make --no-print-directory -C $(DOCKERDIR) idf \
 		EXEC="sudo chgrp developer $(DEV); \
-		      cd $(PROJECT); \
 		      idf.py monitor -p '$(DEV)'"
 
 .PHONY: check-monitor
 CHECK += check-monitor
-HELP_check-monitor = checks env if monitor is possible
+HELP_check-monitor = check env if monitor is possible
 check-monitor: | check-docker check-dev
 
 ### dev targets ###
 
 .PHONY: dev
 TARGET += dev
-HELP_dev = specifies which USB device to connect to
+HELP_dev = specify which USB device to connect to
 dev: | check-dialog
 	export DEV=$$((for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
 	| dialog \
@@ -101,7 +123,7 @@ dev: | check-dialog
 
 .PHONY: check-dev
 CHECK += check-dev
-HELP_check-dev = checks if device is specified
+HELP_check-dev = check if device is specified
 check-dev:
 	@1>&2 echo -n "checking if device is valid & specified..."
 ifeq ($(DEV),none)
@@ -142,7 +164,7 @@ endif
 
 .PHONY: check-dialog
 CHECK += check-dialog
-HELP_check-dialog = checks if dialog is installed
+HELP_check-dialog = check if dialog is installed
 check-dialog:
 	@1>&2 echo -n "checking if dialog is installed..."
 ifeq ($(shell which dialog 2> /dev/null),)
@@ -167,9 +189,9 @@ endif
 
 .PHONY: check-docker
 CHECK += check-docker
-HELP_check-docker = checks if docker is usable
+HELP_check-docker = check if docker is usable
 check-docker:
-	@make --no-print-directory -C docker check
+	@make --no-print-directory -C $(DOCKERDIR) check
 
 ### git targets
 
@@ -180,4 +202,4 @@ setup-git:
 	git config --replace-all commit.template .gitcommitmsg
 	git config --replace-all pull.rebase true
 
-include .Makefile.template
+include $(TEMPLATEPATH)
