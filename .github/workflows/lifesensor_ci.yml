@@ -1,0 +1,21 @@
+name: Project lifesensor_ci
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: build idf image
+      run: make -C docker idf-image
+    - name: build qemu image
+      run: make -C docker qemu-image
+    - name: build idf project
+      run: make -C lifesensor_ci DOCKEROPTS=--tty=false build
+    - name: convert firmware image
+      run: make -C lifesensor_ci DOCKEROPTS=--tty=false qemu-image
+    - name: run qemu
+      run: make -C lifesensor_ci DOCKEROPTS=--tty=false qemu
