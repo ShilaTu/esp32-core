@@ -1,11 +1,3 @@
----
-name: feature
-about: Request to merge
-title: ''
-labels: '' 
-assignees: ''
-
----
 <!-- THANKS FOR YOUR CONTRIBUTION! -->
 <!-- please fill out this form so we get an idea what you did -->
 
