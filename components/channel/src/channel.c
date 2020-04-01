@@ -65,34 +65,36 @@ void
 channel_internal_unregister
 (Channel *ch) 
 {
-    int isUnique = ! list_empty(&ch->unique);
-    int isSame   = ! list_empty(&ch->same);
+    int is_unique = ! list_empty(&ch->unique);
+    int is_same   = ! list_empty(&ch->same);
 
     //channel is not registered
-    if (!isUnique && !isSame) {
+    if (!is_unique && !is_same) {
         return;
     }
     //channel is not in the unique chain so just delete it
-    if (!isUnique && isSame) {
+    if (!is_unique && is_same) {
         list_del(&ch->same);
         INIT_LIST_HEAD(&ch->same);
         return;
     }
+    
     //channel is in the unique list, but single element so also just delete it
-    if (isUnique && !isSame) {
+    if (is_unique && !is_same) {
         list_del(&ch->unique);
         INIT_LIST_HEAD(&ch->unique);
         return;
     }
+
     //channel is in unique list and there are others in same list, so replace channel
-    if (isUnique && isSame) {
-        Channel *nextSame = list_entry(ch->same.next, struct channel, same);
-        Channel *nextUniq = list_entry(ch->unique.next, struct channel, unique);
+    if (is_unique && is_same) {
+        Channel *next_same = list_entry(ch->same.next, struct channel, same);
+        Channel *next_uniq = list_entry(ch->unique.next, struct channel, unique);
         list_del(&ch->same);
         INIT_LIST_HEAD(&ch->same);
         list_del(&ch->unique);
         INIT_LIST_HEAD(&ch->unique);
-        list_add(&nextSame->unique, &nextUniq->unique);
+        list_add(&next_same->unique, &next_uniq->unique);
         return;
     }
 }

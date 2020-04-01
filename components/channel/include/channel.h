@@ -57,8 +57,8 @@ struct channel {
 };
 
 typedef struct channel Channel;
-typedef struct channel Channel_in;
-typedef struct channel Channel_out;
+typedef struct channel Channel_consumer;
+typedef struct channel Channel_producer;
 
 typedef struct broadcast {
     Channel *ch;
@@ -85,7 +85,7 @@ channel_init
 (Channel *ch, const char *identifier, void *ctx, const BaseType_t flags, Channel_callback callback);
 
 /**
- * channel_init_input - helper function to initialize channel input object
+ * channel_init_consumer - helper function to initialize channel object as consumer
  * @ch: pointer to channel object to initialize
  * @identifier: identifier string of the channel
  * @queue: queue handle to send input to 
@@ -93,6 +93,35 @@ channel_init
 static
 void
 inline __attribute__((always_inline))
+channel_init_consumer
+(Channel_consumer *ch, const char *identifier, QueueHandle_t queue)
+{
+    return channel_init(ch, identifier, queue, queueSEND_TO_BACK, &xQueueGenericSend);
+}
+
+/**
+ * channel_init_producer - helper function to initialize channel object as producer
+ * @ch: pointer to channel object to initialize
+ * @identifier: identifier string of the channel
+ */
+static
+void
+inline __attribute__((always_inline))
+channel_init_producer
+(Channel_producer *ch, const char *identifier)
+{
+    return channel_init(ch, identifier, NULL, 0, NULL);
+}
+
+/**
+ * channel_init_input - helper function to initialize channel input object
+ * @ch: pointer to channel object to initialize
+ * @identifier: identifier string of the channel
+ * @queue: queue handle to send input to 
+ */
+static
+void
+inline __attribute__((always_inline)) __attribute__((deprecated))
 channel_init_input
 (Channel_in *ch, const char *identifier, QueueHandle_t queue)
 {
@@ -106,7 +135,7 @@ channel_init_input
  */
 static
 void
-inline __attribute__((always_inline))
+inline __attribute__((always_inline)) __attribute__((deprecated))
 channel_init_output
 (Channel_out *ch, const char *identifier)
 {
@@ -160,7 +189,7 @@ channel_reset
  */
 BaseType_t
 channel_send
-(const Channel_in *ch, const void *data, const TickType_t timeout);
+(const Channel_consumer *ch, const void *data, const TickType_t timeout);
 
 /**
  * channel_broadcast_init - helper function to initialize broadcast handler
@@ -173,7 +202,7 @@ static
 void
 inline __attribute__((always_inline))
 channel_broadcast_init
-(Channel_broadcast *handle, const Channel_out *ch, const void *data, const TickType_t timeout)
+(Channel_broadcast *handle, const Channel_producer *ch, const void *data, const TickType_t timeout)
 {
     handle->ch = (void*) ch;
     handle->pos = (void*) ch;
