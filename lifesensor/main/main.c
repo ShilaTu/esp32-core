@@ -1,21 +1,25 @@
 #include "ulp.h"
 #include "spo2.h"
+#include "spo2_driver.h"
+#include "macro_task.h"
+#include "macro_queue.h"
+
+/**
+ * spo2_t - type deffinition of the spo2 unit
+ *
+ * @adc_queue:	Receives ulp adc measurements.
+ * @adc_tasks:	Processes adc input data from adc_queue.
+ */
+typedef struct {
+	LIFESENSOR_QUEUE(spo2_adc_sample_t, 16) adc_queue;
+	LIFESENSOR_TASK(4096) adc_task;
+} spo2_t;
 
 
-static uint8_t spo2_queue_buffer[SPO2_QUEUE_BUFFER_SIZE];
-static StackType_t spo2_task_stack[SPO2_TASK_STACK_SIZE];
-
-_spo2_queue spo2_queue = {
-	.length = SPO2_QUEUE_LENGTH,
-	.item_size = SPO2_QUEUE_ITEM_SIZE,
-	.buffer = spo2_queue_buffer
-};
-
-_spo2_task spo2_task = {
-	.name = SPO2_TASK_NAME,
-	.priority = tskIDLE_PRIORITY,
-	.stack = spo2_task_stack
-};
+/*
+ * Unit definitions
+ */
+spo2_t spo2;
 
 
 /**
@@ -27,7 +31,14 @@ _spo2_task spo2_task = {
  */
 void app_main()
 {
-	spo2_init(&spo2_task, &spo2_queue);
-	ulp_init(&spo2_queue);
-}
+	lifesensor_queue_init(&spo2.adc_queue);
+	lifesensor_task_init(
+		&spo2.adc_task,
+		"spo2_adc",
+		spo2_runner,
+		&spo2.adc_queue.queue,
+		tskIDLE_PRIORITY
+	);
 
+	ulp_init(&spo2.adc_queue.queue);
+}
