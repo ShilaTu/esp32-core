@@ -212,8 +212,8 @@ channel_broadcast_init
 
 /**
  * channel_broadcast_finished - helper function to determine if broadcast finished
+ * Does not provide information if broadcast was successful!
  * @ch: pointer to channel object
- * @pos: location of pointer where broadcast stopped 
  */
 static
 bool
