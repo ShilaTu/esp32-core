@@ -65,6 +65,7 @@ typedef struct broadcast {
     Channel *pos;
     void *data;
     TickType_t timeout;
+    TickType_t elapsed;
 } Channel_broadcast;
 
 #ifndef STR
@@ -208,6 +209,26 @@ channel_broadcast_init
     handle->pos = (void*) ch;
     handle->data = (void*) data;
     handle->timeout = timeout;
+    handle->elapsed = 0;
+}
+
+/**
+ * channel_broadcast_timeout - helper function to determine if broadcast timed out
+ * @handle: pointer to broadcast object
+ */
+static
+bool
+inline __attribute__((always_inline))
+channel_broadcast_timeout
+(Channel_broadcast *handle)
+{
+    if (handle->timeout != portMAX_DELAY) {
+        return false;
+    }
+    if (handle->elapsed >= handle->timeout) {
+        return true;
+    }
+    return false;
 }
 
 /**
