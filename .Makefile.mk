@@ -62,7 +62,7 @@ ALL += build
 HELP_build = build project
 build: | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) idf \
-		EXEC="idf.py build"
+		EXEC="idf.py --ccache build"
 
 .PHONY: clean-build
 CLEAN += clean-build
