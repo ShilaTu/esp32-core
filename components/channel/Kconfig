@@ -31,6 +31,9 @@ menu "Channel"
         config CHANNEL_TEST_ENABLE_RESETROOT
             bool "resetRoot"
             default y
+        config CHANNEL_TEST_QUEUE_CONSUMER
+            bool "Channel queue"
+            default y
     endif
     config CHANNEL_INTERNAL_EXPORT_SYMBOLS
         bool "Export internal functions"

@@ -1,5 +1,6 @@
 #include "unity.h"
 #include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include "channel.h"
 #include "channel_internal.h"
 
@@ -446,7 +447,7 @@ TEST_CASE("channel_broadcast", "[channel]")
 #define MP_TEST_STACK_SIZE 0x1000
 #define CHANNEL_QUEUE_TEST_QUEUE_SIZE 2
 
-#ifdef CONFIG_TEST_CHANNEL_QUEUE_CONSUMER
+#ifdef CONFIG_CHANNEL_TEST_QUEUE_CONSUMER
 
 #define CHANNEL_QUEUE_TEST_IDENTIFIER_C1 "test_c1"
 static Channel_consumer cc;
@@ -495,7 +496,7 @@ TEST_CASE("channel_queue", "[channel]")
         cc_task_stack,
         &cc_task
     );
-    configASSERT(cc_task);
+    configASSERT(cc_task_handle);
 
     Channel_broadcast br;
     float test_data = 3.14;
@@ -504,5 +505,8 @@ TEST_CASE("channel_queue", "[channel]")
     
     while(!timeout){}
     TEST_ASSERT_EQUAL_FLOAT(data, test_data);
+    vTaskDelete(cc_task_handle);
+    vQueueDelete(cc_queue_handle);
+    channel_internal_resetRoot();
 }
 #endif
