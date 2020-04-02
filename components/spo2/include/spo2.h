@@ -7,11 +7,15 @@
 
 #include "spo2_driver.h"
 
-#define SPO2_TASK_NAME "SpO2"
-#define SPO2_TASK_STACK_SIZE 0x1000
-#define SPO2_QUEUE_LENGTH 16
-#define SPO2_QUEUE_ITEM_SIZE sizeof(_spo2_adc_sample)
-#define SPO2_QUEUE_BUFFER_SIZE (SPO2_QUEUE_ITEM_SIZE * SPO2_QUEUE_LENGTH)
+
+/**
+ * spo2_runner() - spo2 task worker function
+ * @pvParameters:	void* to pass function parameters.
+ *
+ * This worker function retrieves an input data sample from the ADCs. This
+ * is the place where further processing of the data will happen.
+ */
+void spo2_runner(void *pvParameters);
 
 
 /**
@@ -32,56 +36,7 @@ typedef struct {
 	int32_t red_ac;
 	int32_t ird_acdc;
 	int32_t red_acdc;
-} _spo2_input_sample;
+} spo2_input_sample_t;
 
-
-/**
- * struct _spo2_task - life-sensor task struct
- * @tcb:	task related data
- * @handle:	a handle to reference the task
- * @stack:	the address of the tasks' stack
- *
- * This struct serves as a shortcut for operating with FreeRTOS tasks such
- * that it includes necessary fields for managing threads.
- */
-typedef struct {
-	const char *name;
-	StaticTask_t tcb;
-	TaskHandle_t handle;
-	StackType_t *stack;
-	UBaseType_t priority;
-} _spo2_task;
-
-/**
- * struct _spo2_queue - life-sensor queue struct
- * @length:	task related data
- * @item_size:	size of a single item
- * @buffer:	buffer to store the queues data
- * @queue:	pointer to the queues data structure
- * @handle:	a handle to reference the queue
- *
- * This struct serves as a shortcut for operating with FreeRTOS queues such
- * that it includes necessary fields for managing queues.
- */
-typedef struct {
-	UBaseType_t length;
-	UBaseType_t item_size;
-	uint8_t *buffer;
-	StaticQueue_t queue;
-	QueueHandle_t handle;
-} _spo2_queue;
-
-
-/**
- * spo2_init() - SpO2 (Pulsoxy) meassurement device interface initialization
- * @spo2_task:	task configuration
- * @spo2_queue:	queue configuration
- *
- * spo2_init() initializes peripherals (4xADC, 1xPWM, 2xGPIO) that is necessary
- * to operate together with the pulsoxy board which does preprocessing of input
- * data. After initialization a thread is started which periodically reads in
- * input data.
- */
-void spo2_init(_spo2_task *spo2_task, _spo2_queue *spo2_queue);
 
 #endif 
