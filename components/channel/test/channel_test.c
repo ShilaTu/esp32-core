@@ -487,14 +487,15 @@ TEST_CASE("channel_queue", "[channel]")
     channel_init_producer(&cp, CHANNEL_QUEUE_TEST_IDENTIFIER_C1);
 
     timeout = 0;
-    cc_task_handle = xTaskCreateStatic(
+    cc_task_handle = xTaskCreateStaticPinnedToCore(
         channel_consumer_task,
         "channel_consumer_task",
         MP_TEST_STACK_SIZE,
         NULL,
         1,
         cc_task_stack,
-        &cc_task
+        &cc_task,
+        0
     );
     configASSERT(cc_task_handle);
 
