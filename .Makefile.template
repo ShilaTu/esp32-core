@@ -63,7 +63,7 @@ clean: $(CLEAN)
 
 HELP_distclean = make clean $(DISTCLEAN)
 .PHONY: distclean
-distclean: $(DISTCLEAN)
+distclean: clean $(DISTCLEAN)
 
 .PHONY: help
 help:
