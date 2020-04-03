@@ -222,7 +222,7 @@ inline __attribute__((always_inline))
 channel_broadcast_timeout
 (Channel_broadcast *handle)
 {
-    if (handle->timeout != portMAX_DELAY) {
+    if (handle->timeout == portMAX_DELAY) {
         return false;
     }
     if (handle->elapsed >= handle->timeout) {

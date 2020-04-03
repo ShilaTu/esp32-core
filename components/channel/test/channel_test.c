@@ -350,6 +350,7 @@ TEST_CASE("channel_broadcast_init", "[channel]")
   TEST_ASSERT_EQUAL_PTR(handle.pos,&ch);
   TEST_ASSERT_EQUAL_PTR(handle.data,data);
   TEST_ASSERT_EQUAL_UINT(handle.timeout,timeout);
+  TEST_ASSERT_EQUAL_UINT(handle.elapsed,0);
 }
 #endif
 
@@ -444,28 +445,26 @@ TEST_CASE("channel_broadcast", "[channel]")
 }
 #endif
 
-#define MP_TEST_STACK_SIZE 0x1000
-#define CHANNEL_QUEUE_TEST_QUEUE_SIZE 2
 
 #ifdef CONFIG_CHANNEL_TEST_QUEUE_CONSUMER
 
+#define MP_TEST_STACK_SIZE 0x1000
+#define CHANNEL_QUEUE_TEST_QUEUE_SIZE 2
 #define CHANNEL_QUEUE_TEST_IDENTIFIER_C1 "test_c1"
 
 static float data;
-static uint8_t timeout;
+static Channel_consumer cc;
 
 
 static void channel_consumer_task(void *pvParameters)
 {
     for (;;) {
-        xQueueReceive((QueueHandle_t)cc.ctx, &data, 100/portTICK_PERIOD_MS);
-        timeout = 1;
+        xQueueReceive((QueueHandle_t)cc.ctx, &data, portMAX_DELAY);
     }
 }
 
 TEST_CASE("channel_queue", "[channel]")
 {
-	static Channel_consumer cc;
 	static StaticQueue_t cc_queue;
 	static QueueHandle_t cc_queue_handle;
 	static uint8_t cc_queue_buffer[CHANNEL_QUEUE_TEST_QUEUE_SIZE*sizeof(float)];
@@ -487,10 +486,8 @@ TEST_CASE("channel_queue", "[channel]")
     channel_init_consumer(&cc, CHANNEL_QUEUE_TEST_IDENTIFIER_C1, cc_queue_handle);
     
     static Channel_producer cp;
-    
     channel_init_producer(&cp, CHANNEL_QUEUE_TEST_IDENTIFIER_C1);
 
-    timeout = 0;
     cc_task_handle = xTaskCreateStatic(
         channel_consumer_task,
         "channel_consumer_task",
@@ -504,12 +501,12 @@ TEST_CASE("channel_queue", "[channel]")
 
     Channel_broadcast br;
     float test_data = 3.14;
-    channel_broadcast_init(&br, &cp, &test_data, 0);
-	
-	TEST_ASSERT(broadcast_finished(&br));
-	TEST_ASSERT_EQUAL_INT(channel_broadcast(&br), pdPASS);
+    channel_broadcast_init(&br, &cp, &test_data, 1);
+
+    TEST_ASSERT_EQUAL_INT(channel_broadcast(&br), pdPASS);
+    vTaskDelay(5);
+    TEST_ASSERT(channel_broadcast_finished(&br));
     
-    vTaskDelay(100/portTICK_PERIOD_MS);
     TEST_ASSERT_EQUAL_FLOAT(data, test_data);
     vTaskDelete(cc_task_handle);
     vQueueDelete(cc_queue_handle);
@@ -519,70 +516,63 @@ TEST_CASE("channel_queue", "[channel]")
 
 #ifdef CONFIG_CHANNEL_TEST_QUEUE_TIMEOUT
 
+#define MP_TEST_STACK_SIZE 0x1000
+#define CHANNEL_QUEUE_TEST_QUEUE_1_SIZE 4
+#define CHANNEL_QUEUE_TEST_QUEUE_2_SIZE 1
 #define CHANNEL_QUEUE_TEST_IDENTIFIER_C1 "test_c1"
 
 static float data;
-static uint8_t timeout;
+static Channel_consumer cc_1, cc_2;
 
 
-static void channel_consumer_task(void *pvParameters)
+TEST_CASE("channel_queue timout", "[channel]")
 {
-    for (;;) {
-        xQueueReceive((QueueHandle_t)cc.ctx, &data, 100/portTICK_PERIOD_MS);
-        timeout = 1;
-    }
-}
+	static StaticQueue_t cc_queue_1;
+	static QueueHandle_t cc_queue_1_handle;
+	static uint8_t cc_queue_1_buffer[CHANNEL_QUEUE_TEST_QUEUE_1_SIZE*sizeof(float)];
 
-TEST_CASE("channel_queue", "[channel]")
-{
-	static Channel_consumer cc;
-	static StaticQueue_t cc_queue;
-	static QueueHandle_t cc_queue_handle;
-	static uint8_t cc_queue_buffer[CHANNEL_QUEUE_TEST_QUEUE_SIZE*sizeof(float)];
-
-	static StackType_t cc_task_stack[MP_TEST_STACK_SIZE];
-	static StaticTask_t cc_task;
-	static TaskHandle_t cc_task_handle;
-
-	data = 0;
-
-    cc_queue_handle = xQueueCreateStatic(
-        CHANNEL_QUEUE_TEST_QUEUE_SIZE,
+    cc_queue_1_handle = xQueueCreateStatic(
+        CHANNEL_QUEUE_TEST_QUEUE_1_SIZE,
         sizeof(float),
-        cc_queue_buffer,
-        &cc_queue
+        cc_queue_1_buffer,
+        &cc_queue_1
     );
-    configASSERT(cc_queue_handle);
+    configASSERT(cc_queue_1_handle);
+    channel_init_consumer(&cc_1, CHANNEL_QUEUE_TEST_IDENTIFIER_C1, cc_queue_1_handle);
+	
+	static StaticQueue_t cc_queue_2;
+	static QueueHandle_t cc_queue_2_handle;
+	static uint8_t cc_queue_2_buffer[CHANNEL_QUEUE_TEST_QUEUE_2_SIZE*sizeof(float)];
 
-    channel_init_consumer(&cc, CHANNEL_QUEUE_TEST_IDENTIFIER_C1, cc_queue_handle);
+    cc_queue_2_handle = xQueueCreateStatic(
+        CHANNEL_QUEUE_TEST_QUEUE_2_SIZE,
+        sizeof(float),
+        cc_queue_2_buffer,
+        &cc_queue_2
+    );
+    configASSERT(cc_queue_2_handle);
+    channel_init_consumer(&cc_2, CHANNEL_QUEUE_TEST_IDENTIFIER_C1, cc_queue_2_handle);
     
     static Channel_producer cp;
-    
     channel_init_producer(&cp, CHANNEL_QUEUE_TEST_IDENTIFIER_C1);
 
-    timeout = 0;
-    cc_task_handle = xTaskCreateStatic(
-        channel_consumer_task,
-        "channel_consumer_task",
-        MP_TEST_STACK_SIZE,
-        NULL,
-        1,
-        cc_task_stack,
-        &cc_task
-    );
-    configASSERT(cc_task_handle);
-
     Channel_broadcast br;
-    float test_data = 3.14;
-    channel_broadcast_init(&br, &cp, &test_data, 0);
-	
-	TEST_ASSERT(broadcast_finished(&br));
-	TEST_ASSERT_EQUAL_INT(channel_broadcast(&br), pdPASS);
-    
-    vTaskDelay(100/portTICK_PERIOD_MS);
-    TEST_ASSERT_EQUAL_FLOAT(data, test_data);
-    vTaskDelete(cc_task_handle);
-    vQueueDelete(cc_queue_handle);
+	float test_data = 0.5;
+    channel_broadcast_init(&br, &cp, &test_data, 1);
+    TEST_ASSERT_EQUAL_INT(channel_broadcast(&br), pdPASS);
+
+	unsigned int timeout = 10;
+    channel_broadcast_init(&br, &cp, &test_data, timeout);
+	TickType_t start = xTaskGetTickCount();
+    TEST_ASSERT_EQUAL_INT(channel_broadcast(&br), pdFAIL);
+    TEST_ASSERT_FALSE(channel_broadcast_finished(&br));
+	TickType_t stop = xTaskGetTickCount();
+	TEST_ASSERT_EQUAL_UINT(start + timeout, stop);
+	TEST_ASSERT_EQUAL_UINT(timeout, br.elapsed);
+	TEST_ASSERT_EQUAL_PTR(&cc_2, br.pos);
+	TEST_ASSERT(channel_broadcast_timeout(&br));
+    vQueueDelete(cc_queue_1_handle);
+    vQueueDelete(cc_queue_2_handle);
     channel_internal_resetRoot();
 }
 #endif

@@ -34,6 +34,9 @@ menu "Channel"
         config CHANNEL_TEST_QUEUE_CONSUMER
             bool "Channel queue"
             default y
+        config CHANNEL_TEST_QUEUE_TIMEOUT
+            bool "Channel queue timeout"
+            default y
     endif
     config CHANNEL_INTERNAL_EXPORT_SYMBOLS
         bool "Export internal functions"
