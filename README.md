@@ -42,5 +42,37 @@ This repository features multiple idf projects for different purposes.
   4. Monitoring
      * `idf.py monitor -p <device>`
 
+## Simulating with qemu
+
+**Important:** Qemu port of the xtensa architecture is in active development,
+each docker image creation builds with latest version, mileage may vary!
+
+* via Docker
+  * simple execution
+    1. Choose flavor
+       * i.e. `cd lifesensor`
+    2. Building
+       * `make build`
+         1. creates idf docker image if needed
+         2. starts idf docker container to build project
+    3. Start qemu
+       * `make qemu`
+         1. creates qemu docker image if needed
+         2. starts qemu docker container to simulate project
+  * with gdb
+    1. Choose flavor
+       * i.e. `cd lifesensor`
+    2. Building
+       * `make build`
+         1. creates docker docker image if needed
+         2. starts qemu docker container to simulate project
+    3. Start qemu and wait for gdb connection
+       * `make qemu-gdb`
+         1. creates qemu docker image if needed
+         2. starts qemu docker container to simulate project
+    5. Start gdb and connect to qemu in second terminal
+       * `make gdb-qemu`
+         1. starts idf docker container to run gdb
+
 ## Contributing
 See [CONTRIBUTING.md](CONTRIBUTING.md)
