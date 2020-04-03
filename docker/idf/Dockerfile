@@ -24,8 +24,8 @@ WORKDIR /opt/esp-idf
 COPY idf_tools.py.patch idf_tools.py.patch
 RUN sudo git apply idf_tools.py.patch
 ENV IDF_TOOLS_PATH=/opt/espressif
-RUN sudo -E python tools/idf_tools.py install --non-interactive
-RUN sudo -E python tools/idf_tools.py install-python-env --non-interactive
+RUN sudo -E python tools/idf_tools.py --non-interactive install
+RUN sudo -E python tools/idf_tools.py --non-interactive install-python-env
 RUN python tools/idf_tools.py export >> ~/.bashrc
 
 WORKDIR /home/developer
