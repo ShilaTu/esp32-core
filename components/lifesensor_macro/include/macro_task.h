@@ -15,8 +15,8 @@
  * to be used together with the LIFESENSOR_TASK() macro.
  */
 typedef struct {
-	StaticTask_t tcb;
 	TaskHandle_t handle;
+	StaticTask_t tcb;
 	StackType_t stack[];
 } lifesensor_task_t;
 
