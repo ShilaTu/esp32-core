@@ -25,7 +25,7 @@ static int32_t spo2_dc_lowpass(int32_t feedback, int32_t adc_value);
 
 void
 spo2_filter
-(_spo2_input_sample *sample, _spo2_adc_sample *raw_data)
+(spo2_input_sample_t *sample, spo2_adc_sample_t *raw_data)
 {
 	/*
 	 * 5Hz low-pass filtering and removing the 2.5 V offset 

@@ -6,16 +6,8 @@
 #include <freertos/queue.h>
 
 #include "spo2_driver.h"
-
-
-/**
- * spo2_runner() - spo2 task worker function
- * @pvParameters:	void* to pass function parameters.
- *
- * This worker function retrieves an input data sample from the ADCs. This
- * is the place where further processing of the data will happen.
- */
-void spo2_runner(void *pvParameters);
+#include "macro_task.h"
+#include "macro_queue.h"
 
 
 /**
@@ -38,5 +30,25 @@ typedef struct {
 	int32_t red_acdc;
 } spo2_input_sample_t;
 
+
+/**
+ * spo2_t - type deffinition of the spo2 unit
+ *
+ * @adc_queue:	Receives ulp adc measurements.
+ * @adc_task:	Processes adc input data from adc_queue.
+ */
+typedef struct {
+	LIFESENSOR_QUEUE(spo2_adc_sample_t, 16) adc_queue;
+	LIFESENSOR_TASK(4096) adc_task;
+} spo2_t;
+
+
+/**
+ * spo2_init() - spo2 initialization
+ * @spo2:	The only parameter necessary is the unit itself.
+ *
+ * The function initializes queues and tasks of the spo2 unit.
+ */
+void lifesensor_spo2_init(spo2_t *spo2);
 
 #endif 

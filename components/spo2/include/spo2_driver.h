@@ -39,7 +39,7 @@ typedef struct __attribute__((packed)) {
 	uint32_t ird_dc;
 	uint32_t red_ac;
 	uint32_t ird_ac;
-} _spo2_adc_sample;
+} spo2_adc_sample_t;
 
 
 /**
@@ -61,7 +61,7 @@ void spo2_init_peripherals(void);
  * Read all ADC values that are necessary to perform calculations and save
  * each of it to data. The data is an average of SPO2_ADC_ROUNDS measurements.
  */
-void spo2_read_adc(_spo2_adc_sample *sample);
+void spo2_read_adc(spo2_adc_sample_t *sample);
 
 #endif
 

@@ -1,4 +1,4 @@
-# Template component
+# Lifesensor Macro component
 For ease of declaration and definition of groups of tasks and queues the *lifesensor_macros* offer a set of easy to use task and queue creation shortcuts.
 
 ## Concept

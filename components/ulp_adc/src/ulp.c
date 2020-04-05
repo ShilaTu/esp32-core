@@ -1,8 +1,10 @@
 #include "esp32/ulp.h"
 #include "soc/rtc_cntl_reg.h"
 #include "driver/rtc_cntl.h"
+
 #include "spo2.h"
 #include "ulp.h"
+#include "macro_queue.h"
 
 
 /*
@@ -18,7 +20,7 @@ static void ulp_isr(void *args);
 
 void
 ulp_init
-(_spo2_queue *spo2_queue)
+(lifesensor_queue_t *spo2_queue)
 {
 	/* write ulp binary to RTC_SLOW_MEM */
 	size_t program_size = (ulp_bin_end - ulp_bin_start) / sizeof(uint32_t);
@@ -47,5 +49,5 @@ void
 ulp_isr
 (void *args)
 {
-	xQueueSendFromISR(&((_spo2_queue*)args)->queue, (void*)ulp_sample, pdFALSE);
+	xQueueSendFromISR(((lifesensor_queue_t*)args)->handle, (void*)ulp_sample, pdFALSE);
 }

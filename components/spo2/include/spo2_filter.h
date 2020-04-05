@@ -16,7 +16,7 @@
  * This function applies digital filters to the values from `adc_sample` while
  * additionally using the old values from the previous filtered `sample`.
  */
-void spo2_filter(_spo2_input_sample *sample, _spo2_adc_sample *adc_sample);
+void spo2_filter(spo2_input_sample_t *sample, spo2_adc_sample_t *adc_sample);
 
 
 #endif
