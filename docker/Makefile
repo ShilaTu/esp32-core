@@ -40,6 +40,17 @@ HELP_WORKDIR = Where to enter docker container
 WORKDIR?=$(shell pwd)/..
 
 ### docker build targets ###
+.PHONY: format-image
+ALL += format-image
+DEFAULT += format-image
+TARGET_format += format-image
+HELP_format-image = builds docker format image
+format-image: | check-docker
+	docker build \
+		--build-arg=UID=$(UID) \
+		--build-arg=GID=$(GID) \
+		-t "lifesensor/format" \
+		format
 
 .PHONY: idf-image
 ALL += idf-image
@@ -77,6 +88,21 @@ vscode-image:  qemu-image | check-docker
 		vscode
 
 ### docker run targets ###
+.PHONY: format
+TARGET += format
+HELP_idf = runs formatting container
+format: | format-image check-docker
+	docker run \
+		--rm \
+		-ti \
+		$(DOCKER_DEV) \
+		-v format-home:/home/developer:rw \
+		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
+		-w "$(shell pwd)/.." \
+		--hostname format \
+		$(DOCKEROPTS) \
+		lifesensor/format \
+		/bin/bash -ic '$(EXEC)'
 
 .PHONY: idf
 TARGET += idf 
@@ -134,6 +160,11 @@ code vscode: | vscode-image check-docker
 		/bin/bash -ic '$(EXEC)'
 
 ### docker remove volume targets ###
+.PHONY: clean-format
+CLEAN += clean-format
+HELP_clean-format = removes format volume
+clean-format:
+	-docker volume rm format-home
 
 .PHONY: clean-idf
 CLEAN += clean-idf
@@ -154,6 +185,12 @@ clean-vscode:
 	-docker volume rm vscode-home
 
 ### docker remove image targets ###
+.PHONY: distclean-format
+DISTCLEAN += distclean-format
+HELP_distclean-format = removes format docker image
+distclean-format: clean-format
+	-docker image remove "lifesensor/format"
+	docker image prune
 
 .PHONY: distclean-idf
 DISTCLEAN += distclean-idf

@@ -36,6 +36,9 @@ export WORKDIR
 ### default target ###
 DEFAULT += help
 
+# header and source files proccessed by format and check
+FILES=$(shell cd ../; find -regex '.*\.\(c\|h\)' -not -path *build*)
+
 ### menuconfig targets ###
 
 .PHONY: menuconfig
@@ -106,6 +109,32 @@ monitor: | check-monitor
 CHECK += check-monitor
 HELP_check-monitor = check env if monitor is possible
 check-monitor: | check-docker check-dev
+
+### cppcheck  target
+
+.PHONY: check-code
+TARGET += check_code
+ALL += check-code
+HELP_build = checks code with cppcheck
+check-code: | check-docker
+	@make --no-print-directory -C $(DOCKERDIR) format EXEC=' cppcheck $(FILES) \
+		--enable=warning,performance,portability,information \
+		--std=c11 \
+		--verbose \
+		--suppress=missingInclude \
+		--template="[{severity}][{id}] {message} {callstack} (On {file}:{line})"'
+
+### clang-format
+
+.PHONY: format-code
+TARGET += format-code
+ALL += format-code
+HELP_build = formats code with clang-format
+format-code: | check-docker
+	@make --no-print-directory -C $(DOCKERDIR) format EXEC="clang-format-9 \
+		-style=file \
+		-i \
+		$(FILES)"
 
 ### dev targets ###
 
