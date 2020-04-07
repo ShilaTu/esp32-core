@@ -19,6 +19,14 @@ This directory contains a test build of the project, running various unit tests.
      * `make monitor`
        1. creates idf docker image if needed
        2. starts idf docker container to connect to ESP via specified device by `make dev`
+  6. Static Code analysis
+      * `make check-code`
+        1. creates format docker image if needed
+        2. starts format docker container to run `cppcheck` on all src and header files
+  7. Code formatting
+      * `make format-code`
+        1. creates format docker image if needed
+        2. starts format docker container to run `clang-format-9` on all src and header files
 * via local esd-idf toolchain
   2. Building
      * `idf.py build`
