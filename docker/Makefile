@@ -6,38 +6,37 @@
 
 VARIABLE += IDF_VERSION
 HELP_IDF_VERSION = which idf version to use
-IDF_VERSION?=v4.0
+IDF_VERSION=v4.0
 
 VARIABLE += QEMU_VERSION
 HELP_QEMU_VERSION = which qemu version to use
-QEMU_VERSION?=esp-develop
+QEMU_VERSION=esp-develop
 
-VARIABLE += DEV
-HELP_DEV = which device to map into container
-DEV?=none
+VARIABLE += ESPPORT
+HELP_ESPPORT = which device to map into container
 
-ifneq ("$(DEV)","none")
-DOCKER_DEV=--device $(DEV)
+ifdef ESPPORT
+DOCKER_DEV=--device $(ESPPORT)
 endif
 
 VARIABLE += UID
 HELP_UID = user id of user inside of container
-UID?=$(shell id -u)
+UID=$(shell id -u)
 
 VARIABLE += GID
 HELP_GID = group id of user inside of container
-GID?=$(shell id -g)
+GID=$(shell id -g)
 
 VARIABLE += EXEC
 HELP_EXEC = what to execute in the container
-EXEC?=bash
+EXEC=bash
 
 VARIABLE += DOCKEROPTS
 HELP_DOCKEROPTS = additional docker options
 
 VARIABLE += WORKDIR
 HELP_WORKDIR = Where to enter docker container
-WORKDIR?=$(shell pwd)/..
+WORKDIR=$(shell pwd)/..
 
 ### docker build targets ###
 .PHONY: format-image
