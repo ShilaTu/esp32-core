@@ -17,19 +17,19 @@ zlib1g-dev
 
 RUN curl -L \
 http://ftp.gnome.org/pub/gnome/sources/glib/2.48/glib-2.48.0.tar.xz \
-| unxz | sudo tar -xC /opt
-WORKDIR /opt/glib-2.48.0/
-RUN sudo ./configure
-RUN sudo make -j4
-RUN sudo make install
+| unxz | tar -xC /tmp \
+&& cd /tmp/glib-2.48.0/ \
+&& ./configure \
+&& make -j $(grep -ci processor /proc/cpuinfo) \
+&& sudo make install \
+&& rm -rf /tmp/glib-2.48.0
 
 ARG qemu_version
-RUN sudo git clone --depth 1 -b ${qemu_version} \
---recursive https://github.com/espressif/qemu.git /opt/qemu
-WORKDIR /opt/qemu
-RUN sudo mkdir build
-WORKDIR  build
-RUN sudo ../configure \
+RUN git clone --depth 1 -b ${qemu_version} \
+--recursive https://github.com/espressif/qemu.git /tmp/qemu \
+&& mkdir -p /tmp/qemu/build \
+&& cd /tmp/qemu/build \
+&& ../configure \
 --target-list=xtensa-softmmu \
 --enable-debug \
 --enable-sanitizers \
@@ -38,8 +38,8 @@ RUN sudo ../configure \
 --disable-capstone \
 --disable-vnc \
 --disable-sdl \
---disable-gtk
-RUN sudo make -j4
-RUN sudo make install
+--disable-gtk \
+&& make -j $(grep -ci processor /proc/cpuinfo) \
+&& sudo make install \
+&& rm -rf /tmp/qemu
 
-WORKDIR /home/developer
