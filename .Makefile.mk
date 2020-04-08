@@ -107,6 +107,16 @@ CHECK += check-monitor
 HELP_check-monitor = check env if monitor is possible
 check-monitor: | check-docker check-dev
 
+### vscode ###
+
+.PHONY: vscode
+TARGET += vscode
+HELP_vscode = starts vscode inside docker container
+vscode: | check-docker
+	@make --no-print-directory -C $(DOCKERDIR) vscode \
+		WORKDIR=$(PROJECTDIR) \
+		EXEC="code .; bash"
+
 ### dev targets ###
 
 .PHONY: dev
