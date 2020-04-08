@@ -4,34 +4,29 @@
 
 ### variables ###
 
-VARIABLE+=DEV
-HELP_DEV=which device to flash/monitor
-DEV?=none
+VARIABLE+=ESPPORT
+HELP_ESPPORT=which device to flash/monitor
+export ESPPORT
 
 ### internal variables ###
 
 # assume /etc/passwd holds right shell of user
-USERSHELL?=$(shell awk -F ':' '/^'$$(id -un)':/{print $$NF}' /etc/passwd)
+USERSHELL=$(shell awk -F ':' '/^'$$(id -un)':/{print $$NF}' /etc/passwd)
 
 # export any additional docker options for docker Makefile
 export DOCKEROPTS
 
 # assume we are in projectdir
-PROJECTDIR?=$(shell pwd)
+PROJECTDIR=$(shell pwd)
 
 # assume dirname is projectname
-PROJECT?=$(notdir $(shell pwd))
+PROJECT=$(notdir $(shell pwd))
 
 # assume docker Makefile dir
-DOCKERDIR?=../docker
+DOCKERDIR=../docker
 
 # assume template path
-TEMPLATEPATH?=../.Makefile.template
-
-# assume we want to start where we are
-WORKDIR?=$(PROJECTDIR)
-# export for docker Makefile
-export WORKDIR
+TEMPLATEPATH=../.Makefile.template
 
 ### default target ###
 DEFAULT += help
@@ -44,6 +39,7 @@ TARGET += menuconfig
 HELP_menuconfig = configure project
 menuconfig: | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) idf \
+		WORKDIR=$(PROJECTDIR) \
 		EXEC="idf.py menuconfig"
 
 ### build targets ###
@@ -54,6 +50,7 @@ ALL += reconfigure
 HELP_reconfigure = reconfigure project (rebuilds cmake files)
 reconfigure: | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) idf \
+		WORKDIR=$(PROJECTDIR) \
 		EXEC="idf.py reconfigure"
 
 .PHONY: build
@@ -62,6 +59,7 @@ ALL += build
 HELP_build = build project
 build: | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) idf \
+		WORKDIR=$(PROJECTDIR) \
 		EXEC="idf.py --ccache build"
 
 .PHONY: clean-build
@@ -81,11 +79,12 @@ distclean-build:
 
 .PHONY: flash
 TARGET += flash
-HELP_flash = flash project to esp. Use DEV=path to provide  path to device or use make dev
+HELP_flash = flash project to esp. Use ESPPORT=path to provide  path to device or use make dev
 flash: | check-flash
 	@make --no-print-directory -C $(DOCKERDIR) idf \
-		EXEC="sudo chgrp developer $(DEV);\
-		      idf.py flash -p '$(DEV)'"
+		WORKDIR=$(PROJECTDIR) \
+		EXEC="sudo chgrp developer $(ESPPORT);\
+		      idf.py flash -p '$(ESPPORT)'"
 
 .PHONY: check-flash
 CHECK += check-flash
@@ -96,11 +95,12 @@ check-flash: | check-docker check-dev
 
 .PHONY: monitor
 TARGET += monitor
-HELP_monitor = connect to esp32 via serial. Use DEV=path to provide path to device or use make dev
+HELP_monitor = connect to esp32 via serial. Use ESPPORT=path to provide path to device or use make dev
 monitor: | check-monitor
 	@make --no-print-directory -C $(DOCKERDIR) idf \
-		EXEC="sudo chgrp developer $(DEV); \
-		      idf.py monitor -p '$(DEV)'"
+		WORKDIR=$(PROJECTDIR) \
+		EXEC="sudo chgrp developer $(ESPPORT); \
+		      idf.py monitor -p '$(ESPPORT)'"
 
 .PHONY: check-monitor
 CHECK += check-monitor
@@ -113,7 +113,7 @@ check-monitor: | check-docker check-dev
 TARGET += dev
 HELP_dev = specify which USB device to connect to
 dev: | check-dialog
-	export DEV=$$((for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
+	export ESPPORT=$$((for dev in $$(ls /dev/serial/by-id); do echo "$$(readlink -f /dev/serial/by-id/$$dev) $$dev "; done ) \
 	| dialog \
 		--stdout \
 		--menu "choose which device to use" 0 0 0 "none" "disable device passthrough"\
@@ -126,15 +126,15 @@ CHECK += check-dev
 HELP_check-dev = check if device is specified
 check-dev:
 	@1>&2 echo -n "checking if device is valid & specified..."
-ifeq ($(DEV),none)
+ifndef ESPPORT
 	@1>&2 echo
 	@1>&2 echo "##############################"
 	@1>&2 echo "# FLASH DEVICE NOT SPECIFIED #"
 	@1>&2 echo "##############################"
 	@1>&2 echo
-	@1>&2 echo "specify device by adding DEV as parameter"
+	@1>&2 echo "specify device by adding ESPPORT as parameter"
 	@1>&2 echo
-	@1>&2 echo "make $(MAKECMDGOALS) DEV=/path/to/device"
+	@1>&2 echo "make $(MAKECMDGOALS) ESPPORT=/path/to/device"
 	@1>&2 echo
 	@1>&2 echo "or by running"
 	@1>&2 echo
@@ -142,17 +142,17 @@ ifeq ($(DEV),none)
 	@1>&2 echo
 	@exit 1
 endif
-ifeq ($(shell ! test -c $(DEV); echo $$?),0)
+ifeq ($(shell ! test -c $(ESPPORT); echo $$?),0)
 	@1>&2 echo
 	@1>&2 echo "#############################"
 	@1>&2 echo "# FLASH DEVICE IS NOT VALID #"
 	@1>&2 echo "#############################"
 	@1>&2 echo
-	@1>&2 echo "the specified device ($(DEV)) is not a character device!"
+	@1>&2 echo "the specified device ($(ESPPORT)) is not a character device!"
 	@1>&2 echo
-	@1>&2 echo "specify device by adding DEV as parameter"
+	@1>&2 echo "specify device by adding ESPPORT as parameter"
 	@1>&2 echo
-	@1>&2 echo "make $(MAKECMDGOALS) DEV=/path/to/device"
+	@1>&2 echo "make $(MAKECMDGOALS) ESPPORT=/path/to/device"
 	@1>&2 echo
 	@1>&2 echo "or by running"
 	@1>&2 echo
