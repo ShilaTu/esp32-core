@@ -136,7 +136,7 @@ CHECK += check-dev
 HELP_check-dev = check if device is specified
 check-dev:
 	@1>&2 echo -n "checking if device is valid & specified..."
-ifdef ESPPORT
+ifndef ESPPORT
 	@1>&2 echo
 	@1>&2 echo "##############################"
 	@1>&2 echo "# FLASH DEVICE NOT SPECIFIED #"
