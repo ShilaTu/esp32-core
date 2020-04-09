@@ -18,6 +18,6 @@ spo2_t spo2;
  */
 void app_main()
 {
-	lifesensor_spo2_init(&spo2);
+	lifesensor_spo2_init(&spo2, "SpO2");
 	ulp_init(&spo2.adc_queue.queue);
 }

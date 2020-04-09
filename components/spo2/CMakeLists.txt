@@ -5,7 +5,7 @@ idf_component_register(
     include
   REQUIRES
     ulp_adc
-    lifesensor_macro
+    lifesensor_common
 )
 
 # COMPONENT COMPILE FLAGS
