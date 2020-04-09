@@ -9,7 +9,7 @@
 #include "spo2.h"
 #include "spo2_driver.h"
 #include "spo2_filter.h"
-#include "macro_queue.h"
+#include "macro/queue.h"
 
 
 /**
@@ -24,12 +24,12 @@ static void spo2_runner(void *pvParameters);
 
 void
 lifesensor_spo2_init
-(spo2_t *spo2)
+(spo2_t *spo2, const char *name)
 {
 	lifesensor_queue_init(&spo2->adc_queue);
 	lifesensor_task_init(
 		&spo2->adc_task,
-		"spo2_adc",
+		name,
 		spo2_runner,
 		&spo2->adc_queue.queue,
 		tskIDLE_PRIORITY

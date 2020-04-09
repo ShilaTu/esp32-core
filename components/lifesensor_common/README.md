@@ -1,7 +1,9 @@
-# Lifesensor Macro component
+# Lifesensor common component
 For ease of declaration and definition of groups of tasks and queues the *lifesensor_macros* offer a set of easy to use task and queue creation shortcuts.
 
-## Concept
+## Macros
+
+### Concept
 The `LIFESENSOR_TASK()` and `LIFESENSOR_QUEUE()` macro offer an easy interface to descibe the struct for a functional unit of the lifesensor. Each task or queue created with these shortcuts have to be initialized with the `lifesensor_task_init()` and respectively the `lifesensor_queue_init()` function.
 
 `LIFESENSOR_TASK(stacksize)`  
@@ -17,7 +19,7 @@ Initiazes a task created with `LIFESENSOR_TASK()` by passing in a pointer to it 
 Initalizes a queue created with `LIFESENSOR_QUEUE()` by passing in a pointer to it as first argument. Generally this function should be called before passing a queue to i.e. a task as argument.
 
 
-## Examples
+### Examples
 ```C
 typedef struct {
 	LIFESENSOR_QUEUE(spo2_adc_sample_t, 16) adc_queue;
@@ -43,5 +45,5 @@ void app_main()
 
 ```
 
-## Related
+### Related
 none

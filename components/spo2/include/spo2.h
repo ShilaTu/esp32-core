@@ -6,8 +6,8 @@
 #include <freertos/queue.h>
 
 #include "spo2_driver.h"
-#include "macro_task.h"
-#include "macro_queue.h"
+#include "macro/task.h"
+#include "macro/queue.h"
 
 
 /**
@@ -49,6 +49,6 @@ typedef struct {
  *
  * The function initializes queues and tasks of the spo2 unit.
  */
-void lifesensor_spo2_init(spo2_t *spo2);
+void lifesensor_spo2_init(spo2_t *spo2, const char *name);
 
 #endif 
