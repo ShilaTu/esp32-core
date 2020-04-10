@@ -115,7 +115,7 @@ check-monitor: | check-docker check-dev
 .PHONY: check-code
 TARGET += check_code
 ALL += check-code
-HELP_build = checks code with cppcheck
+HELP_check-code = checks code with cppcheck
 check-code: | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) format EXEC=' cppcheck $(FILES) \
 		--enable=warning,performance,portability,information \
@@ -128,8 +128,7 @@ check-code: | check-docker
 
 .PHONY: format-code
 TARGET += format-code
-ALL += format-code
-HELP_build = formats code with clang-format
+HELP_format-code = formats code with clang-format
 format-code: | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) format EXEC="clang-format-9 \
 		-style=file \

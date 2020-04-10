@@ -89,7 +89,7 @@ vscode-image:  qemu-image | check-docker
 ### docker run targets ###
 .PHONY: format
 TARGET += format
-HELP_idf = runs formatting container
+HELP_format = runs formatting container
 format: | format-image check-docker
 	docker run \
 		--rm \
