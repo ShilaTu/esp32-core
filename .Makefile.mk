@@ -28,11 +28,11 @@ DOCKERDIR=../docker
 # assume template path
 TEMPLATEPATH=../.Makefile.template
 
-### default target ###
-DEFAULT += help
-
 # header and source files proccessed by format and check
 FILES=$(shell cd ../; find -regex '.*\.\(c\|h\)' -not -path *build*)
+
+### default target ###
+DEFAULT += help
 
 ### menuconfig targets ###
 
