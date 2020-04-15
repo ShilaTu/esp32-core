@@ -124,6 +124,7 @@ TARGET += qemu
 HELP_qemu = start qemu and run build image
 qemu: qemu-image | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) qemu \
+		WORKDIR=$(PROJECTDIR) \
 		EXEC="echo \"############################\"; \
 	        echo \"# TO EXIT QEMU: <CTRL-X A> #\"; \
 	        echo \"############################\"; \
@@ -152,6 +153,7 @@ HELP_qemu-gdb = start qemu and wait for gdb
 qemu-gdb: qemu-image | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) qemu \
 	  DOCKEROPTS="--name $(PROJECT).qemu" \
+		WORKDIR=$(PROJECTDIR) \
 		EXEC="echo \"###################################\"; \
 	        echo \"#        TO START GDB RUN         #\"; \
 	        echo \"# make PROJECT=<PROJECT> gdb-qemu #\"; \
