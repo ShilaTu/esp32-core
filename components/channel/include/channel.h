@@ -115,35 +115,6 @@ channel_init_producer
 }
 
 /**
- * channel_init_input - helper function to initialize channel input object
- * @ch: pointer to channel object to initialize
- * @identifier: identifier string of the channel
- * @queue: queue handle to send input to 
- */
-static
-void
-inline __attribute__((always_inline)) __attribute__((deprecated))
-channel_init_input
-(Channel_in *ch, const char *identifier, QueueHandle_t queue)
-{
-    return channel_init(ch, identifier, queue, queueSEND_TO_BACK, &xQueueGenericSend);
-}
-
-/**
- * channel_init_output - helper function to initialize channel output object
- * @ch: pointer to channel object to initialize
- * @identifier: identifier string of the channel
- */
-static
-void
-inline __attribute__((always_inline)) __attribute__((deprecated))
-channel_init_output
-(Channel_out *ch, const char *identifier)
-{
-    return channel_init(ch, identifier, NULL, 0, NULL);
-}
-
-/**
  * channel_setContext - helper function to change the context the callback acts on
  * @ch: pointer to channel object to modify
  * @ctx: pointer to new context
