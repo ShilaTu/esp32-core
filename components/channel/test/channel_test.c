@@ -576,3 +576,180 @@ TEST_CASE("channel_queue timout", "[channel]")
     channel_internal_resetRoot();
 }
 #endif
+
+#ifdef CONFIG_CHANNEL_TEST_QUEUE_LOOP
+
+#define MP_TEST_STACK_SIZE 0x1000
+#define CHANNEL_LOOP_TEST_QUEUE_SIZE 10
+#define CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE 10
+#define CHANNEL_LOOP_TEST_IDENTIFIER_C1 "c_loop1"
+#define CHANNEL_LOOP_TEST_IDENTIFIER_C2 "c_loop2"
+#define CHANNEL_LOOP_TEST_LOOP_COUNT 10
+
+typedef struct {
+    Channel_consumer *in;
+    Channel_producer *out;
+    unsigned int id;
+} task_data;
+
+static Channel_consumer t1_ch1_co;
+static Channel_producer t1_ch2_pr;
+
+static task_data t1_data = {
+    .in = &t1_ch1_co,
+    .out = &t1_ch2_pr,
+    .id = 1
+};
+
+static Channel_consumer t2_ch2_co;
+static Channel_producer t2_ch1_pr;
+
+static task_data t2_data = {
+    .in = &t2_ch2_co,
+    .out = &t2_ch1_pr,
+    .id = 2
+};
+
+static void channel_loop_task(void *pvParameters)
+{
+    task_data *tdata = (task_data *)pvParameters;
+    static Channel_broadcast bc;
+    float data = -1;
+
+    for (;;) {
+        xQueueReceive((QueueHandle_t)tdata->in->ctx, &data, portMAX_DELAY);
+
+        data +=1;
+        channel_broadcast_init(&bc, tdata->out, &data, portMAX_DELAY);
+        BaseType_t res = channel_broadcast(&bc);
+        TEST_ASSERT_EQUAL(pdPASS, res);
+
+        if (data > CHANNEL_LOOP_TEST_LOOP_COUNT) 
+        {
+            while (1) {}
+        }
+    }
+}
+
+TEST_CASE("channel_queue loop", "[channel]")
+{
+    static StaticQueue_t queue_1;
+	static QueueHandle_t queue_handle_1;
+	static uint8_t queue_buffer_1[CHANNEL_LOOP_TEST_QUEUE_SIZE*sizeof(float)];
+
+    queue_handle_1 = xQueueCreateStatic(
+        CHANNEL_QUEUE_TEST_QUEUE_SIZE,
+        sizeof(float),
+        queue_buffer_1,
+        &queue_1
+    );
+    configASSERT(queue_handle_1);
+    channel_init_consumer(t1_data.in, CHANNEL_LOOP_TEST_IDENTIFIER_C1, queue_handle_1);
+    channel_init_producer(t1_data.out, CHANNEL_LOOP_TEST_IDENTIFIER_C2);
+
+    static StaticQueue_t queue_2;
+	static QueueHandle_t queue_handle_2;
+	static uint8_t queue_buffer_2[CHANNEL_LOOP_TEST_QUEUE_SIZE*sizeof(float)];
+
+    queue_handle_2 = xQueueCreateStatic(
+        CHANNEL_QUEUE_TEST_QUEUE_SIZE,
+        sizeof(float),
+        queue_buffer_2,
+        &queue_2
+    );
+    configASSERT(queue_handle_2);
+    channel_init_consumer(t2_data.in, CHANNEL_LOOP_TEST_IDENTIFIER_C2, queue_handle_2);
+    channel_init_producer(t2_data.out, CHANNEL_LOOP_TEST_IDENTIFIER_C1);
+
+	static StaticQueue_t queue_11;
+	static QueueHandle_t queue_11_handle;
+	static uint8_t queue_11_buffer[CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE*sizeof(float)];
+
+
+    queue_11_handle = xQueueCreateStatic(
+        CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE,
+        sizeof(float),
+        queue_11_buffer,
+        &queue_11
+    );
+    configASSERT(queue_11_handle);
+
+	static StaticQueue_t queue_22;
+	static QueueHandle_t queue_22_handle;
+	static uint8_t queue_22_buffer[CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE*sizeof(float)];
+
+
+    queue_22_handle = xQueueCreateStatic(
+        CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE,
+        sizeof(float),
+        queue_22_buffer,
+        &queue_22
+    );
+    configASSERT(queue_22_handle);
+
+    static Channel_consumer ch1_co;
+    static Channel_consumer ch2_co;
+    channel_init_consumer(&ch1_co, CHANNEL_LOOP_TEST_IDENTIFIER_C1, queue_11_handle);
+    channel_init_consumer(&ch2_co, CHANNEL_LOOP_TEST_IDENTIFIER_C2, queue_22_handle);
+    
+    static Channel_producer ch1_pr;
+    static Channel_producer ch2_pr;
+    channel_init_producer(&ch1_pr, CHANNEL_LOOP_TEST_IDENTIFIER_C1);
+    channel_init_producer(&ch2_pr, CHANNEL_LOOP_TEST_IDENTIFIER_C2);
+
+	static StackType_t t1_stack[MP_TEST_STACK_SIZE];
+	static StaticTask_t t1;
+	static TaskHandle_t t1_handle;
+
+    t1_handle = xTaskCreateStatic(
+        channel_loop_task,
+        "channel_loop_task_1",
+        MP_TEST_STACK_SIZE,
+        &t1_data,
+        1,
+        t1_stack,
+        &t1
+    );
+    configASSERT(t1_handle);
+
+	static StackType_t t2_stack[MP_TEST_STACK_SIZE];
+	static StaticTask_t t2;
+	static TaskHandle_t t2_handle;
+
+    t2_handle = xTaskCreateStatic(
+        channel_loop_task,
+        "channel_loop_task_2",
+        MP_TEST_STACK_SIZE,
+        &t2_data,
+        1,
+        t2_stack,
+        &t2
+    );
+    configASSERT(t2_handle);
+
+    Channel_broadcast br;
+    float test_data = 0.0;
+    channel_broadcast_init(&br, &ch1_pr, &test_data, 10);
+    TEST_ASSERT_EQUAL(pdPASS, channel_broadcast(&br));
+    TEST_ASSERT(channel_broadcast_finished(&br));
+
+    float d;
+    for (float i = 0.0; i < CHANNEL_LOOP_TEST_LOOP_COUNT + 1; i += 2.0)
+    {
+        xQueueReceive(queue_11_handle, &d, portMAX_DELAY);
+
+        TEST_ASSERT_EQUAL_FLOAT(i, d);
+        xQueueReceive(queue_22_handle, &d, portMAX_DELAY);
+
+        TEST_ASSERT_EQUAL_FLOAT(i+1, d);
+    }
+    
+    vTaskDelete(t1_handle);
+    vTaskDelete(t2_handle);
+    vQueueDelete(queue_11_handle);
+    vQueueDelete(queue_22_handle);
+    vQueueDelete(queue_handle_1);
+    vQueueDelete(queue_handle_2);
+    channel_internal_resetRoot();
+}
+#endif
