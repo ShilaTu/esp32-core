@@ -45,16 +45,21 @@ channel_debug_print_dot
         ESP_LOGD(prefix, "x%p [label=\"%p\\n%s\", shape=box];",
                  ch, ch, ch->identifier);
     } else {
-        ESP_LOGD(prefix, "x%p [label=\"%p\\n%s\"];",
-                 ch, ch, ch->identifier);
+        if (ch->ctx == NULL) {
+            ESP_LOGD(prefix, "x%p [label=\"producer\\n%p\\n%s\" shape=house];",
+                    ch, ch, ch->identifier);
+        } else {
+            ESP_LOGD(prefix, "x%p [label=\"consumer\\n%p\\n%s\" shape=invhouse];",
+                    ch, ch, ch->identifier);
+        }
     }
-    ESP_LOGD(prefix, "x%p -> x%p [label=same, color=red];",
+    ESP_LOGD(prefix, "x%p -> x%p [label=sn, color=red];",
              ch, list_entry(ch->same.next, struct channel, same));
-    ESP_LOGD(prefix, "x%p -> x%p [label=same, color=red];",
+    ESP_LOGD(prefix, "x%p -> x%p [label=sp, color=red];",
              ch, list_entry(ch->same.prev, struct channel, same));
-    ESP_LOGD(prefix, "x%p -> x%p [label=unique, color=blue];",
+    ESP_LOGD(prefix, "x%p -> x%p [label=un, color=blue];",
              ch, list_entry(ch->unique.next, struct channel, unique));
-    ESP_LOGD(prefix, "x%p -> x%p [label=unique, color=blue];",
+    ESP_LOGD(prefix, "x%p -> x%p [label=up, color=blue];",
              ch, list_entry(ch->unique.prev, struct channel, unique));
 }
 
