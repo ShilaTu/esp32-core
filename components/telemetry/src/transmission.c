@@ -17,9 +17,9 @@ transmission_init(void)
     uint8_t addr_family = AF_INET;
     char address[32];
 
-    dest_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
+    dest_addr.sin_addr.s_addr = inet_addr(CONFIG_TELEMETRY_NETWORK_SERVER_IP);
     dest_addr.sin_family = addr_family;
-    dest_addr.sin_port = htons(PORT);
+    dest_addr.sin_port = htons(CONFIG_TELEMETRY_NETWORK_SERVER_PORT);
     inet_ntoa_r(dest_addr.sin_addr, (char *)address, sizeof(address) - 1);
 
     while (sock < 0)

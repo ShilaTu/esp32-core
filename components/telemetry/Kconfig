@@ -1,0 +1,24 @@
+menu "Telemetry"
+    menuconfig TELEMETRY_WIFI_ENABLE
+        bool "Enable wifi"
+        default y
+    if TELEMETRY_WIFI_ENABLE
+        config TELEMETRY_WIFI_SSID
+            string "SSID"
+            default "Test_SSID"
+        config TELEMETRY_WIFI_PW
+            string "PW"
+            default "Test_PW"
+    endif
+    menuconfig TELEMETRY_NETWORK_ENABLE
+        bool "Enable network"
+        default y
+    if TELEMETRY_NETWORK_ENABLE
+        config TELEMETRY_NETWORK_SERVER_IP
+            string "IP"
+            default "127.0.0.1"
+        config TELEMETRY_NETWORK_SERVER_PORT
+            int "Port"
+            default "4321"
+    endif
+endmenu
