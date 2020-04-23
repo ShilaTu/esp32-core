@@ -5,4 +5,5 @@ idf_component_register(
     spo2
     ulp
     nvs_flash
+    telemetry
 )

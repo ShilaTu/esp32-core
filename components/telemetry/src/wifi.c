@@ -63,8 +63,8 @@ wifi_init(void)
 
     wifi_config_t wifi_config = {
     .sta = {
-        .ssid = SSID,
-        .password = PASSWD
+        .ssid = CONFIG_TELEMETRY_WIFI_SSID,
+        .password = CONFIG_TELEMETRY_WIFI_PW
         },
     };
 
