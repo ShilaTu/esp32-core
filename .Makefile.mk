@@ -134,6 +134,18 @@ format-code: | check-docker
 	      -printf \"formatting %h/%f\n\" \
 	      -exec clang-format-9 -style=file -i \"{}\" \";\" "
 
+.PHONY: check-format
+TARGET += check-format
+HELP_check-format = check if formatting code with clang-format is necessary
+check-format: | check-docker
+	@make --no-print-directory -C $(DOCKERDIR) format \
+	EXEC="find . \
+	      \( -name \"*.h\" -o -name \"*.c\" \) \
+	      ! -path \"*build*\" \
+	      \( -exec sh -c \" clang-format-9 -style=file {} | diff -q - {} >/dev/null \" \";\" \
+	      -or -printf \"format required for %h/%f\n\" \) \
+	      | tee /tmp/format; test ! -s /tmp/format"
+
 ### vscode ###
 
 .PHONY: vscode
