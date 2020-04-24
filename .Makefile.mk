@@ -28,9 +28,6 @@ DOCKERDIR=../docker
 # assume template path
 TEMPLATEPATH=../.Makefile.template
 
-# header and source files proccessed by format and check
-FILES=$(shell cd ../; find -regex '.*\.\(c\|h\)' -not -path *build*)
-
 ### default target ###
 DEFAULT += help
 
@@ -130,10 +127,12 @@ check-code: | check-docker
 TARGET += format-code
 HELP_format-code = formats code with clang-format
 format-code: | check-docker
-	@make --no-print-directory -C $(DOCKERDIR) format EXEC="clang-format-9 \
-		-style=file \
-		-i \
-		$(FILES)"
+	@make --no-print-directory -C $(DOCKERDIR) format \
+	EXEC="find . \
+	      \( -name \"*.h\" -o -name \"*.c\" \) \
+	      ! -path \"*build*\" \
+	      -printf \"formatting %h/%f\n\" \
+	      -exec clang-format-9 -style=file -i \"{}\" \";\" "
 
 ### vscode ###
 
