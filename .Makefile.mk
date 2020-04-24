@@ -110,7 +110,7 @@ check-monitor: | check-docker check-dev
 ### cppcheck  target
 
 .PHONY: check-code
-TARGET += check_code
+TARGET += check-code
 ALL += check-code
 HELP_check-code = checks code with cppcheck
 check-code: | check-docker
