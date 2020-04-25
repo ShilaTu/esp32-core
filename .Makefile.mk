@@ -8,6 +8,14 @@ VARIABLE+=ESPPORT
 HELP_ESPPORT=which device to flash/monitor
 export ESPPORT
 
+VARIABLE+=FORMAT
+HELP_FORMAT=patterns of files to format
+ifndef FORMAT
+FORMAT += **/*.h
+FORMAT += **/*.c
+FORMAT += !**/build/**/*
+endif
+
 ### internal variables ###
 
 # assume /etc/passwd holds right shell of user
@@ -30,6 +38,8 @@ TEMPLATEPATH=../.Makefile.template
 
 ### default target ###
 DEFAULT += help
+
+UNCRUSTIFY_CFG = ./.uncrustify.cfg
 
 ### menuconfig targets ###
 
@@ -106,6 +116,28 @@ monitor: | check-monitor
 CHECK += check-monitor
 HELP_check-monitor = check env if monitor is possible
 check-monitor: | check-docker check-dev
+
+### uncrustidy code format
+
+.PHONY: uncrustify
+TARGET += uncrustify
+HELP_uncrustify = formats code with uncrustify
+uncrustify: | check-docker
+	@make --no-print-directory -C $(DOCKERDIR) uncrustify \
+	EXEC="git ls-files -ico $(foreach PATTERN,$(FORMAT),-x $(PATTERN)) \
+	      | xargs -I % uncrustify -c $(UNCRUSTIFY_CFG) --replace --no-backup %"
+
+.PHONY: check-uncrustify
+TARGET += check-uncrustify
+HELP_check-uncrustify = check if formatting code with uncrustify is necessary
+check-uncrustify: | check-docker
+	@make --no-print-directory -C $(DOCKERDIR) uncrustify \
+	EXEC="git ls-files -ico $(foreach PATTERN,$(FORMAT),-x $(PATTERN)) \
+	      | xargs -I % sh -c \"uncrustify -c $(UNCRUSTIFY_CFG) -f % \
+	                          | git diff --exit-code \
+	                                     --no-index \
+	                                     --color \
+	                                     % - \""
 
 ### vscode ###
 
