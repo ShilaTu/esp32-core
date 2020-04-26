@@ -8,24 +8,24 @@ typedef unsigned int Counter;
  * @return: counter value
  */
 Counter
-counter_reset
-(void);
+counter_reset(void);
+
 
 /**
  * counter_increment - increments global counter by 1
  * @return: counter value
  */
 Counter
-counter_increment
-(void);
+counter_increment(void);
+
 
 /**
  * counter_decrement - decrements global counter by 1
  * @return: counter value
  */
 Counter
-counter_decrement
-(void);
+counter_decrement(void);
+
 
 /**
  * counter_add - add value to counter
@@ -33,8 +33,8 @@ counter_decrement
  * @return: counter value
  */
 Counter
-counter_add
-(unsigned int value);
+counter_add(unsigned int value);
+
 
 /**
  * counter_sub - sub value from counter
@@ -42,7 +42,7 @@ counter_add
  * @return: counter value
  */
 Counter
-counter_sub
-(unsigned int value);
+counter_sub(unsigned int value);
+
 
 #endif
