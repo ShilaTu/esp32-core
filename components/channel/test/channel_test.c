@@ -452,7 +452,7 @@ TEST_CASE("channel_broadcast", "[channel]")
 #define CHANNEL_QUEUE_TEST_QUEUE_SIZE 2
 #define CHANNEL_QUEUE_TEST_IDENTIFIER_C1 "test_c1"
 
-static float data;
+static int data;
 static Channel_consumer cc;
 
 
@@ -467,7 +467,7 @@ TEST_CASE("channel_queue", "[channel]")
 {
 	static StaticQueue_t cc_queue;
 	static QueueHandle_t cc_queue_handle;
-	static uint8_t cc_queue_buffer[CHANNEL_QUEUE_TEST_QUEUE_SIZE*sizeof(float)];
+	static uint8_t cc_queue_buffer[CHANNEL_QUEUE_TEST_QUEUE_SIZE*sizeof(int)];
 
 	static StackType_t cc_task_stack[MP_TEST_STACK_SIZE];
 	static StaticTask_t cc_task;
@@ -477,7 +477,7 @@ TEST_CASE("channel_queue", "[channel]")
 
     cc_queue_handle = xQueueCreateStatic(
         CHANNEL_QUEUE_TEST_QUEUE_SIZE,
-        sizeof(float),
+        sizeof(int),
         cc_queue_buffer,
         &cc_queue
     );
@@ -500,14 +500,14 @@ TEST_CASE("channel_queue", "[channel]")
     configASSERT(cc_task_handle);
 
     Channel_broadcast br;
-    float test_data = 3.14;
+    int test_data = 3;
     channel_broadcast_init(&br, &cp, &test_data, 1);
 
     TEST_ASSERT_EQUAL_INT(channel_broadcast(&br), pdPASS);
     vTaskDelay(5);
     TEST_ASSERT(channel_broadcast_finished(&br));
     
-    TEST_ASSERT_EQUAL_FLOAT(data, test_data);
+    TEST_ASSERT_EQUAL_INT(data, test_data);
     vTaskDelete(cc_task_handle);
     vQueueDelete(cc_queue_handle);
     channel_internal_resetRoot();
@@ -521,7 +521,7 @@ TEST_CASE("channel_queue", "[channel]")
 #define CHANNEL_QUEUE_TEST_QUEUE_2_SIZE 1
 #define CHANNEL_QUEUE_TEST_IDENTIFIER_C1 "test_c1"
 
-static float data;
+static int data;
 static Channel_consumer cc_1, cc_2;
 
 
@@ -529,11 +529,11 @@ TEST_CASE("channel_queue timout", "[channel]")
 {
 	static StaticQueue_t cc_queue_1;
 	static QueueHandle_t cc_queue_1_handle;
-	static uint8_t cc_queue_1_buffer[CHANNEL_QUEUE_TEST_QUEUE_1_SIZE*sizeof(float)];
+	static uint8_t cc_queue_1_buffer[CHANNEL_QUEUE_TEST_QUEUE_1_SIZE*sizeof(int)];
 
     cc_queue_1_handle = xQueueCreateStatic(
         CHANNEL_QUEUE_TEST_QUEUE_1_SIZE,
-        sizeof(float),
+        sizeof(int),
         cc_queue_1_buffer,
         &cc_queue_1
     );
@@ -542,11 +542,11 @@ TEST_CASE("channel_queue timout", "[channel]")
 	
 	static StaticQueue_t cc_queue_2;
 	static QueueHandle_t cc_queue_2_handle;
-	static uint8_t cc_queue_2_buffer[CHANNEL_QUEUE_TEST_QUEUE_2_SIZE*sizeof(float)];
+	static uint8_t cc_queue_2_buffer[CHANNEL_QUEUE_TEST_QUEUE_2_SIZE*sizeof(int)];
 
     cc_queue_2_handle = xQueueCreateStatic(
         CHANNEL_QUEUE_TEST_QUEUE_2_SIZE,
-        sizeof(float),
+        sizeof(int),
         cc_queue_2_buffer,
         &cc_queue_2
     );
@@ -557,7 +557,7 @@ TEST_CASE("channel_queue timout", "[channel]")
     channel_init_producer(&cp, CHANNEL_QUEUE_TEST_IDENTIFIER_C1);
 
     Channel_broadcast br;
-	float test_data = 0.5;
+	int test_data = 5;
     channel_broadcast_init(&br, &cp, &test_data, 1);
     TEST_ASSERT_EQUAL_INT(channel_broadcast(&br), pdPASS);
 
@@ -614,7 +614,7 @@ static void channel_loop_task(void *pvParameters)
 {
     task_data *tdata = (task_data *)pvParameters;
     static Channel_broadcast bc;
-    float data = -1;
+    int data = -1;
 
     for (;;) {
         xQueueReceive((QueueHandle_t)tdata->in->ctx, &data, portMAX_DELAY);
@@ -635,11 +635,11 @@ TEST_CASE("channel_queue loop", "[channel]")
 {
     static StaticQueue_t queue_1;
 	static QueueHandle_t queue_handle_1;
-	static uint8_t queue_buffer_1[CHANNEL_LOOP_TEST_QUEUE_SIZE*sizeof(float)];
+	static uint8_t queue_buffer_1[CHANNEL_LOOP_TEST_QUEUE_SIZE*sizeof(int)];
 
     queue_handle_1 = xQueueCreateStatic(
         CHANNEL_QUEUE_TEST_QUEUE_SIZE,
-        sizeof(float),
+        sizeof(int),
         queue_buffer_1,
         &queue_1
     );
@@ -649,11 +649,11 @@ TEST_CASE("channel_queue loop", "[channel]")
 
     static StaticQueue_t queue_2;
 	static QueueHandle_t queue_handle_2;
-	static uint8_t queue_buffer_2[CHANNEL_LOOP_TEST_QUEUE_SIZE*sizeof(float)];
+	static uint8_t queue_buffer_2[CHANNEL_LOOP_TEST_QUEUE_SIZE*sizeof(int)];
 
     queue_handle_2 = xQueueCreateStatic(
         CHANNEL_QUEUE_TEST_QUEUE_SIZE,
-        sizeof(float),
+        sizeof(int),
         queue_buffer_2,
         &queue_2
     );
@@ -663,12 +663,12 @@ TEST_CASE("channel_queue loop", "[channel]")
 
 	static StaticQueue_t queue_11;
 	static QueueHandle_t queue_11_handle;
-	static uint8_t queue_11_buffer[CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE*sizeof(float)];
+	static uint8_t queue_11_buffer[CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE*sizeof(int)];
 
 
     queue_11_handle = xQueueCreateStatic(
         CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE,
-        sizeof(float),
+        sizeof(int),
         queue_11_buffer,
         &queue_11
     );
@@ -676,12 +676,12 @@ TEST_CASE("channel_queue loop", "[channel]")
 
 	static StaticQueue_t queue_22;
 	static QueueHandle_t queue_22_handle;
-	static uint8_t queue_22_buffer[CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE*sizeof(float)];
+	static uint8_t queue_22_buffer[CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE*sizeof(int)];
 
 
     queue_22_handle = xQueueCreateStatic(
         CHANNEL_LOOP_TEST_LOG_QUEUE_SIZE,
-        sizeof(float),
+        sizeof(int),
         queue_22_buffer,
         &queue_22
     );
@@ -728,20 +728,20 @@ TEST_CASE("channel_queue loop", "[channel]")
     configASSERT(t2_handle);
 
     Channel_broadcast br;
-    float test_data = 0.0;
+    int test_data = 0;
     channel_broadcast_init(&br, &ch1_pr, &test_data, 10);
     TEST_ASSERT_EQUAL(pdPASS, channel_broadcast(&br));
     TEST_ASSERT(channel_broadcast_finished(&br));
 
-    float d;
-    for (float i = 0.0; i < CHANNEL_LOOP_TEST_LOOP_COUNT + 1; i += 2.0)
+    int d;
+    for (int i = 0; i < CHANNEL_LOOP_TEST_LOOP_COUNT + 1; i += 2)
     {
         xQueueReceive(queue_11_handle, &d, portMAX_DELAY);
 
-        TEST_ASSERT_EQUAL_FLOAT(i, d);
+        TEST_ASSERT_EQUAL_INT(i, d);
         xQueueReceive(queue_22_handle, &d, portMAX_DELAY);
 
-        TEST_ASSERT_EQUAL_FLOAT(i+1, d);
+        TEST_ASSERT_EQUAL_INT(i+1, d);
     }
     
     vTaskDelete(t1_handle);
