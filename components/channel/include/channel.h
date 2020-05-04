@@ -93,7 +93,7 @@ channel_init
  */
 static
 void
-inline __attribute__((always_inline))
+inline
 channel_init_consumer
 (Channel_consumer *ch, const char *identifier, QueueHandle_t queue)
 {
@@ -107,7 +107,7 @@ channel_init_consumer
  */
 static
 void
-inline __attribute__((always_inline))
+inline
 channel_init_producer
 (Channel_producer *ch, const char *identifier)
 {
@@ -121,7 +121,7 @@ channel_init_producer
  */
 static
 void
-inline __attribute__((always_inline))
+inline
 channel_setContext 
 (Channel *ch, void *ctx)
 {
@@ -135,7 +135,7 @@ channel_setContext
  */
 static
 void 
-inline __attribute__((always_inline))
+inline
 channel_setCallback
 (Channel *ch, const Channel_callback callback)
 {
@@ -172,7 +172,7 @@ channel_send
  */
 static
 void
-inline __attribute__((always_inline))
+inline
 channel_broadcast_init
 (Channel_broadcast *handle, const Channel_producer *ch, const void *data, const TickType_t timeout)
 {
@@ -189,7 +189,7 @@ channel_broadcast_init
  */
 static
 bool
-inline __attribute__((always_inline))
+inline
 channel_broadcast_timeout
 (Channel_broadcast *handle)
 {
@@ -209,7 +209,7 @@ channel_broadcast_timeout
  */
 static
 bool
-inline __attribute__((always_inline))
+inline
 channel_broadcast_finished
 (const Channel_broadcast *handle)
 {
