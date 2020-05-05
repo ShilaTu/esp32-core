@@ -5,7 +5,6 @@ idf_component_register(
     include
   REQUIRES
     nvs_flash
-#    mycomponent
 )
 
 # COMPONENT COMPILE FLAGS
