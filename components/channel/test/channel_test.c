@@ -502,8 +502,8 @@ TEST_CASE("channel_queue", "[channel]")
     Channel_broadcast br;
     int test_data = 3;
     channel_broadcast_init(&br, &cp, &test_data, 1);
-
-    TEST_ASSERT_EQUAL_INT(channel_broadcast(&br), pdPASS);
+    UBaseType_t res = channel_broadcast(&br);
+    TEST_ASSERT_EQUAL_INT(pdPASS, res);
     vTaskDelay(5);
     TEST_ASSERT(channel_broadcast_finished(&br));
     
