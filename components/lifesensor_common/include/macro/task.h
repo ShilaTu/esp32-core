@@ -1,9 +1,12 @@
 #ifndef __MACRO_TASK__
 #define __MACRO_TASK__
 
+#include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
 #define MACRO_DEFAULT_STACK_SIZE 0x1000
+
+
 /**
  * struct lifesensor_task_t - generic task struct
  * @tcb:    Holds the FreeRTOS tcb.

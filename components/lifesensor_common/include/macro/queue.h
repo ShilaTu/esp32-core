@@ -1,6 +1,7 @@
 #ifndef __MACRO_QUEUE__
 #define __MACRO_QUEUE__
 
+#include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
 
