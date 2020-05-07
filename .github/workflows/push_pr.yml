@@ -1,0 +1,21 @@
+name: Project LifeSensor
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build Docker Images
+      run: make -C docker build
+    - name: Build Parts
+      run: make -C parts DOCKER_VARS_OPTIONS=--tty=false build
+    - name: Test Parts
+      run: make -C parts DOCKER_VARS_OPTIONS=--tty=false test
+    - name: Build Products
+      run: make -C products DOCKER_VARS_OPTIONS=--tty=false build
+    - name: Test Products
+      run: make -C products DOCKER_VARS_OPTIONS=--tty=false test
