@@ -501,7 +501,7 @@ TEST_CASE("channel_queue", "[channel]")
 
     Channel_broadcast br;
     int test_data = 3;
-    channel_broadcast_init(&br, &cp, &test_data, 1);
+    channel_broadcast_init(&br, &cp, &test_data, uxTaskGetNumberOfTasks());
     UBaseType_t res = channel_broadcast(&br);
     TEST_ASSERT_EQUAL_INT(pdPASS, res);
     vTaskDelay(5);
