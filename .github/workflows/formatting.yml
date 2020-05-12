@@ -12,4 +12,4 @@ jobs:
     - name: build uncrustify image
       run: make -C docker uncrustify-image
     - name: check code format
-      run: make -C lifesensor DOCKEROPTS=--tty=false check-uncrustify
+      run: make -C lifesensor DOCKEROPTS=--tty=false check-format

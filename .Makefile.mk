@@ -117,20 +117,20 @@ CHECK += check-monitor
 HELP_check-monitor = check env if monitor is possible
 check-monitor: | check-docker check-dev
 
-### uncrustidy code format
+### code format
 
-.PHONY: uncrustify
-TARGET += uncrustify
-HELP_uncrustify = formats code with uncrustify
-uncrustify: | check-docker
+.PHONY: format
+TARGET += format
+HELP_format = formats code with uncrustify
+format: | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) uncrustify \
 	EXEC="git ls-files -ico $(foreach PATTERN,$(FORMAT),-x $(PATTERN)) \
 	      | xargs -I % uncrustify -c $(UNCRUSTIFY_CFG) --replace --no-backup %"
 
-.PHONY: check-uncrustify
-TARGET += check-uncrustify
-HELP_check-uncrustify = check if formatting code with uncrustify is necessary
-check-uncrustify: | check-docker
+.PHONY: check-format
+TARGET += check-format
+HELP_check-format = check if formatting code with uncrustify is necessary
+check-format: | check-docker
 	@make --no-print-directory -C $(DOCKERDIR) uncrustify \
 	EXEC="git ls-files -ico $(foreach PATTERN,$(FORMAT),-x $(PATTERN)) \
 	      | xargs -I % sh -c \"uncrustify -c $(UNCRUSTIFY_CFG) -f % \
