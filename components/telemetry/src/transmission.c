@@ -14,7 +14,7 @@ static int32_t sock = -1;
 void
 transmission_init(void)
 {
-#if CONFIG_TELEMETRY_NETWORK_ENABLE
+#ifdef CONFIG_TELEMETRY_NETWORK_ENABLE
     uint8_t addr_family = AF_INET;
     char address[32];
 
@@ -33,7 +33,7 @@ transmission_init(void)
 void
 transmission_shutdown(void)
 {
-#if CONFIG_TELEMETRY_NETWORK_ENABLE
+#ifdef CONFIG_TELEMETRY_NETWORK_ENABLE
     shutdown(sock, 0);
     close(sock);
 #endif
@@ -42,7 +42,7 @@ transmission_shutdown(void)
 int32_t
 transmission_send(char *data, unsigned int size)
 {
-#if CONFIG_TELEMETRY_NETWORK_ENABLE
+#ifdef CONFIG_TELEMETRY_NETWORK_ENABLE
     int32_t err = sendto(sock, data, size, 0,
                          (struct sockaddr *)&dest_addr,
                          sizeof(dest_addr));
