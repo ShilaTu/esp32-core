@@ -47,6 +47,7 @@ event_handler(void *ctx, system_event_t *event)
 void
 wifi_init(void)
 {
+#if CONFIG_TELEMETRY_WIFI_ENABLE
     // initialize NVS, required for wifi
     ESP_ERROR_CHECK(nvs_flash_init());
 
@@ -72,13 +73,16 @@ wifi_init(void)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
+#endif
 }
 
 void wifi_wait_connected(void)
 {
+#if CONFIG_TELEMETRY_WIFI_ENABLE
     xEventGroupWaitBits(wifi_event_group,
                         CONNECTED_BIT,
                         false,
                         true,
                         portMAX_DELAY);
+#endif
 }
