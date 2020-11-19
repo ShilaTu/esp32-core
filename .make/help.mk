@@ -80,7 +80,6 @@ help-%:
 	@$(foreach \
 		group, \
 		$(VARIABLES_$(@:help-%=%)), \
-		$(warning $(group)) \
 		[ -n "$(VARIABLES_$(group))" ] && echo -e "\n--- $(HELP_$(group)) ---"  || true; \
 		$(foreach \
 			variable, \
