@@ -131,5 +131,7 @@ $(foreach \
 	$(eval $(call TEMPLATE_NODOCKER_TARGET,$(TARGET))) \
 )
 
+include $(shell git rev-parse --show-toplevel)/.make/templating.mk
+
 TARGETS := $(TARGETS_common) $(TARGETS)
 include $(shell git rev-parse --show-toplevel)/.make/help.mk
