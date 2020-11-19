@@ -77,3 +77,16 @@ help-%:
 		[ -n "$(HELP_$(target))" ] && echo "make $(target)"         || true; \
 		[ -n "$(HELP_$(target))" ] && echo -e "\t$(HELP_$(target))" || true; \
 	)
+	@$(foreach \
+		group, \
+		$(VARIABLES_$(@:help-%=%)), \
+		$(warning $(group)) \
+		[ -n "$(VARIABLES_$(group))" ] && echo -e "\n--- $(HELP_$(group)) ---"  || true; \
+		$(foreach \
+			variable, \
+			$(VARIABLES_$(group)), \
+			echo "$(variable)"; \
+			[ -n "$(HELP_$(variable))" ] && echo -e "\t$(HELP_$(variable))" || true; \
+			echo -e "\t(currently: $($(variable)))"; \
+		) \
+	)
