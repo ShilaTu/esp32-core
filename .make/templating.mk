@@ -43,7 +43,7 @@ _check-new-$1:
 		$$(if \
 			$$($$(VAR)), \
 			, \
-			$$(error option $$(VAR) is missing. please specify via '$$(VAR)=<value>'. see 'make help-new' for more information) \
+			$$(info ERROR: option $$(VAR) is missing. please specify via '$$(VAR)=<value>'. see 'make help-new' for more information) $$(error ) \
 		) \
 	)
 
