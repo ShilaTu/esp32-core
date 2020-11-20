@@ -31,7 +31,7 @@ HELP_new-$1-vars      := 'new-$1' template options
 TEMPLATING_INPUT_$1  := $$(foreach PATH,$$(TEMPLATING_PATH_$1),$$(shell find $$(PATH) -type f))
 TEMPLATING_FILES_$1  := $$(foreach PATH,$$(TEMPLATING_PATH_$1), $$(shell find $$(PATH) -type f -printf '%P\n') )
 TEMPLATING_INDEX_$1  := $$(shell for i in {1..$$(words $$(TEMPLATING_FILES_$1))}; do echo $$$$i; done)
-TEMPLATING_M4_$1     := m4 $$(foreach DEFINE,$$(TEMPLATING_VARS_$1),-D__$$(DEFINE)__=$$($$(DEFINE)))
+TEMPLATING_M4_$1     := m4 $$(foreach DEFINE,$$(VARIABLES_TEMPLATING_COMMON) $$(TEMPLATING_VARS_$1),-D__$$(DEFINE)__=$$($$(DEFINE)))
 TEMPLATING_COPY_$1   := $$(shell echo '$$(addprefix $$(NAME)/, $$(TEMPLATING_FILES_$1))' | $$(TEMPLATING_M4_$1))
 TEMPLATING_OUTPUT_$1 := $$(patsubst $$(TEMPLATING_SUFFIXES),%,$$(TEMPLATING_COPY_$1))
 
