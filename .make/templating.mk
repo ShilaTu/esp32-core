@@ -35,7 +35,7 @@ TEMPLATING_INPUT_$1  := $$(foreach PATH,$$(TEMPLATING_PATH_$1),$$(shell find $$(
 TEMPLATING_FILES_$1  := $$(foreach PATH,$$(TEMPLATING_PATH_$1), $$(shell find $$(PATH) -type f -printf '%P\n') )
 TEMPLATING_INDEX_$1  := $$(shell for i in {1..$$(words $$(TEMPLATING_FILES_$1))}; do echo $$$$i; done)
 TEMPLATING_COPY_$1   := $$(shell echo '$$(addprefix $$(NAME)/, $$(TEMPLATING_FILES_$1))' | m4 $$(TEMPLATING_M4_$1))
-TEMPLATING_OUTPUT_$1 := $$(shell echo "$$(TEMPLATING_COPY_$1) " | sed $$(foreach SUFFIX,$$(TEMPLATING_SUFFIXES), -e 's/\.$$(SUFFIX)\s/ /g'))
+TEMPLATING_OUTPUT_$1 := $$(shell echo "$$(TEMPLATING_COPY_$1) " | sed -E $$(foreach SUFFIX,$$(TEMPLATING_SUFFIXES), -e 's/([^\S]+)\.$$(SUFFIX)/\1/g'))
 
 
 .PHONY: _check-new-$1
