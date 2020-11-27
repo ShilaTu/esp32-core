@@ -11,12 +11,13 @@
 #define LOG_PTR(LOGGER,SCOPE,PTR,NAME) LOGGER->log_ptr(SCOPE,#NAME,(PTR)->NAME) 
 
 enum lifesensor_logger_scope_type {
+    LIFESENSOR_LOGGER_SCOPE_NONE,
     LIFESENSOR_LOGGER_SCOPE_LIST,
     LIFESENSOR_LOGGER_SCOPE_MAP
 };
 
 struct lifesensor_logger_scope {
-    struct lifesensor_logger_scope *parent;
+    void (*printf)(const char *fmt, ...);
     enum lifesensor_logger_scope_type type;
     size_t entries;
     size_t level;
@@ -27,17 +28,16 @@ struct lifesensor_logger {
     void (*enter_map)(
         struct lifesensor_logger_scope* scope,
         struct lifesensor_logger_scope* subscope,
-        char *name,
+        char *name
     );
     void (*enter_list)(
         struct lifesensor_logger_scope* scope,
         struct lifesensor_logger_scope* subscope,
-        char *name,
+        char *name
     );
     void (*exit)(
         struct lifesensor_logger_scope* scope,
-        struct lifesensor_logger_scope* subscope,
-        char *name,
+        struct lifesensor_logger_scope* subscope
     );
 
     void (*log_uint)(
