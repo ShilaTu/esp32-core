@@ -39,6 +39,17 @@ HELP_WORKDIR = Where to enter docker container
 WORKDIR=$(shell pwd)/..
 
 ### docker build targets ###
+.PHONY: uncrustify-image
+ALL += uncrustify-image
+DEFAULT += uncrustify-image
+TARGET_uncrustify += uncrustify-image
+HELP_uncrustify-image = builds docker uncrustify image
+uncrustify-image: | check-docker
+	docker build \
+		--build-arg=UID=$(UID) \
+		--build-arg=GID=$(GID) \
+		-t "lifesensor/uncrustify" \
+		uncrustify
 
 .PHONY: idf-image
 ALL += idf-image
@@ -76,6 +87,21 @@ vscode-image:  qemu-image | check-docker
 		vscode
 
 ### docker run targets ###
+
+.PHONY: uncrustify
+TARGET += uncrustify
+HELP_uncrustify = runs uncrustify code format container
+uncrustify: | uncrustify-image check-docker
+	docker run \
+		--rm \
+		-ti \
+		$(DOCKER_DEV) \
+		-v "$(shell pwd)/..:$(shell pwd)/..:rw" \
+		-w "$(shell pwd)/.." \
+		--hostname uncrustify \
+		$(DOCKEROPTS) \
+		lifesensor/uncrustify \
+		/bin/bash -ic '$(EXEC)'
 
 .PHONY: idf
 TARGET += idf 
@@ -153,6 +179,12 @@ clean-vscode:
 	-docker volume rm vscode-home
 
 ### docker remove image targets ###
+.PHONY: distclean-uncrustify
+DISTCLEAN += distclean-uncrustify
+HELP_distclean-uncrustify = removes uncrustify docker image
+distclean-uncrustify:
+	-docker image remove "lifesensor/uncrustify"
+	docker image prune
 
 .PHONY: distclean-idf
 DISTCLEAN += distclean-idf

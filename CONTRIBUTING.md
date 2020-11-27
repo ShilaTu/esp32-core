@@ -13,4 +13,5 @@ please adhere to the following rules:
 * (re-)write tests to verify the behaviour of your additions
 * look through the open issues and refer to them if they relate to your PR
 * look through the open PRs and refer to them if they relate to your PR
+* we enforce a coding style, please validate your contribution before pushing with the correspondig makefile targets (see `make check-format`)
 * mind the fact, that you are contributing to our codebase and therefore your code must conform to our license and will be distributed under our license

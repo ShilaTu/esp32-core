@@ -1,6 +1,6 @@
-#include "ulp.h"
 #include "spo2.h"
 #include "spo2_driver.h"
+#include "ulp.h"
 
 
 /*
@@ -16,8 +16,10 @@ spo2_t spo2;
  * point of the life-sensor application which is used to setup necessary memory
  * objects and start necessary threads.
  */
-void app_main()
+
+void
+app_main()
 {
-	lifesensor_spo2_init(&spo2, "SpO2");
-	ulp_init(&spo2.adc_queue.queue);
+    lifesensor_spo2_init(&spo2, "SpO2");
+    ulp_init(&spo2.adc_queue.queue);
 }
