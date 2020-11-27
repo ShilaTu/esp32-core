@@ -133,10 +133,11 @@ lifesensor_logger_yaml_log_ptr(
     scope->printf("\"0x%x\"", value);
 }
 
-static void
+void
 lifesensor_logger_yaml_init(
     Lifesensor_logger *logger,
-    Lifesensor_logger_scope *scope)
+    Lifesensor_logger_scope *scope,
+    void (*printf)(const char* fmt, ...))
 {
     logger->enter_map = &lifesensor_logger_yaml_enter_map;
     logger->enter_list = &lifesensor_logger_yaml_enter_list;
@@ -151,4 +152,5 @@ lifesensor_logger_yaml_init(
     scope->type = LIFESENSOR_LOGGER_SCOPE_NONE;
     scope->entries = 0;
     scope->level = 0;
+    scope->printf = printf;
 }
