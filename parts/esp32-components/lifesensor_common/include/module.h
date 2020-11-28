@@ -2,6 +2,7 @@
 #define LIFESENSOR_COMMON_MODULE_H
 
 #include "logger.h"
+#include "macro/map.h"
 #include <stddef.h>
 
 #define INIT_LIFESENSOR_MODULE(TYPE, NAME, INIT, DUMP, /* SUBMODULES */...)                    \
@@ -9,8 +10,8 @@
         .parent = NULL,                                                                        \
         .type = #TYPE,                                                                         \
         .name = (NAME),                                                                        \
-        .init(INIT),                                                                           \
-        .dump(DUMP),                                                                           \
+        .init = (INIT),                                                                        \
+        .dump = (DUMP),                                                                        \
         .submodule_offsets = (ptrdiff_t[]){__VA_OPT__(MAP1(offsetof, TYPE, __VA_ARGS__), ) 0}, \
     }
 
